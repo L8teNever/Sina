@@ -1,0 +1,21 @@
+services:
+  sina:
+    image: ghcr.io/l8tenever/sina:latest
+    build: .
+    pull_policy: always
+    container_name: sina
+    restart: unless-stopped
+    shm_size: "1gb"          # Chromium braucht genug gemeinsamen Speicher
+    ports:
+      - "8080:8080"          # Seite 1: Suche, Serien, Player
+      - "8081:8081"          # Seite 2: der Browser (noVNC) – nur hinter Login/Cloudflare Access freigeben!
+    volumes:
+      - sina-data:/data      # Browser-Profil (Cookies, gelöste Schutzprüfungen)
+    environment:
+      # VIEW_URL: "https://browser.example.com/"   # Adresse der Browser-Seite, falls nicht <Host>:8081
+      # VIEW_PASSWORD: "geheim"                    # Passwort für die Browser-Seite (empfohlen)
+      # HTTPS_PROXY: "http://proxy:3128"           # optional: ausgehender Proxy / VPN
+      ANIWORLD_URL: "https://aniworld.to"
+
+volumes:
+  sina-data:
