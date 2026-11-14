@@ -150,6 +150,7 @@ async fn main() {
         .route("/api/profiles", get(profiles::list))
         .route("/api/devices", get(devices::list))
         .route("/api/devices/poll", get(devices::poll))
+        .route("/api/devices/state", axum::routing::post(devices::update_state).layer(axum::extract::DefaultBodyLimit::max(4 * 1024)))
         .route("/api/devices/send", axum::routing::post(devices::send).layer(axum::extract::DefaultBodyLimit::max(8 * 1024)))
         .route(
             "/api/state",

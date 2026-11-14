@@ -27,18 +27,21 @@ Profil hat seine eigene Farbe. Die Namen stehen in `src/profiles.rs`.
 
 Die Profile haben keine PIN. Sie trennen nur den Stand und schützen nichts.
 
-## Fernseher
+## Geräte & Fernbedienung
 
-- **Automatisch erkannt:** Auf Samsung (Tizen), LG (webOS), Sony, Fire TV, Android TV, Roku und ähnlichen Geräten schaltet
+- **Fernseher-Modus:** Auf Samsung (Tizen), LG (webOS), Sony, Fire TV, Android TV, Roku und ähnlichen Geräten schaltet
   Sina in den Fernseher-Modus: größere Oberfläche, deutlicher Fokusrahmen, Steuerung mit der Fernbedienung.
   Mit `?tv=1` an der Adresse oder unter ⚙ Einstellungen → „Dieses Gerät“ lässt sich der Modus erzwingen oder abschalten.
-- **Fernbedienung:** Pfeiltasten bewegen den Fokus, OK öffnet, Zurück geht zurück. Im Player spulen links/rechts ±10 s,
+- **TV-Steuerkreuz:** Pfeiltasten bewegen den Fokus, OK öffnet, Zurück geht zurück. Im Player spulen links/rechts ±10 s,
   OK pausiert, die Medientasten (Play/Pause, Vor, Zurück) gehen auch.
-- **Auf Fernseher weiter schauen:** Ein Fernseher meldet sich mit seinem gewählten Profil an. Am Handy erscheint dann oben
-  und auf der Folgenseite „Auf Fernseher weiter schauen“. Es werden nur Fernseher mit **demselben Profil** gezeigt.
-  Gibt es einen, startet es direkt. Bei mehreren wählst du aus. Der Fernseher öffnet dieselbe Folge an derselben Stelle,
-  das Handy pausiert. Fernseher heißen z. B. „Samsung TV 4ee“, den Namen kannst du in den Einstellungen des Fernsehers ändern.
-- Die Verbindung läuft über den Sina-Server (Long-Poll, nichts wird gespeichert). Handy und Fernseher müssen dieselbe
+- **Auf anderem Gerät weiter schauen:** Jedes offene Sina (Fernseher, Mac, PC, Tablet, Handy) meldet sich mit seinem
+  gewählten Profil an. Oben und auf der Folgenseite erscheint „Auf anderem Gerät weiter schauen“. Es werden nur Geräte
+  mit **demselben Profil** gezeigt. Der Empfänger öffnet dieselbe Folge an derselben Stelle, der Sender pausiert.
+- **Handy als Fernbedienung:** Nach dem Senden (oder über das Geräte-Symbol oben) öffnet sich auf dem Handy eine
+  Fernbedienung für das andere Gerät: Play/Pause, Zeitleiste & ±10 s / ±30 s Vorspulen, Intro/Outro überspringen,
+  Vorherige/Nächste Folge, Auto-Weiter ein/aus, Geschwindigkeit (0,5×–3×), Lautstärke/Stumm, Sprachausgleich, Vollbild
+  sowie „Auf diesem Gerät weiter schauen“ zum Zurückholen.
+- Die Verbindung läuft über den Sina-Server (Long-Poll, nichts wird gespeichert). Beide Geräte müssen dieselbe
   Sina-Adresse öffnen.
 
 ## Start

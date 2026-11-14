@@ -896,11 +896,14 @@
     function skip(seconds, isLeft) {
       video.currentTime = Math.max(0, Math.min(video.duration || Infinity, video.currentTime + seconds));
       const rip = isLeft ? rippleLeft : rippleRight;
+      const lbl = rip && rip.querySelector('span');
+      if (lbl) lbl.textContent = Math.abs(Math.round(seconds)) + 's';
       rip.classList.remove('animate');
       void rip.offsetWidth;
       rip.classList.add('animate');
       setTimeout(() => rip.classList.remove('animate'), 550);
       resetIdleTimer();
+      if (typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
     }
 
     if (btnCenterBack) btnCenterBack.addEventListener('click', (e) => { e.stopPropagation(); skip(-10, true); });
@@ -1351,7 +1354,6 @@
       speedPopover.querySelectorAll('.a16-menu-item').forEach(i => {
         i.classList.toggle('active', Math.abs(parseFloat(i.dataset.speed) - rounded) < 0.01);
       });
-      if (inputCustomSpeed) inputCustomSpeed.value = rounded;
       try {
         localStorage.setItem('joyn_speed_value', rounded);
         localStorage.setItem(SPEED_PREF_KEY, rounded);
@@ -1361,6 +1363,7 @@
         // otherwise the old value (e.g. 1.75) comes back with the next episode
         window.postMessage({ __ninaSpeedFromPlayer: rounded }, '*');
       } catch (_) {}
+      if (typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
     }
 
     // If something else changed the speed (NINA's tab speed, the page) the chip shows what is really running
@@ -1376,7 +1379,6 @@
       speedPopover.querySelectorAll('.a16-menu-item').forEach((i) => {
         i.classList.toggle('active', Math.abs(parseFloat(i.dataset.speed) - real) < 0.01);
       });
-      if (inputCustomSpeed) inputCustomSpeed.value = real;
     }
     video.addEventListener('ratechange', syncSpeedFromVideo);
     video.addEventListener('loadedmetadata', syncSpeedFromVideo);
@@ -1756,11 +1758,25 @@
     video.addEventListener('loadedmetadata', fetchAniSkipTimes);
     video.addEventListener('canplay', fetchAniSkipTimes);
 
+    const AUTO_NEXT_KEY = 'nina_auto_next';
+    function getAutoNext() {
+      try { return localStorage.getItem(AUTO_NEXT_KEY) !== '0'; } catch (_) { return true; }
+    }
+    function setAutoNext(on) {
+      try { localStorage.setItem(AUTO_NEXT_KEY, on ? '1' : '0'); } catch (_) {}
+      if (!on) closeNextOverlay();
+      if (typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
+    }
+
     function updateSkipButton() {
+      const prevMode = currentSkipMode;
+      const done = () => {
+        if (currentSkipMode !== prevMode && typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
+      };
       if (!btnSkipIntro || !txtSkipBtn || !video.duration || !isFinite(video.duration)) {
         if (btnSkipIntro) btnSkipIntro.classList.add('hidden');
         currentSkipMode = null;
-        return;
+        return done();
       }
 
       const cur = video.currentTime;
@@ -1774,7 +1790,7 @@
           currentSkipMode = 'aniskip_op';
           txtSkipBtn.innerHTML = `Intro überspringen <span class="a16-skip-badge a16-skip-badge-db" title="Quelle: AniSkip Online-Datenbank (exakt)">Datenbank</span> (${formatTime(aniSkipTimes.op.startTime)} - ${formatTime(aniSkipTimes.op.endTime)}) [I]`;
           btnSkipIntro.classList.remove('hidden');
-          return;
+          return done();
         }
 
         // Exact AniSkip Database Ending
@@ -1782,13 +1798,13 @@
           currentSkipMode = 'aniskip_ed';
           txtSkipBtn.innerHTML = `Outro überspringen <span class="a16-skip-badge a16-skip-badge-db" title="Quelle: AniSkip Online-Datenbank (exakt)">Datenbank</span> (Nächste Folge) [S]`;
           btnSkipIntro.classList.remove('hidden');
-          return;
+          return done();
         }
 
         // In einer Folge mit Datenbank-Skips KEINE Algorithmus-Skips anzeigen!
         currentSkipMode = null;
         btnSkipIntro.classList.add('hidden');
-        return;
+        return done();
       }
 
       // 2. Nur wenn es in der Datenbank KEINE Skips für diese Folge gibt (Query beendet ohne Treffer):
@@ -1799,7 +1815,7 @@
           currentSkipMode = 'intro';
           txtSkipBtn.innerHTML = `Intro überspringen <span class="a16-skip-badge a16-skip-badge-algo" title="Quelle: Intelligenter Erkennungs-Algorithmus (Fallback)">Algorithmus</span> (+85s) [I]`;
           btnSkipIntro.classList.remove('hidden');
-          return;
+          return done();
         }
 
         // Fallback Heuristic Ending (letzte 115s bis 8s vor Ende)
@@ -1807,42 +1823,48 @@
           currentSkipMode = 'outro';
           txtSkipBtn.innerHTML = `Outro überspringen <span class="a16-skip-badge a16-skip-badge-algo" title="Quelle: Intelligenter Erkennungs-Algorithmus (Fallback)">Algorithmus</span> (Nächste Folge) [S]`;
           btnSkipIntro.classList.remove('hidden');
-          return;
+          return done();
         }
       }
 
       currentSkipMode = null;
       btnSkipIntro.classList.add('hidden');
+      done();
     }
 
     function skipIntroAction() {
       if (!video || !video.duration) return;
-      const hasDbSkips = !!(aniSkipTimes && (aniSkipTimes.op || aniSkipTimes.ed));
-
-      if (currentSkipMode === 'aniskip_op' && aniSkipTimes && aniSkipTimes.op) {
+      if (aniSkipTimes && aniSkipTimes.op && video.currentTime < aniSkipTimes.op.endTime) {
         const target = Math.min(video.duration - 5, aniSkipTimes.op.endTime + 0.5);
         video.currentTime = target;
         showResumeIndicator(target, 'Intro übersprungen · [Datenbank]');
-      } else if (currentSkipMode === 'intro') {
+      } else {
         const target = Math.min(video.duration - 10, video.currentTime + 85);
         video.currentTime = target;
-        showResumeIndicator(target, 'Intro übersprungen · [Algorithmus: +85s]');
-      } else if (!hasDbSkips && (aniSkipQueried || !aniSkipTimes)) {
-        const target = Math.min(video.duration - 10, video.currentTime + 85);
-        video.currentTime = target;
-        showResumeIndicator(target, 'Intro übersprungen · [Algorithmus: +85s]');
+        showResumeIndicator(target, 'Intro übersprungen · (+85s)');
       }
       if (btnSkipIntro) btnSkipIntro.classList.add('hidden');
       currentSkipMode = null;
       resetIdleTimer();
+      if (typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
     }
 
     function skipOutroAction() {
       if (btnSkipIntro) btnSkipIntro.classList.add('hidden');
       const isDb = currentSkipMode === 'aniskip_ed';
       currentSkipMode = null;
-      showResumeIndicator(video.currentTime, isDb ? 'Outro übersprungen · [Datenbank]' : 'Outro übersprungen · [Algorithmus]');
-      goToNextEpisode();
+      const nextUrl = getNextEpisodeUrl();
+      if (nextUrl) {
+        showResumeIndicator(video.currentTime, isDb ? 'Outro übersprungen · [Datenbank]' : 'Outro übersprungen');
+        goToNextEpisode(nextUrl);
+      } else if (aniSkipTimes && aniSkipTimes.ed && video.duration && video.currentTime < aniSkipTimes.ed.endTime) {
+        const target = Math.min(video.duration - 1, aniSkipTimes.ed.endTime + 0.5);
+        video.currentTime = target;
+        showResumeIndicator(target, 'Outro übersprungen · [Datenbank]');
+      } else if (video.duration && isFinite(video.duration)) {
+        video.currentTime = Math.max(video.currentTime, video.duration - 5);
+      }
+      if (typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
     }
 
     if (btnSkipIntro) {
@@ -2007,6 +2029,7 @@
       reportProgress(true);
 
       const nextUrl = getNextEpisodeUrl();
+      if (!getAutoNext() || !nextUrl) return;
 
       // Retrieve title label if possible
       let label = 'Nächste Folge';
@@ -2056,6 +2079,111 @@
         if (next) window.__preloadNextEpisode(next);
       }
     });
+
+    // Fernbedienung vom Handy / anderen Geräten
+    const notifyRemote = () => {
+      if (typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
+    };
+    ['play', 'pause', 'seeked', 'volumechange', 'loadedmetadata', 'durationchange'].forEach((ev) => {
+      video.addEventListener(ev, notifyRemote);
+    });
+    document.addEventListener('fullscreenchange', notifyRemote);
+    document.addEventListener('webkitfullscreenchange', notifyRemote);
+
+    window.__sinaRemote = {
+      getState() {
+        return {
+          paused: !!video.paused,
+          pos: isFinite(video.currentTime) ? video.currentTime : 0,
+          dur: isFinite(video.duration) ? video.duration : 0,
+          speed: currentSpeed,
+          volume: currentVolume,
+          muted: !!video.muted,
+          dynAudio: !!isDynamicAudioEnabled,
+          autoNext: getAutoNext(),
+          skipMode: currentSkipMode,
+          fullscreen: isCurrentFullscreen(),
+        };
+      },
+      exec(action, value) {
+        switch (action) {
+          case 'toggle': togglePlay(); break;
+          case 'play': video.play().catch(() => {}); break;
+          case 'pause': video.pause(); break;
+          case 'seek':
+            if (video.duration && isFinite(video.duration)) {
+              const t = Math.max(0, Math.min(video.duration, Number(value) || 0));
+              video.currentTime = t;
+              showResumeIndicator(t, 'Gesprungen zu ' + formatTime(t));
+            }
+            break;
+          case 'seekBy': {
+            const d = Number(value) || 0;
+            skip(d, d < 0);
+            break;
+          }
+          case 'speed':
+            setSpeed(value);
+            showResumeIndicator(0, 'Geschwindigkeit: ' + currentSpeed + 'x');
+            break;
+          case 'volume':
+            video.muted = false;
+            applyVolume(value);
+            showResumeIndicator(0, 'Lautstärke: ' + Math.round(currentVolume * 100) + '%');
+            break;
+          case 'mute': {
+            const want = typeof value === 'boolean' ? value : !video.muted;
+            video.muted = want;
+            try { localStorage.setItem(K_MUTED, want ? '1' : '0'); } catch (_) {}
+            if (want) {
+              btnVolume.innerHTML = ICONS.volumeMute;
+              if (volumeText) volumeText.textContent = '0%';
+              volumeSlider.style.setProperty('--v', '0%');
+            } else {
+              applyVolume(currentVolume || 1);
+            }
+            showResumeIndicator(0, want ? 'Ton aus' : 'Ton an');
+            break;
+          }
+          case 'dynAudio':
+            toggleDynamicAudio();
+            break;
+          case 'autoNext': {
+            const want = typeof value === 'boolean' ? value : !getAutoNext();
+            setAutoNext(want);
+            showResumeIndicator(0, want ? 'Auto-Weiter: AN' : 'Auto-Weiter: AUS');
+            break;
+          }
+          case 'skip':
+            if (value === 'outro' || (value !== 'intro' && (currentSkipMode === 'aniskip_ed' || currentSkipMode === 'outro'))) {
+              skipOutroAction();
+            } else {
+              skipIntroAction();
+            }
+            break;
+          case 'skipIntro': skipIntroAction(); break;
+          case 'skipOutro': skipOutroAction(); break;
+          case 'next': goToNextEpisode(); break;
+          case 'prev': {
+            const p = window.__sinaCtx && window.__sinaCtx.prev;
+            if (p && p.href) {
+              try {
+                const speed = Math.round((video.playbackRate || 1) * 100) / 100;
+                sessionStorage.setItem('nina_speed_next', String(speed));
+                localStorage.setItem('nina_playback_speed', String(speed));
+                sessionStorage.setItem('nina_autoplay_next', '1');
+                if (isCurrentFullscreen()) sessionStorage.setItem('nina_fullscreen_next', '1');
+              } catch (_) {}
+              location.hash = p.href;
+            }
+            break;
+          }
+          case 'fullscreen': toggleFullscreen(); break;
+        }
+        notifyRemote();
+      },
+    };
+    notifyRemote();
 
     // Auto-play on open if triggered by auto-next
     try {

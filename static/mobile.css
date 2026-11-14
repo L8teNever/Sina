@@ -1,0 +1,75 @@
+/* Handy und kleine Bildschirme: Player oben festhalten, Folgenseite kompakt, Player-Bedienung ohne Überlappung, Fernbedienung als Bottom-Sheet. */
+
+/* overflow-x: hidden am body macht „sticky“ kaputt (Kopfleiste und Player kleben sonst nicht). clip schneidet genauso ab. */
+html.nina-skin-on, html.nina-skin-on body { overflow-x: clip !important; }
+
+/* Das X im Player beendet nur den Vollbildmodus: außerhalb davon ist es überflüssig */
+.a16-player-wrapper:not(.a16-is-fullscreen) .a16-close-btn { display: none !important; }
+
+/* Mehr-Knopf der Beschreibung gibt es nur am Handy */
+#nina-skin .sina-desc-more { display: none; }
+
+@media (max-width: 760px) {
+  /* Folgenseite: die Kopfleiste scrollt weg, der Player bleibt oben stehen (wie bei YouTube) */
+  #nina-skin[data-route="episode"] .ns-top { position: relative; }
+  #nina-skin[data-route="episode"] .ns-watch { padding-top: 0; }
+  #nina-skin[data-route="episode"] .ns-watch .ns-player { position: sticky; top: 0; z-index: 25; border-radius: 16px; box-shadow: 0 10px 24px rgba(0, 0, 0, .45); }
+
+  #nina-skin .ns-crumb { margin: 2px 0 10px; gap: 10px; }
+  #nina-skin .ns-crumb img { width: 32px; height: 46px; border-radius: 10px; }
+  #nina-skin .ns-crumb a b { font-size: 15px; }
+  #nina-skin .ns-crumb small { font-size: 12px; }
+
+  #nina-skin .ns-ep-title { font-size: 19px; line-height: 25px; margin-top: 14px !important; }
+  #nina-skin .ns-ep-sub { font-size: 13px; }
+  #nina-skin .ns-ep-desc { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  #nina-skin .ns-ep-desc.open { display: block; -webkit-line-clamp: unset; }
+  #nina-skin .sina-desc-more { display: inline-flex; margin-top: 2px; }
+
+  /* Knöpfe: „Nächste Folge“ groß über die ganze Breite, der Rest zu zweit */
+  #nina-skin .ns-ep-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  #nina-skin .ns-ep-acts > * { width: 100%; min-width: 0; padding: 0 12px; justify-content: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #nina-skin .ns-ep-acts .ns-btn { grid-column: 1 / -1; order: -1; height: 48px; font-size: 15px; }
+  #nina-skin .ns-ep-acts #castEp { grid-column: 1 / -1; }
+  #nina-skin .ns-ep-acts #castEp span { overflow: hidden; text-overflow: ellipsis; }
+  #nina-skin .ns-ep-acts .sp { display: none; }
+
+  /* Sprache und Hoster: eine Zeile zum Wischen statt Umbruch */
+  #nina-skin .ns-opts { padding: 14px 0; gap: 10px; }
+  #nina-skin .ns-opts h3 { padding: 0 16px; }
+  #nina-skin .ns-opts .row { flex-wrap: nowrap; overflow-x: auto; padding: 2px 16px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  #nina-skin .ns-opts .row::-webkit-scrollbar { display: none; }
+  #nina-skin .ns-opts .row .ns-chip { flex: none; }
+
+  /* Geräte-Knopf im Kopf als kleines Symbol */
+  #nina-skin .ns-acts #castBtn:not([hidden]) { display: inline-flex; padding: 0 12px; }
+  #nina-skin .ns-acts #castBtn span { display: none; }
+
+  /* Fernbedienung & Geräteauswahl als Bottom-Sheet */
+  #nina-skin .sina-modal { align-items: end; padding: 0; }
+  #nina-skin .sina-sheet { width: 100%; max-height: 90dvh; border-radius: 26px 26px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
+  #nina-skin .sina-mini-remote { left: 10px; right: 10px; width: auto; bottom: calc(78px + env(safe-area-inset-bottom)); }
+  #nina-skin .sina-toast { bottom: calc(84px + env(safe-area-inset-bottom)); }
+}
+
+/* Player auf dem Handy hochkant (klein): ein Play-Knopf in der Mitte reicht, Lautstärke regeln die Handytasten.
+   Mitte etwas höher + Dock kompakter, damit sich Zeitleiste und Play-Knopf nicht überlappen. */
+.a16-touch.a16-compact .a16-btn-play-dock,
+.a16-touch.a16-compact .a16-volume-wrapper { display: none !important; }
+.a16-touch.a16-compact .a16-top-bar { padding: 6px 10px !important; }
+.a16-touch.a16-compact .a16-video-title { font-size: 12px !important; max-width: calc(100% - 88px) !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+.a16-touch.a16-compact .a16-center-actions { top: 43% !important; gap: 22px !important; }
+.a16-touch.a16-compact .a16-center-fab { width: 52px !important; height: 52px !important; border-radius: 18px !important; }
+.a16-touch.a16-compact .a16-center-fab svg { width: 28px !important; height: 28px !important; }
+.a16-touch.a16-compact .a16-secondary-fab { width: 40px !important; height: 40px !important; }
+.a16-touch.a16-compact .a16-secondary-fab svg { width: 22px !important; height: 22px !important; }
+.a16-touch.a16-compact .a16-bottom-dock { bottom: 4px !important; left: 6px !important; right: 6px !important; padding: 2px 8px !important; gap: 0 4px !important; border-radius: 16px !important; }
+.a16-touch.a16-compact .a16-timeline-track { height: 24px !important; }
+.a16-touch.a16-compact .a16-btn { height: 34px !important; min-width: 34px !important; }
+.a16-touch.a16-compact .a16-btn svg { width: 20px !important; height: 20px !important; }
+.a16-touch.a16-compact .a16-speed-chip { height: 28px !important; padding: 0 10px !important; font-size: 12px !important; }
+.a16-touch.a16-compact .a16-skip-btn { left: 10px !important; bottom: 68px !important; height: 32px !important; padding: 0 12px !important; font-size: 11px !important; }
+.a16-touch.a16-compact .a16-controls-root.idle .a16-skip-btn { bottom: 12px !important; }
+.a16-touch.a16-compact .a16-speed-popover { width: min(320px, calc(100% - 16px)) !important; padding: 8px !important; }
+.a16-touch.a16-compact .a16-speed-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 4px !important; }
+.a16-touch.a16-compact .a16-menu-item { height: 32px !important; font-size: 12px !important; }

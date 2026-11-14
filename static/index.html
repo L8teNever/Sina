@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="skin.css">
 <link rel="stylesheet" href="player.css">
 <link rel="stylesheet" href="tv.css">
+<link rel="stylesheet" href="mobile.css">
 <style>
   html, body { margin: 0; background: hsl(186 10% 7%); }
   #nina-skin .sina-ph-msg { position: relative; display: grid; gap: 12px; justify-items: center; text-align: center; padding: 0 24px; color: #fff; }
@@ -71,7 +72,7 @@
     <nav class="ns-nav" id="nav"></nav>
     <div class="ns-search"><label id="searchIcon"></label><div class="ns-suggest"></div></div>
     <button type="button" class="ns-vpn" id="vpnChip" title="Server und Browser: gleiche IP? (klicken: prüfen)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg><span class="dot"></span><span class="t">IP …</span></button>
-    <div class="ns-acts"><button type="button" class="ns-tonal" id="castBtn" hidden title="Auf Fernseher weiter schauen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg><span>Fernseher</span></button><button type="button" class="sina-me" id="profileBtn" title="Profil wechseln"></button><a class="ns-icon" id="settingsLink" href="#/settings" title="Einstellungen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></a><a class="ns-tonal" id="browserLink" href="#" target="_blank" rel="noopener" title="Der Browser im Container (Schutzprüfungen lösen)"></a></div>
+    <div class="ns-acts"><button type="button" class="ns-tonal" id="castBtn" hidden title="Auf anderem Gerät weiter schauen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg><span>Geräte</span></button><button type="button" class="sina-me" id="profileBtn" title="Profil wechseln"></button><a class="ns-icon" id="settingsLink" href="#/settings" title="Einstellungen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></a><a class="ns-tonal" id="browserLink" href="#" target="_blank" rel="noopener" title="Der Browser im Container (Schutzprüfungen lösen)"></a></div>
   </header>
   <main class="ns-main" id="main"></main>
   <div class="sina-profiles" id="profiles" hidden></div>
@@ -578,7 +579,8 @@ function teardown() {
   player.token++;
   if (player.hls) { try { player.hls.destroy(); } catch {} player.hls = null; }
   if (player.video) { try { player.video.pause(); player.video.removeAttribute('src'); player.video.load(); } catch {} player.video = null; }
-  window.__sinaCtx = null; window.__sinaSkip = null; window.__sinaOnProgress = null;
+  window.__sinaCtx = null; window.__sinaSkip = null; window.__sinaOnProgress = null; window.__sinaRemote = null;
+  if (typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
 }
 const proxied = (u, r) => '/api/hls?u=' + encodeURIComponent(u) + '&r=' + encodeURIComponent(r || '');
 
@@ -609,12 +611,12 @@ async function viewEpisode(slug, key, num) {
       <div class="ns-player"><div class="ns-player-ph" id="ph">${back ? `<img src="${esc(back)}" alt="" decoding="async">` : ''}<div class="sina-ph-msg" id="phmsg"></div></div><div class="inSiteWebStream" data-a16-active="true" id="stream"></div></div>
       <h1 class="ns-ep-title">${esc(de || en || label)}</h1>
       ${en && de ? `<p class="ns-ep-sub">${esc(en)}</p>` : ''}
-      ${info.desc ? `<p class="ns-ep-sub">${esc(info.desc)}</p>` : ''}
+      ${info.desc ? `<p class="ns-ep-sub ns-ep-desc">${esc(info.desc)}</p>${info.desc.length > 160 ? `<button class="ns-more sina-desc-more" data-ns="epdesc">Mehr anzeigen${I.chev}</button>` : ''}` : ''}
       <div class="ns-ep-acts">
         ${prev ? `<a class="ns-tonal" href="${H.ep(slug, season, prev.n, film)}">${I.prev}Vorherige</a>` : ''}
         ${next ? `<a class="ns-btn" href="${H.ep(slug, season, next.n, film)}">Nächste Folge${I.next}</a>` : ''}
         <span class="sp"></span>
-        <button class="ns-tonal" id="castEp" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg>Auf Fernseher weiter schauen</button>
+        <button class="ns-tonal" id="castEp" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg><span>Auf anderem Gerät weiter schauen</span></button>
         ${film ? '' : `<button class="${st && st.status === 'w' ? 'ns-btn' : 'ns-tonal'}" data-tick="${esc(k)}">${I.check}${st && st.status === 'w' ? 'Gesehen' : 'Als gesehen markieren'}</button>`}
       </div>
       <div class="ns-opts" id="opts"></div>
@@ -625,14 +627,20 @@ async function viewEpisode(slug, key, num) {
       <div class="ns-eps">${eps.map((e) => epRow(slug, e, e.n === num)).join('')}</div>
     </aside></div>`;
   const curRow = $('.ns-side .ns-ep.cur');
-  if (curRow) curRow.scrollIntoView({ block: 'center' });
+  if (curRow) {
+    // nur die Folgenliste selbst scrollen, nicht die Seite (sonst landet man am Handy unter dem Player)
+    const sc = [$('.ns-side .ns-eps'), $('.ns-side')].find((el) => el && el.scrollHeight > el.clientHeight + 4 && getComputedStyle(el).overflowY !== 'visible');
+    if (sc) sc.scrollTop += curRow.getBoundingClientRect().top - sc.getBoundingClientRect().top - sc.clientHeight / 2 + curRow.offsetHeight / 2;
+  }
   if (typeof sinaEpisodeRendered === 'function') sinaEpisodeRendered();
 
   // Kontext für den Player (Titel, nächste Folge, Intro/Outro)
   window.__sinaCtx = {
-    series: p.title, season: film ? 1 : season, episode: num, movie: film, title: de || en || '',
+    series: p.title, season: film ? 1 : season, episode: num, movie: film, title: de || en || '', epLabel: label,
+    prev: prev ? { href: H.ep(slug, season, prev.n, film) } : null,
     next: next ? { href: H.ep(slug, season, next.n, film), label: film ? 'Film ' + next.n : 'Staffel ' + season + ' · Folge ' + next.n } : null,
   };
+  if (typeof window.__sinaRemoteChanged === 'function') window.__sinaRemoteChanged();
   window.__sinaOnProgress = (dta) => {
     if (!dta || !dta.duration) return;
     const prog = store.get('prog', {});
@@ -767,6 +775,8 @@ async function viewEpisode(slug, key, num) {
     if (pm) { startPm(pm.dataset.anipmLang); return; }
     if (t.closest('[data-ns="retry"]')) { mode === 'pm' && anipmLang ? startPm(anipmLang) : startAw(); return; }
     if (t.closest('[data-ns="desc"]')) { descOpen = !descOpen; $('.ns-desc').classList.toggle('open', descOpen); }
+    const more = t.closest('[data-ns="epdesc"]');
+    if (more) { const open = $('.ns-ep-desc').classList.toggle('open'); more.innerHTML = open ? 'Weniger anzeigen' + I.chevUp : 'Mehr anzeigen' + I.chev; }
   };
 
   paintOpts();
@@ -875,6 +885,7 @@ function route() {
   main.onclick = null;
   document.title = 'Sina';
   const r = parseRoute();
+  document.getElementById('nina-skin').dataset.route = r.name;
   paintNav(r);
   if (r.name !== 'search') window.__searchInput.value = '';
   scrollTo(0, 0);
