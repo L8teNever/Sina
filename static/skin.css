@@ -1,0 +1,1033 @@
+/* skin.css — NINA's own interface on AniWorld / S.to (content/skin.js).
+   Same look as "Meine Serien" (NINA's library.html): Material 3 Expressive,
+   tonal colours from NINA's seed colour (--h, set by skin.js), springy shapes.
+   While html.nina-skin-on is set, the original page is hidden. */
+
+html.nina-skin-on, html.nina-skin-on body { background: hsl(var(--ns-h, 186) 10% 7%) !important; overflow-x: hidden !important; }
+html.nina-skin-on body > *:not(#nina-skin):not(.nina-aw-host) { display: none !important; }
+html.nina-skin-on body { margin: 0 !important; padding: 0 !important; }
+
+#nina-skin {
+  --h: var(--ns-h, 186);
+  --primary: hsl(var(--h) 60% 78%); --on-primary: hsl(var(--h) 70% 16%);
+  --primary-container: hsl(var(--h) 50% 28%); --on-primary-container: hsl(var(--h) 70% 90%);
+  --secondary-container: hsl(var(--h) 18% 30%); --on-secondary-container: hsl(var(--h) 30% 90%);
+  --tertiary: hsl(calc(var(--h) + 60) 45% 78%); --tertiary-container: hsl(calc(var(--h) + 60) 30% 30%); --on-tertiary-container: hsl(calc(var(--h) + 60) 50% 90%);
+  --surface: hsl(var(--h) 10% 7%); --surface-c-lowest: hsl(var(--h) 10% 5%); --surface-c-low: hsl(var(--h) 9% 10%);
+  --surface-c: hsl(var(--h) 9% 12%); --surface-c-high: hsl(var(--h) 8% 16%); --surface-c-highest: hsl(var(--h) 8% 21%);
+  --on-surface: hsl(var(--h) 10% 90%); --on-surface-variant: hsl(var(--h) 9% 76%); --outline: hsl(var(--h) 6% 58%); --outline-variant: hsl(var(--h) 8% 28%);
+  --good: #81c784; --warn: #f5c06a;
+  --r-s: 12px; --r-m: 16px; --r-l: 24px; --r-xl: 28px; --r-xxl: 36px;
+  --spring: cubic-bezier(.34, 1.45, .64, 1); --spring-soft: cubic-bezier(.3, 1.2, .5, 1); --ease: cubic-bezier(.2, 0, 0, 1);
+  --font: "Google Sans Flex", "Google Sans", "Roboto Flex", Roboto, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  position: relative; min-height: 100vh; background: var(--surface); color: var(--on-surface);
+  font: 14px/1.45 var(--font); letter-spacing: .01em; -webkit-font-smoothing: antialiased; text-align: left;
+}
+#nina-skin *, :where(#nina-skin) *::before, :where(#nina-skin) *::after { box-sizing: border-box; }
+#nina-skin a { color: inherit; text-decoration: none; }
+#nina-skin :is(button, input) { font: inherit; color: inherit; margin: 0; }
+#nina-skin :is(h1, h2, h3, p) { margin: 0; font-family: var(--font); color: inherit; }
+#nina-skin img { display: block; max-width: none; border: 0; }
+#nina-skin svg { fill: currentColor; display: block; }
+#nina-skin ::selection { background: var(--primary-container); color: var(--on-primary-container); }
+
+/* ── top bar ── */
+#nina-skin .ns-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: 12px 28px; min-height: 72px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent); -webkit-backdrop-filter: blur(18px) saturate(1.2); backdrop-filter: blur(18px) saturate(1.2); }
+#nina-skin .ns-brand { display: inline-flex; align-items: center; gap: 10px; flex: none; }
+#nina-skin .ns-logo { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 14px; background: var(--primary); color: var(--on-primary); font-weight: 900; font-size: 18px; transition: border-radius .4s var(--spring); }
+#nina-skin .ns-brand:hover .ns-logo { border-radius: 50%; }
+#nina-skin .ns-brand b { font-size: 18px; font-weight: 700; }
+#nina-skin .ns-brand small { display: block; font-size: 11px; color: var(--on-surface-variant); letter-spacing: .06em; text-transform: uppercase; margin-top: -2px; }
+#nina-skin .ns-nav { display: flex; gap: 4px; flex: none; }
+#nina-skin .ns-nav a { height: 40px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 99px; color: var(--on-surface-variant); font-weight: 600; transition: background-color .2s var(--ease), border-radius .35s var(--spring); }
+#nina-skin .ns-nav a:hover { background: color-mix(in srgb, var(--on-surface) 8%, transparent); color: var(--on-surface); border-radius: var(--r-m); }
+#nina-skin .ns-nav a.on { background: var(--secondary-container); color: var(--on-secondary-container); }
+#nina-skin .ns-search { position: relative; flex: 1; min-width: 200px; max-width: 620px; margin-left: auto; }
+#nina-skin .ns-search label { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 18px; border-radius: 99px; background: var(--surface-c-high); transition: background-color .2s, border-radius .35s var(--spring); }
+#nina-skin .ns-search label:focus-within { background: var(--surface-c-highest); border-radius: var(--r-l); }
+#nina-skin .ns-search svg { width: 22px; height: 22px; color: var(--on-surface-variant); flex: none; }
+#nina-skin .ns-search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font-size: 16px; }
+#nina-skin .ns-search input::placeholder { color: var(--on-surface-variant); }
+#nina-skin .ns-suggest { position: absolute; top: calc(100% + 8px); left: 0; right: 0; max-height: 70vh; overflow-y: auto; padding: 8px; border-radius: var(--r-xl);
+  background: var(--surface-c-high); box-shadow: 0 16px 40px rgba(0,0,0,.5); display: none; animation: ns-pop .3s var(--spring-soft); }
+#nina-skin .ns-suggest.on { display: block; }
+#nina-skin .ns-sug { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: var(--r-m); transition: background-color .15s; }
+#nina-skin .ns-sug:hover , #nina-skin .ns-sug.sel { background: color-mix(in srgb, var(--on-surface) 8%, transparent); }
+#nina-skin .ns-sug .c { width: 40px; height: 58px; border-radius: 10px; background: var(--surface-c-highest); overflow: hidden; flex: none; }
+#nina-skin .ns-sug .c img { width: 100%; height: 100%; object-fit: cover; }
+#nina-skin .ns-sug b { display: block; font-size: 14px; }
+#nina-skin .ns-sug small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--on-surface-variant); font-size: 12px; }
+#nina-skin .ns-sug-all { display: block; margin-top: 4px; padding: 12px; border-radius: var(--r-m); text-align: center; font-weight: 700; color: var(--primary); }
+#nina-skin .ns-sug-all:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+#nina-skin .ns-acts { display: flex; gap: 6px; flex: none; }
+#nina-skin .ns-icon { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--on-surface-variant); transition: background-color .2s, border-radius .35s var(--spring); }
+#nina-skin .ns-icon:hover { background: color-mix(in srgb, var(--on-surface) 8%, transparent); color: var(--on-surface); border-radius: var(--r-m); }
+#nina-skin .ns-icon svg { width: 22px; height: 22px; }
+#nina-skin .ns-tonal { height: 40px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 99px; cursor: pointer; font-weight: 600;
+  background: var(--secondary-container); color: var(--on-secondary-container); transition: border-radius .3s var(--spring), transform .2s var(--spring); white-space: nowrap; }
+#nina-skin .ns-tonal:hover { border-radius: var(--r-m); }
+#nina-skin .ns-tonal svg , #nina-skin .ns-btn svg { width: 18px; height: 18px; }
+#nina-skin .ns-btn { height: 44px; padding: 0 24px; display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 99px; cursor: pointer; font-weight: 700;
+  background: var(--primary); color: var(--on-primary); transition: border-radius .3s var(--spring), transform .2s var(--spring); white-space: nowrap; }
+#nina-skin .ns-btn:hover { border-radius: var(--r-m); }
+#nina-skin .ns-btn:active , #nina-skin .ns-tonal:active { transform: scale(.96); }
+
+/* ── VPN status badge in top bar ── */
+#nina-skin .ns-vpn {
+  height: 40px !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border-radius: 99px !important;
+  border: 1px solid var(--outline-variant) !important;
+  background: var(--surface-c-high) !important;
+  color: var(--on-surface) !important;
+  cursor: pointer !important;
+  font-family: var(--font) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  white-space: nowrap !important;
+  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), border-radius 0.3s var(--spring), transform 0.2s var(--spring), box-shadow 0.2s var(--ease) !important;
+  outline: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+#nina-skin .ns-vpn:hover {
+  border-radius: var(--r-m) !important;
+  transform: translateY(-1px) scale(1.02) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+}
+
+#nina-skin .ns-vpn:active {
+  transform: scale(0.97) !important;
+}
+
+#nina-skin .ns-vpn svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+  fill: var(--on-surface-variant) !important;
+  transition: transform 0.3s var(--spring), fill 0.2s !important;
+}
+
+#nina-skin .ns-vpn:hover svg {
+  transform: scale(1.1) !important;
+}
+
+#nina-skin .ns-vpn .dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: var(--on-surface-variant) !important;
+  flex-shrink: 0 !important;
+  transition: background-color 0.25s, box-shadow 0.25s !important;
+}
+
+/* 1. OK State: VPN aktiv / Proton VPN */
+#nina-skin .ns-vpn.ok {
+  background: color-mix(in srgb, #10b981 14%, var(--surface-c-high)) !important;
+  border-color: color-mix(in srgb, #10b981 38%, transparent) !important;
+  color: #d1fae5 !important;
+}
+
+#nina-skin .ns-vpn.ok:hover {
+  background: color-mix(in srgb, #10b981 22%, var(--surface-c-high)) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25) !important;
+}
+
+#nina-skin .ns-vpn.ok svg {
+  fill: #34d399 !important;
+}
+
+#nina-skin .ns-vpn.ok .dot {
+  background: #10b981 !important;
+  box-shadow: 0 0 10px #10b981, 0 0 4px #34d399 !important;
+  animation: ns-vpn-dot-pulse 2.2s infinite ease-in-out !important;
+}
+
+/* 2. BAD State: Ungeschützt / Ohne VPN */
+#nina-skin .ns-vpn.bad {
+  background: color-mix(in srgb, #ef4444 18%, var(--surface-c-high)) !important;
+  border-color: color-mix(in srgb, #ef4444 45%, transparent) !important;
+  color: #fee2e2 !important;
+}
+
+#nina-skin .ns-vpn.bad:hover {
+  background: color-mix(in srgb, #ef4444 26%, var(--surface-c-high)) !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3) !important;
+}
+
+#nina-skin .ns-vpn.bad svg {
+  fill: #f87171 !important;
+}
+
+#nina-skin .ns-vpn.bad .dot {
+  background: #ef4444 !important;
+  box-shadow: 0 0 10px #ef4444 !important;
+  animation: ns-vpn-dot-pulse 1.2s infinite ease-in-out !important;
+}
+
+/* 3. WARN State: VPN unbekannt */
+#nina-skin .ns-vpn.warn {
+  background: color-mix(in srgb, #f59e0b 15%, var(--surface-c-high)) !important;
+  border-color: color-mix(in srgb, #f59e0b 38%, transparent) !important;
+  color: #fef3c7 !important;
+}
+
+#nina-skin .ns-vpn.warn svg {
+  fill: #fbbf24 !important;
+}
+
+#nina-skin .ns-vpn.warn .dot {
+  background: #f59e0b !important;
+  box-shadow: 0 0 8px #f59e0b !important;
+}
+
+/* 4. BUSY State: Prüfung läuft */
+#nina-skin .ns-vpn.busy {
+  background: var(--surface-c-high) !important;
+  border-color: var(--outline-variant) !important;
+  color: var(--on-surface-variant) !important;
+}
+
+#nina-skin .ns-vpn.busy svg {
+  fill: var(--on-surface-variant) !important;
+  animation: ns-vpn-spin 1s infinite linear !important;
+}
+
+#nina-skin .ns-vpn.busy .dot {
+  background: var(--outline) !important;
+}
+
+@keyframes ns-vpn-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.75; }
+}
+
+@keyframes ns-vpn-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── page ── */
+#nina-skin .ns-main { max-width: 1360px; margin: 0 auto; padding: 8px 28px 64px; animation: ns-in .5s var(--spring-soft) both; }
+@keyframes ns-in { from { opacity: 0; transform: translateY(18px) scale(.985); } }
+@keyframes ns-pop { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+#nina-skin .ns-h1 { font-size: 36px; line-height: 44px; font-weight: 700; letter-spacing: -.01em; margin: 18px 0 6px !important; }
+#nina-skin .ns-sub { color: var(--on-surface-variant); margin-bottom: 18px !important; }
+#nina-skin .ns-sec { margin-top: 34px; }
+#nina-skin .ns-sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+#nina-skin .ns-sec-h h2 { font-size: 22px; line-height: 28px; font-weight: 600; }
+#nina-skin .ns-muted { color: var(--on-surface-variant); }
+
+/* hero carousel (wide promo pictures) */
+#nina-skin .ns-hero { display: grid; grid-auto-flow: column; grid-auto-columns: min(640px, 86%); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 8px 0 14px; }
+#nina-skin .ns-hero a { position: relative; scroll-snap-align: start; aspect-ratio: 16 / 7; border-radius: var(--r-xxl); overflow: hidden; background: var(--surface-c-high);
+  transition: border-radius .5s var(--spring), transform .4s var(--spring); }
+#nina-skin .ns-hero a:hover { border-radius: var(--r-l); transform: scale(.99); }
+#nina-skin .ns-hero img { width: 100%; height: 100%; object-fit: cover; }
+#nina-skin .ns-hero a::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.75), transparent 55%); }
+#nina-skin .ns-hero a > span:not(.ns-badge):not(.nina-aw-badge) { position: absolute; left: 24px; right: 24px; bottom: 20px; z-index: 1; font-size: 24px; font-weight: 700; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
+
+/* cover cards */
+#nina-skin .ns-row { display: grid; grid-auto-flow: column; grid-auto-columns: 168px; gap: 16px; overflow-x: auto; padding: 4px 2px 14px; scroll-snap-type: x proximity; }
+#nina-skin .ns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 22px 16px; }
+#nina-skin .ns-card { position: relative; scroll-snap-align: start; display: block; }
+#nina-skin .ns-card .cv { position: relative; aspect-ratio: 2 / 3; border-radius: var(--r-l); overflow: hidden; background: var(--surface-c-high);
+  transition: border-radius .45s var(--spring), transform .4s var(--spring), box-shadow .3s; }
+#nina-skin .ns-card:hover .cv { border-radius: var(--r-xxl); transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,.4); }
+#nina-skin .ns-card .cv img { width: 100%; height: 100%; object-fit: cover; }
+#nina-skin .ns-card .ph { position: absolute; inset: 0; display: grid; place-items: center; font-size: 40px; font-weight: 800; color: var(--on-primary-container);
+  background: linear-gradient(135deg, var(--primary-container), var(--surface-c-highest)); }
+#nina-skin .ns-card b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 10px; font-size: 14px; font-weight: 600; line-height: 1.3; }
+#nina-skin .ns-card small { display: block; color: var(--on-surface-variant); font-size: 12px; margin-top: 2px; }
+#nina-skin .ns-badge { position: absolute; top: 10px; left: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px 4px 8px; border-radius: 99px;
+  background: rgba(0,0,0,.6); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .02em; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+#nina-skin .ns-badge svg { width: 13px; height: 13px; }
+#nina-skin .ns-badge.done { background: color-mix(in srgb, #2e7d32 88%, transparent); }
+#nina-skin .ns-badge.watching , #nina-skin .ns-badge.rewatching { background: var(--primary); color: var(--on-primary); }
+#nina-skin .ns-badge.paused { background: #8a6d1d; }
+#nina-skin .ns-badge.dropped { background: rgba(110,110,110,.92); }
+
+/* text list (A–Z / genres) */
+#nina-skin .ns-filter { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 18px; }
+#nina-skin .ns-chip { height: 36px; padding: 0 16px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--r-s); border: 1px solid var(--outline-variant);
+  background: transparent; cursor: pointer; font-weight: 600; color: var(--on-surface-variant); transition: background-color .2s, border-radius .3s var(--spring); white-space: nowrap; }
+#nina-skin .ns-chip:hover { background: color-mix(in srgb, var(--on-surface) 6%, transparent); }
+#nina-skin .ns-chip.on { background: var(--secondary-container); color: var(--on-secondary-container); border-color: transparent; border-radius: var(--r-m); }
+#nina-skin .ns-chip svg { width: 16px; height: 16px; }
+#nina-skin .ns-list { columns: 3 260px; column-gap: 22px; }
+#nina-skin .ns-list a { display: block; padding: 8px 12px; border-radius: var(--r-s); break-inside: avoid; transition: background-color .15s; }
+#nina-skin .ns-list a:hover { background: var(--surface-c-high); }
+#nina-skin .ns-list a small { display: block; color: var(--on-surface-variant); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nina-skin .ns-list h3 { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--primary); padding: 14px 12px 4px; break-after: avoid; }
+
+/* ── series page ── */
+#nina-skin .ns-show { position: relative; }
+#nina-skin .ns-backdrop { position: absolute; top: -80px; left: 50%; width: 100vw; transform: translateX(-50%); height: 600px; overflow: hidden; z-index: 0; pointer-events: none; }
+#nina-skin .ns-backdrop img { width: 100%; height: 100%; object-fit: cover; filter: blur(26px) saturate(1.2); opacity: .5; transform: scale(1.1); }
+#nina-skin .ns-backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, color-mix(in srgb, var(--surface) 30%, transparent), var(--surface) 94%); }
+#nina-skin .ns-show > *:not(.ns-backdrop) { position: relative; z-index: 1; }
+#nina-skin .ns-show > .ns-top-grid { z-index: 4; }
+#nina-skin .ns-top-grid { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 36px; align-items: start; padding-top: 18px; }
+#nina-skin .ns-poster { position: relative; }
+#nina-skin .ns-poster img , #nina-skin .ns-poster .ph { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: var(--r-xxl); box-shadow: 0 20px 50px rgba(0,0,0,.4); }
+#nina-skin .ns-poster .ph { display: grid; place-items: center; background: var(--surface-c-high); font-size: 64px; font-weight: 800; }
+#nina-skin .ns-title { font-size: 48px; line-height: 54px; font-weight: 700; letter-spacing: -.02em; margin-top: 6px !important; }
+#nina-skin .ns-alt { color: var(--on-surface-variant); font-size: 13px; margin-top: 6px !important; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+#nina-skin .ns-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; color: var(--on-surface-variant); }
+#nina-skin .ns-pill { padding: 4px 12px; border-radius: 99px; background: var(--surface-c-high); color: var(--on-surface); font-size: 12px; font-weight: 700; }
+#nina-skin .ns-pill.fsk { background: color-mix(in srgb, var(--tertiary) 20%, transparent); color: var(--tertiary); }
+#nina-skin .ns-genres { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+#nina-skin .ns-genres a { height: 32px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: var(--r-s); border: 1px solid var(--outline-variant); color: var(--on-surface-variant); font-weight: 600; font-size: 13px; transition: background-color .2s, border-radius .3s var(--spring); }
+#nina-skin .ns-genres a:hover { background: var(--surface-c-high); border-radius: var(--r-m); color: var(--on-surface); }
+#nina-skin .ns-desc { margin-top: 18px !important; max-width: 75ch; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+#nina-skin .ns-desc.open { -webkit-line-clamp: unset; }
+#nina-skin .ns-more { margin-top: 6px; border: 0; background: none; padding: 4px 0; color: var(--primary); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; }
+#nina-skin .ns-more svg { width: 18px; height: 18px; }
+
+/* NINA controls */
+#nina-skin .ns-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin-top: 22px; }
+#nina-skin .ns-bar { display: inline-flex; align-items: center; gap: 6px; padding: 8px; border-radius: var(--r-xl); background: var(--surface-c-high); }
+#nina-skin .ns-dd { position: relative; }
+#nina-skin .ns-sbtn { height: 48px; min-width: 170px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--outline-variant);
+  border-radius: var(--r-l); background: var(--surface-c); font-weight: 700; font-size: 15px; cursor: pointer; transition: border-radius .35s var(--spring), background-color .2s; }
+#nina-skin .ns-sbtn:hover { border-radius: var(--r-m); }
+#nina-skin .ns-sbtn svg { width: 20px; height: 20px; opacity: .7; }
+#nina-skin .ns-sbtn.watching , #nina-skin .ns-sbtn.done , #nina-skin .ns-sbtn.rewatching { background: var(--primary); color: var(--on-primary); border-color: transparent; }
+#nina-skin .ns-sbtn.paused { background: #8a6d1d; color: #fff; border-color: transparent; }
+#nina-skin .ns-menu { position: absolute; top: calc(100% + 10px); left: 0; z-index: 40; min-width: 240px; padding: 6px; border-radius: var(--r-l); background: var(--surface-c-highest);
+  border: 1px solid var(--outline-variant); box-shadow: 0 14px 40px rgba(0,0,0,.5); display: none; animation: ns-pop .25s var(--spring-soft); }
+#nina-skin .ns-dd.open .ns-menu { display: flex; flex-direction: column; }
+#nina-skin .ns-menu button { text-align: left; border: 0; background: none; padding: 12px 16px; border-radius: var(--r-m); cursor: pointer; font-weight: 600; color: var(--on-surface-variant); }
+#nina-skin .ns-menu button:hover { background: color-mix(in srgb, var(--on-surface) 8%, transparent); color: var(--on-surface); }
+#nina-skin .ns-menu button.on { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+#nina-skin .ns-menu hr { border: 0; border-top: 1px solid var(--outline-variant); margin: 4px 8px; }
+#nina-skin .ns-act { width: 48px; height: 48px; display: grid; place-items: center; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--on-surface-variant); transition: background-color .2s, border-radius .35s var(--spring); }
+#nina-skin .ns-act svg { width: 22px; height: 22px; }
+#nina-skin .ns-act:hover { background: color-mix(in srgb, var(--on-surface) 8%, transparent); }
+#nina-skin .ns-act.on { background: var(--secondary-container); color: var(--on-secondary-container); border-radius: var(--r-m); }
+#nina-skin .ns-stars { display: flex; align-items: center; gap: 2px; }
+#nina-skin .ns-star { border: 0; background: none; padding: 2px; cursor: pointer; color: var(--outline); transition: transform .3s var(--spring), color .2s; }
+#nina-skin .ns-star svg { width: 28px; height: 28px; }
+#nina-skin .ns-star:hover { transform: scale(1.2); }
+#nina-skin .ns-star.on { color: #f5b301; }
+#nina-skin .ns-hint { width: 100%; margin-top: -6px; font-size: 12px; color: var(--on-surface-variant); }
+#nina-skin .ns-prog { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 99px; background: var(--surface-c-high); font-weight: 600; }
+#nina-skin .ns-prog .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+
+/* seasons + episodes */
+#nina-skin .ns-seasons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+#nina-skin .ns-eps { display: grid; gap: 8px; }
+#nina-skin .ns-ep { display: grid; grid-template-columns: auto 64px minmax(0, 1fr) auto auto; align-items: center; gap: 14px; padding: 10px 14px 10px 10px; border-radius: var(--r-l); background: var(--surface-c-low);
+  transition: background-color .2s, border-radius .35s var(--spring), transform .3s var(--spring); }
+#nina-skin .ns-ep:hover { background: var(--surface-c-high); border-radius: var(--r-m); }
+#nina-skin .ns-ep.cur { background: var(--secondary-container); color: var(--on-secondary-container); }
+#nina-skin .ns-ep .n { width: 64px; height: 48px; display: grid; place-items: center; border-radius: var(--r-m); background: var(--surface-c-highest); font-weight: 800; font-size: 16px; transition: border-radius .35s var(--spring); }
+#nina-skin .ns-ep:hover .n { border-radius: 50%; }
+#nina-skin .ns-ep.w .n { background: var(--primary); color: var(--on-primary); }
+#nina-skin .ns-ep .t b { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nina-skin .ns-ep .t small { display: block; color: var(--on-surface-variant); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nina-skin .ns-ep.w .t b { color: var(--primary); }
+#nina-skin .ns-ep.cur .t b , #nina-skin .ns-ep.cur .t small { color: inherit; }
+#nina-skin .ns-state { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: .02em; white-space: nowrap;
+  background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary); }
+#nina-skin .ns-state.s { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); }
+#nina-skin .ns-state svg { width: 13px; height: 13px; }
+#nina-skin .ns-state i { display: inline-block; width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.15); overflow: hidden; margin-left: 4px; }
+#nina-skin .ns-state i b { display: block; height: 100%; background: var(--warn); }
+#nina-skin .ns-tick { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--outline-variant); background: none; color: transparent; cursor: pointer; transition: all .3s var(--spring); }
+#nina-skin .ns-tick svg { width: 18px; height: 18px; }
+#nina-skin .ns-tick:hover { border-color: var(--primary); color: var(--primary); transform: scale(1.1); }
+#nina-skin .ns-ep.w .ns-tick { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+#nina-skin .ns-ep.s .ns-tick { border-color: var(--warn); }
+#nina-skin .ns-ep .play { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--on-surface-variant); transition: background-color .2s, border-radius .35s var(--spring); }
+#nina-skin .ns-ep .play svg { width: 22px; height: 22px; }
+#nina-skin .ns-ep:hover .play { background: var(--primary); color: var(--on-primary); border-radius: var(--r-m); }
+
+/* ── episode page ── */
+#nina-skin .ns-watch { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; padding-top: 14px; }
+#nina-skin .ns-crumb { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+#nina-skin .ns-crumb img { width: 44px; height: 64px; object-fit: cover; border-radius: 12px; }
+#nina-skin .ns-crumb a b { display: block; font-size: 16px; }
+#nina-skin .ns-crumb small { color: var(--on-surface-variant); }
+#nina-skin .ns-player { position: relative; border-radius: var(--r-xl); overflow: hidden; background: #000; box-shadow: 0 18px 50px rgba(0,0,0,.45); aspect-ratio: 16 / 9; }
+#nina-skin .ns-player .inSiteWebStream { display: block !important; z-index: 2; position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; background: transparent !important; pointer-events: auto !important; border-radius: 0 !important; box-shadow: none !important; }
+#nina-skin .ns-player .inSiteWebStream > div { width: 100% !important; height: 100% !important; padding: 0 !important; margin: 0 !important; float: none !important; }
+#nina-skin .ns-player .inSiteWebStream iframe { width: 100% !important; height: 100% !important; border: 0 !important; pointer-events: auto; background: #000; }
+#nina-skin .ns-player .inSiteWebStream iframe:not([src]), #nina-skin .ns-player .inSiteWebStream iframe[src=""], #nina-skin .ns-player .inSiteWebStream iframe[src="about:blank"] { visibility: hidden; }
+#nina-skin .ns-player .originalLinkTarget, #nina-skin .ns-player .fakePlayer { display: none !important; }
+#nina-skin .ns-player-ph { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; align-content: center; gap: 14px; width: 100%; padding: 0; border: 0; cursor: pointer; background: #000; color: #fff; overflow: hidden; }
+#nina-skin .ns-player-ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(6px) brightness(.45) saturate(1.1); transform: scale(1.06); }
+#nina-skin .ns-player-ph .pl { position: relative; width: 88px; height: 88px; display: grid; place-items: center; border-radius: 30px; background: var(--primary); color: var(--on-primary); transition: border-radius .5s var(--spring), transform .35s var(--spring); }
+#nina-skin .ns-player-ph .pl svg { width: 46px; height: 46px; }
+#nina-skin .ns-player-ph:hover .pl { border-radius: 50%; transform: scale(1.06); }
+#nina-skin .ns-player-ph small { position: relative; font-weight: 600; color: rgba(255,255,255,.85); }
+#nina-skin .ns-player .fakePlayer { width: 100% !important; height: 100% !important; background-size: cover !important; background-position: center !important; }
+#nina-skin .ns-player .originalLinkTarget { display: block; width: 100%; height: 100%; }
+#nina-skin .ns-ep-title { font-size: 26px; line-height: 32px; font-weight: 700; margin-top: 18px !important; }
+#nina-skin .ns-ep-sub { color: var(--on-surface-variant); margin-top: 4px !important; }
+#nina-skin .ns-ep-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
+#nina-skin .ns-ep-acts .sp { flex: 1; }
+#nina-skin .ns-opts { margin-top: 18px; padding: 16px; border-radius: var(--r-xl); background: var(--surface-c-low); display: grid; gap: 12px; }
+#nina-skin .ns-opts h3 { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--on-surface-variant); }
+#nina-skin .ns-opts .row { display: flex; flex-wrap: wrap; gap: 8px; }
+#nina-skin .ns-side { position: sticky; top: 88px; max-height: calc(100vh - 104px); display: flex; flex-direction: column; border-radius: var(--r-xl); background: var(--surface-c-low); overflow: hidden; }
+#nina-skin .ns-side-h { padding: 16px 18px 10px; }
+#nina-skin .ns-side-h b { font-size: 16px; }
+#nina-skin .ns-side .ns-seasons { padding: 0 18px; margin-bottom: 8px; }
+#nina-skin .ns-side .ns-eps { overflow-y: auto; padding: 0 10px 12px; gap: 4px; }
+#nina-skin .ns-side .ns-ep { grid-template-columns: 44px minmax(0, 1fr) auto; padding: 6px 8px 6px 6px; gap: 10px; background: transparent; }
+#nina-skin .ns-side .ns-ep:hover { background: var(--surface-c-high); }
+#nina-skin .ns-side .ns-ep.cur { background: var(--secondary-container); }
+#nina-skin .ns-side .ns-ep .n { width: 44px; height: 36px; font-size: 13px; border-radius: 12px; }
+#nina-skin .ns-side .ns-ep .ns-tick , #nina-skin .ns-side .ns-ep .play { display: none; }
+
+/* toggle back to the original page */
+.ns-orig { position: fixed; right: 18px; bottom: 18px; z-index: 2147483000; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px 0 6px;
+  border: 0; border-radius: 99px; cursor: pointer; background: hsl(var(--ns-h, 186) 60% 78%); color: hsl(var(--ns-h, 186) 70% 16%); font: 700 13px/1 "Segoe UI", system-ui, sans-serif;
+  box-shadow: 0 8px 24px rgba(0,0,0,.45); transition: border-radius .3s cubic-bezier(.34,1.45,.64,1); }
+.ns-orig:hover { border-radius: 16px; }
+.ns-orig i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: hsl(var(--ns-h, 186) 70% 16%); color: hsl(var(--ns-h, 186) 60% 78%); font-style: normal; font-weight: 900; }
+html.nina-skin-on .ns-orig { display: none; }
+
+#nina-skin .ns-empty { padding: 64px 20px; border-radius: var(--r-xxl); background: var(--surface-c-low); color: var(--on-surface-variant); text-align: center; }
+#nina-skin .ns-empty svg { width: 48px; height: 48px; margin: 0 auto 10px; opacity: .7; }
+#nina-skin .ns-skel { background: var(--surface-c-high); animation: ns-shimmer 1.6s ease-in-out infinite; }
+@keyframes ns-shimmer { 50% { opacity: .45; } }
+
+@media (max-width: 1100px) {
+  #nina-skin .ns-watch { grid-template-columns: 1fr; }
+  #nina-skin .ns-side { position: static; max-height: 520px; }
+  #nina-skin .ns-nav { display: none; }
+}
+@media (max-width: 760px) {
+  #nina-skin .ns-top { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+  #nina-skin .ns-brand small, #nina-skin .ns-acts .ns-tonal span, #nina-skin .ns-vpn .t { display: none; }
+  #nina-skin .ns-search { order: 3; flex-basis: 100%; max-width: none; }
+  #nina-skin .ns-main { padding: 8px 14px 48px; }
+  #nina-skin .ns-top-grid { grid-template-columns: 1fr; }
+  #nina-skin .ns-poster { max-width: 220px; }
+  #nina-skin .ns-title { font-size: 32px; line-height: 38px; }
+  #nina-skin .ns-ep { grid-template-columns: auto 52px minmax(0, 1fr) auto; }
+  #nina-skin .ns-ep .ns-state { display: none; }
+  #nina-skin .ns-row, #nina-skin .ns-grid { grid-auto-columns: 132px; }
+  #nina-skin .ns-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { #nina-skin *, #nina-skin *::before, #nina-skin *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+/* ── watched = grey (like Crunchyroll) ── */
+#nina-skin .ns-card .cv img { transition: filter .35s var(--ease); }
+#nina-skin .ns-card.seen .cv img { filter: grayscale(1) brightness(.5); }
+#nina-skin .ns-card.part .cv img { filter: grayscale(.45) brightness(.82); }
+#nina-skin .ns-card.seen b { color: var(--on-surface-variant); }
+#nina-skin .ns-card:hover .cv img { filter: none; }
+
+/* ── calendar ── */
+#nina-skin .ns-link { color: var(--primary); font-weight: 700; padding: 6px 10px; border-radius: 99px; }
+#nina-skin .ns-link:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+#nina-skin .ns-cal-days { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; margin-bottom: 8px; }
+#nina-skin .ns-chip .cnt { margin-left: 4px; padding: 0 7px; border-radius: 99px; background: color-mix(in srgb, var(--on-surface) 10%, transparent); font-size: 11px; line-height: 18px; }
+#nina-skin .ns-cal-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 10px; }
+#nina-skin .ns-cal-list.compact { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: minmax(340px, 380px); grid-template-rows: repeat(2, auto); overflow-x: auto; padding-bottom: 12px; }
+#nina-skin .ns-cal-e { display: grid; grid-template-columns: 58px 56px minmax(0, 1fr); align-items: center; gap: 12px; padding: 10px 12px 10px 10px; border-radius: var(--r-l);
+  background: var(--surface-c-low); transition: background-color .2s, border-radius .35s var(--spring), transform .3s var(--spring); }
+#nina-skin .ns-cal-e:hover { background: var(--surface-c-high); border-radius: var(--r-m); transform: translateY(-2px); }
+#nina-skin .ns-cal-e .tm { display: grid; place-items: center; height: 44px; border-radius: var(--r-m); background: var(--surface-c-highest); font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
+#nina-skin .ns-cal-e .cv { width: 56px; height: 80px; border-radius: 14px; overflow: hidden; background: var(--surface-c-highest); }
+#nina-skin .ns-cal-e .cv img { width: 100%; height: 100%; object-fit: cover; transition: filter .35s var(--ease); }
+#nina-skin .ns-cal-e .tx { min-width: 0; }
+#nina-skin .ns-cal-e b { display: block; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nina-skin .ns-cal-e .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+#nina-skin .ns-cal-e .ns-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; font-size: 11px; }
+#nina-skin .ns-cal-e .ns-pill svg { width: 12px; height: 12px; }
+#nina-skin .ns-cal-e .ns-pill.out { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
+#nina-skin .ns-cal-e .ns-pill.soon { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); }
+#nina-skin .ns-cal-e .ns-pill.seenp, #nina-skin .ns-cal-e .ns-pill.libp { background: var(--primary); color: var(--on-primary); }
+#nina-skin .ns-cal-e .ns-pill.partp { background: color-mix(in srgb, var(--warn) 85%, transparent); color: #2a1d00; }
+#nina-skin .ns-cal-e.lib .tm { background: var(--primary-container); color: var(--on-primary-container); }
+#nina-skin .ns-cal-e.seen .cv img { filter: grayscale(1) brightness(.5); }
+#nina-skin .ns-cal-e.seen b { color: var(--on-surface-variant); }
+#nina-skin .ns-cal-e.part .cv img { filter: grayscale(.45) brightness(.82); }
+#nina-skin .ns-cal-e:hover .cv img { filter: none; }
+#nina-skin .ns-cal-now { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 800; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+#nina-skin .ns-cal-now::after { content: ""; flex: 1; height: 2px; border-radius: 2px; background: var(--primary); }
+#nina-skin .ns-cal-list.compact .ns-cal-now { display: none; }
+@media (max-width: 760px) { #nina-skin .ns-cal-list { grid-template-columns: 1fr; } #nina-skin .ns-cal-list.compact { grid-auto-columns: 86%; } }
+
+/* ── calendar: your shows first ── */
+#nina-skin .ns-cal-sep { flex: none; width: 1px; margin: 4px 4px; background: var(--outline-variant); }
+#nina-skin .ns-chip .mine { margin-left: 2px; padding: 0 7px; border-radius: 99px; background: var(--primary); color: var(--on-primary); font-size: 11px; line-height: 18px; font-weight: 800; }
+#nina-skin .ns-chip.on .mine { background: var(--on-secondary-container); color: var(--secondary-container); }
+#nina-skin .ns-cal-h { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin: 10px 2px 2px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--on-surface-variant); }
+#nina-skin .ns-cal-h:first-child { margin-top: 0; }
+#nina-skin .ns-cal-h svg { width: 16px; height: 16px; }
+#nina-skin .ns-cal-h span { padding: 0 8px; border-radius: 99px; background: var(--surface-c-highest); color: var(--on-surface); font-size: 11px; line-height: 18px; letter-spacing: 0; }
+#nina-skin .ns-cal-h.mine { color: var(--primary); }
+#nina-skin .ns-cal-h.mine span { background: var(--primary); color: var(--on-primary); }
+#nina-skin .ns-cal-e.lib { background: color-mix(in srgb, var(--primary-container) 55%, var(--surface-c-low)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); }
+#nina-skin .ns-cal-e.lib:hover { background: color-mix(in srgb, var(--primary-container) 75%, var(--surface-c-high)); }
+#nina-skin .ns-cal-e.lib .tm { background: var(--primary); color: var(--on-primary); }
+#nina-skin .ns-cal-e.lib .cv { box-shadow: 0 6px 16px rgba(0,0,0,.35); }
+
+/* ── Google Android 16 Material Player in NINA Skin ──────────────── */
+#nina-skin .ns-player {
+  position: relative !important;
+  background: #000000 !important;
+  aspect-ratio: 16 / 9 !important;
+  border-radius: var(--r-xl);
+  overflow: hidden !important;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65) !important;
+}
+
+#nina-skin .ns-player .inSiteWebStream,
+#nina-skin .ns-player .inSiteWebStream[data-a16-active="true"] {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: auto !important;
+  z-index: 10 !important;
+  background: #000000 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#nina-skin .ns-player .a16-player-wrapper {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: auto !important;
+  z-index: 10 !important;
+}
+
+#nina-skin .ns-player-ph.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Prominent Android 16 Banner inside NINA Skin */
+#nina-skin .ns-a16-banner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-top: 14px !important;
+  padding: 12px 18px !important;
+  background: linear-gradient(135deg, rgba(79, 55, 139, 0.45) 0%, rgba(26, 24, 30, 0.95) 100%) !important;
+  border: 1px solid rgba(208, 188, 255, 0.35) !important;
+  border-radius: var(--r-xl) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+#nina-skin .ns-a16-badge {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+#nina-skin .ns-a16-icon {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: #D0BCFF !important;
+  color: #381E72 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+#nina-skin .ns-a16-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: currentColor !important;
+}
+
+#nina-skin .ns-a16-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+#nina-skin .ns-a16-info b {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #F4EFF4 !important;
+}
+
+#nina-skin .ns-a16-info small {
+  font-size: 12px !important;
+  color: #CCC2DC !important;
+}
+
+#nina-skin .ns-a16-btn {
+  background: #D0BCFF !important;
+  color: #381E72 !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  padding: 9px 18px !important;
+  border-radius: 99px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+#nina-skin .ns-a16-btn:hover {
+  background: #EADDFF !important;
+  transform: scale(1.03) !important;
+  box-shadow: 0 4px 14px rgba(208, 188, 255, 0.4) !important;
+}
+
+#nina-skin .ns-a16-act-btn {
+  background: #D0BCFF !important;
+  color: #381E72 !important;
+  font-weight: 700 !important;
+}
+
+#nina-skin .ns-a16-act-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* ── VPN Guard Kill-Switch Block Screen ── */
+#nina-skin.ns-vpn-locked {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+  background: radial-gradient(circle at 50% 28%, #1f1418 0%, #0d0a0c 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 24px !important;
+  box-sizing: border-box !important;
+}
+
+#nina-skin .ns-vpn-block-screen {
+  width: 100% !important;
+  max-width: 540px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#nina-skin .ns-vpn-block-card {
+  position: relative !important;
+  width: 100% !important;
+  background: rgba(32, 24, 28, 0.85) !important;
+  border: 1px solid rgba(255, 99, 99, 0.28) !important;
+  border-radius: 32px !important;
+  padding: 42px 36px 36px !important;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.8), 0 0 45px rgba(255, 75, 75, 0.12) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(1.4) !important;
+  backdrop-filter: blur(32px) saturate(1.4) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  animation: nsVpnCardIn 0.45s cubic-bezier(0.18, 0.9, 0.3, 1.2) forwards !important;
+  box-sizing: border-box !important;
+}
+
+#nina-skin .ns-vpn-shield-icon {
+  position: relative !important;
+  width: 84px !important;
+  height: 84px !important;
+  border-radius: 26px !important;
+  background: linear-gradient(135deg, rgba(255, 82, 82, 0.22), rgba(211, 47, 47, 0.12)) !important;
+  border: 1px solid rgba(255, 100, 100, 0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 24px !important;
+  box-shadow: 0 12px 32px rgba(239, 68, 68, 0.3) !important;
+}
+
+#nina-skin .ns-vpn-shield-svg {
+  width: 46px !important;
+  height: 46px !important;
+  fill: #ff6b6b !important;
+}
+
+#nina-skin .ns-vpn-warning-badge {
+  position: absolute !important;
+  bottom: -4px !important;
+  right: -4px !important;
+  width: 28px !important;
+  height: 28px !important;
+  background: #ff3b3b !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  font-size: 16px !important;
+  line-height: 28px !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+  border: 3px solid #20181c !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+#nina-skin .ns-vpn-block-title {
+  font-size: 25px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin: 0 0 12px 0 !important;
+  letter-spacing: -0.02em !important;
+  font-family: var(--font) !important;
+}
+
+#nina-skin .ns-vpn-block-desc {
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+  color: rgba(255, 255, 255, 0.76) !important;
+  margin: 0 0 24px 0 !important;
+  max-width: 440px !important;
+  font-family: var(--font) !important;
+}
+
+#nina-skin .ns-vpn-block-desc b {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+#nina-skin .ns-vpn-info-box {
+  width: 100% !important;
+  background: rgba(0, 0, 0, 0.42) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  padding: 16px 20px !important;
+  margin-bottom: 26px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  box-sizing: border-box !important;
+}
+
+#nina-skin .ns-vpn-info-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-size: 13px !important;
+  font-family: var(--font) !important;
+}
+
+#nina-skin .ns-vpn-info-label {
+  color: rgba(255, 255, 255, 0.55) !important;
+  font-weight: 500 !important;
+}
+
+#nina-skin .ns-vpn-info-value {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+#nina-skin .ns-vpn-info-status.bad {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 4px 12px !important;
+  background: rgba(255, 82, 82, 0.16) !important;
+  border: 1px solid rgba(255, 82, 82, 0.35) !important;
+  border-radius: 99px !important;
+  color: #ff8585 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+#nina-skin .ns-vpn-info-status.bad .dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #ff5252 !important;
+  box-shadow: 0 0 10px #ff5252 !important;
+  animation: nsVpnPulse 1.8s infinite ease-in-out !important;
+}
+
+#nina-skin .ns-vpn-block-actions {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+#nina-skin .ns-vpn-btn-retry {
+  width: 100% !important;
+  height: 50px !important;
+  background: #ff5252 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 99px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  font-family: var(--font) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1) !important;
+  box-shadow: 0 8px 24px rgba(255, 82, 82, 0.38) !important;
+  outline: none !important;
+}
+
+#nina-skin .ns-vpn-btn-retry:hover {
+  background: #ff6868 !important;
+  transform: translateY(-2px) scale(1.01) !important;
+  box-shadow: 0 12px 30px rgba(255, 82, 82, 0.5) !important;
+}
+
+#nina-skin .ns-vpn-btn-retry:active {
+  transform: translateY(0) scale(0.99) !important;
+}
+
+#nina-skin .ns-vpn-btn-retry svg {
+  width: 20px !important;
+  height: 20px !important;
+  fill: currentColor !important;
+  transition: transform 0.3s ease !important;
+}
+
+#nina-skin .ns-vpn-btn-retry.busy svg {
+  animation: nsVpnSpin 0.9s linear infinite !important;
+}
+
+#nina-skin .ns-vpn-btn-bypass {
+  width: 100% !important;
+  height: 44px !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 99px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  font-family: var(--font) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+#nina-skin .ns-vpn-btn-bypass:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+#nina-skin .ns-vpn-btn-bypass:active {
+  transform: translateY(0) scale(0.99) !important;
+}
+
+@keyframes nsVpnCardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes nsVpnPulse {
+  0% { transform: scale(0.88); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.88); opacity: 0.7; }
+}
+
+@keyframes nsVpnSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+/* ── season button: the whole season watched ── */
+#nina-skin .ns-season-all { margin-left: auto; height: 40px; padding: 0 18px; }
+#nina-skin .ns-dl { height: 40px; padding: 0 18px; }
+#nina-skin .ns-sec-h:not(:has(.ns-season-all)) .ns-dl-now { margin-left: auto; }
+#nina-skin .ns-sec-h:has(.ns-dl) { align-items: center; flex-wrap: wrap; }
+#nina-skin .ns-sec-h:has(.ns-season-all) { align-items: center; flex-wrap: wrap; }
+
+/* ── Alle Animes: cover grid, A–Z, filters ── */
+#nina-skin .ns-all-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 12px; }
+#nina-skin .ns-all-q { cursor: text; }
+#nina-skin .ns-all-q input { border: 0; outline: 0; background: none; width: 220px; }
+#nina-skin .ns-all-sel { position: relative; display: inline-flex; align-items: center; }
+#nina-skin .ns-all-sel select { -webkit-appearance: none; appearance: none; height: 36px; padding: 0 38px 0 16px; border-radius: var(--r-s); border: 1px solid var(--outline-variant);
+  background: var(--surface-c-low); color: var(--on-surface); font: 600 14px var(--font); cursor: pointer; }
+#nina-skin .ns-all-sel svg { position: absolute; right: 10px; width: 20px; height: 20px; pointer-events: none; color: var(--on-surface-variant); }
+#nina-skin .ns-az { position: sticky; top: 72px; z-index: 20; display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 10px; margin-bottom: 8px; border-radius: var(--r-l);
+  background: color-mix(in srgb, var(--surface-c-low) 88%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+#nina-skin .ns-az a { min-width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; font-weight: 800; font-size: 13px; color: var(--on-surface-variant);
+  transition: background-color .2s, border-radius .3s var(--spring); }
+#nina-skin .ns-az a:hover { background: var(--secondary-container); color: var(--on-secondary-container); border-radius: 50%; }
+#nina-skin .ns-az a.off { opacity: .3; pointer-events: none; }
+#nina-skin .ns-az-h { font-size: 28px; font-weight: 800; color: var(--primary); margin: 26px 0 12px; scroll-margin-top: 150px; }
+
+/* ── page changes: soft cross-fade + slide (View Transitions between the pages) ── */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: ns-vt-out .2s cubic-bezier(.2, 0, 0, 1) both; }
+::view-transition-new(root) { animation: ns-vt-in .45s cubic-bezier(.3, 1.2, .5, 1) both; }
+@keyframes ns-vt-out { to { opacity: 0; transform: scale(.985); } }
+@keyframes ns-vt-in { from { opacity: 0; transform: translateY(16px) scale(.99); } }
+@media (prefers-reduced-motion: reduce) { ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; } }
+
+/* ── phone ── */
+#nina-skin .ns-bnav { display: none; }
+@media (max-width: 760px) {
+  html.nina-skin-on, html.nina-skin-on body { -webkit-text-size-adjust: 100%; }
+  /* top: logo, VPN, actions; search as its own row; the page menu moves to the bottom */
+  #nina-skin .ns-top { min-height: 0; padding: max(10px, env(safe-area-inset-top)) 14px 10px; gap: 10px; flex-wrap: wrap; }
+  #nina-skin .ns-nav { display: none; }
+  #nina-skin .ns-logo { width: 36px; height: 36px; border-radius: 12px; font-size: 16px; }
+  #nina-skin .ns-brand b { font-size: 16px; }
+  #nina-skin .ns-acts { margin-left: auto; }
+  #nina-skin .ns-acts .ns-tonal { display: none; }
+  #nina-skin .ns-vpn { order: 2; }
+  #nina-skin .ns-search { order: 5; flex-basis: 100%; max-width: none; min-width: 0; margin: 0; }
+  #nina-skin .ns-search label { height: 46px; }
+  #nina-skin .ns-suggest { position: fixed; left: 10px; right: 10px; top: 118px; max-height: calc(100vh - 210px); }
+  #nina-skin .ns-main { padding: 6px 14px calc(96px + env(safe-area-inset-bottom)); }
+  #nina-skin .ns-h1 { font-size: 28px; line-height: 34px; }
+
+  /* bottom navigation bar (Material 3) */
+  #nina-skin .ns-bnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr);
+    padding: 8px 6px calc(10px + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--surface-c) 94%, transparent);
+    -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -6px 20px rgba(0,0,0,.35); }
+  #nina-skin .ns-bnav a, #nina-skin .ns-bnav button { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 0; background: none; padding: 0; cursor: pointer;
+    color: var(--on-surface-variant); font: 600 11px var(--font); }
+  #nina-skin .ns-bnav .ind { width: 56px; height: 32px; display: grid; place-items: center; border-radius: 99px; transition: background-color .25s, width .4s var(--spring); }
+  #nina-skin .ns-bnav svg { width: 24px; height: 24px; }
+  #nina-skin .ns-bnav a.on { color: var(--on-surface); }
+  #nina-skin .ns-bnav a.on .ind { background: var(--secondary-container); color: var(--on-secondary-container); }
+  #nina-skin .ns-bnav :active .ind { width: 48px; }
+
+  /* home */
+  #nina-skin .ns-hero { grid-auto-columns: 88%; gap: 10px; }
+  #nina-skin .ns-hero a { aspect-ratio: 16 / 9; border-radius: var(--r-xl); }
+  #nina-skin .ns-hero a > span:not(.ns-badge):not(.nina-aw-badge) { font-size: 18px; left: 16px; bottom: 14px; }
+  #nina-skin .ns-sec { margin-top: 26px; }
+  #nina-skin .ns-sec-h h2 { font-size: 19px; }
+  #nina-skin .ns-row { grid-auto-columns: 124px; gap: 12px; }
+  #nina-skin .ns-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 16px 10px; }
+  #nina-skin .ns-card .cv { border-radius: var(--r-m); }
+  #nina-skin .ns-card b { font-size: 13px; }
+  #nina-skin .ns-badge { top: 6px; left: 6px; padding: 3px 7px 3px 6px; font-size: 10px; }
+
+  /* show: small poster next to the title, everything else full width below */
+  #nina-skin .ns-backdrop { height: 420px; }
+  #nina-skin .ns-top-grid { grid-template-columns: 112px minmax(0, 1fr); gap: 14px; padding-top: 6px; }
+  #nina-skin .ns-poster { max-width: none; }
+  #nina-skin .ns-poster img, #nina-skin .ns-poster .ph { border-radius: var(--r-l); }
+  #nina-skin .ns-top-grid > div:last-child { display: contents; }
+  #nina-skin .ns-title { grid-column: 2; grid-row: 1; font-size: 24px; line-height: 29px; align-self: end; }
+  #nina-skin .ns-alt, #nina-skin .ns-meta, #nina-skin .ns-genres, #nina-skin .ns-desc, #nina-skin .ns-more, #nina-skin .ns-ctl { grid-column: 1 / -1; }
+  #nina-skin .ns-desc { margin-top: 8px !important; -webkit-line-clamp: 3; }
+  #nina-skin .ns-ctl { margin-top: 12px; gap: 12px; }
+  #nina-skin .ns-bar { width: 100%; }
+  #nina-skin .ns-dd { flex: 1; }
+  #nina-skin .ns-sbtn { width: 100%; min-width: 0; }
+  #nina-skin .ns-menu { left: 0; right: 0; min-width: 0; }
+  #nina-skin .ns-star svg { width: 30px; height: 30px; }
+  #nina-skin .ns-season-all { margin-left: 0; width: 100%; justify-content: center; }
+  #nina-skin .ns-dl { margin-left: 0 !important; width: 100%; justify-content: center; }
+  #nina-skin .ns-seasons { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
+  #nina-skin .ns-ep { grid-template-columns: auto 44px minmax(0, 1fr); gap: 10px; padding: 8px 10px 8px 8px; border-radius: var(--r-m); }
+  #nina-skin .ns-ep .n { width: 44px; height: 40px; font-size: 14px; }
+  #nina-skin .ns-ep .ns-tick { width: 32px; height: 32px; }
+  #nina-skin .ns-ep .play { display: none; }
+  #nina-skin .ns-ep .ns-state { display: inline-flex; grid-column: 3; justify-self: start; margin-top: -6px; }
+
+  /* episode: player edge to edge, the list below */
+  #nina-skin .ns-watch { grid-template-columns: 1fr; gap: 16px; padding-top: 4px; }
+  #nina-skin .ns-player { margin: 0 -14px !important; border-radius: 0 !important; box-shadow: none !important; }
+  #nina-skin .ns-ep-title { font-size: 20px; line-height: 26px; }
+  #nina-skin .ns-ep-acts > * { flex: 1 1 auto; justify-content: center; }
+  #nina-skin .ns-ep-acts .sp { display: none; }
+  #nina-skin .ns-side { position: static; max-height: none; }
+  #nina-skin .ns-side .ns-eps { max-height: 60vh; }
+
+  /* calendar + A–Z */
+  #nina-skin .ns-cal-days { margin: 0 -14px 8px; padding: 2px 14px 10px; }
+  #nina-skin .ns-cal-e { grid-template-columns: 50px 46px minmax(0, 1fr); gap: 10px; padding: 8px; }
+  #nina-skin .ns-cal-e .cv { width: 46px; height: 66px; border-radius: 12px; }
+  #nina-skin .ns-cal-e .tm { height: 40px; font-size: 13px; }
+  #nina-skin .ns-az { top: 0; margin: 0 -14px 8px; border-radius: 0; flex-wrap: nowrap; overflow-x: auto; }
+  #nina-skin .ns-az, #nina-skin .ns-cal-days, #nina-skin .ns-seasons { scrollbar-width: none; }
+  #nina-skin .ns-az::-webkit-scrollbar, #nina-skin .ns-cal-days::-webkit-scrollbar, #nina-skin .ns-seasons::-webkit-scrollbar { display: none; }
+  #nina-skin .ns-all-q { flex: 1 1 100%; }
+  #nina-skin .ns-all-q input { width: 100%; }
+  #nina-skin .ns-list { columns: 1; }
+  #nina-skin .ns-empty { padding: 40px 16px; border-radius: var(--r-xl); }
+
+  /* the "Original" switch sits above the bottom bar */
+  .ns-orig { bottom: calc(88px + env(safe-area-inset-bottom)); }
+}
+
+/* ── scrollbars: everywhere the same — slim pill in NINA's colours, accent on hover ── */
+html.nina-skin-on::-webkit-scrollbar, #nina-skin ::-webkit-scrollbar { width: 12px; height: 12px; }
+html.nina-skin-on::-webkit-scrollbar-track, #nina-skin ::-webkit-scrollbar-track { background: transparent; }
+html.nina-skin-on::-webkit-scrollbar-corner, #nina-skin ::-webkit-scrollbar-corner { background: transparent; }
+html.nina-skin-on::-webkit-scrollbar-thumb, #nina-skin ::-webkit-scrollbar-thumb {
+  background: hsl(var(--ns-h, 186) 8% 30%); border: 3px solid transparent; background-clip: padding-box; border-radius: 99px; min-height: 40px; min-width: 40px; }
+html.nina-skin-on::-webkit-scrollbar-thumb:hover, #nina-skin ::-webkit-scrollbar-thumb:hover { background-color: hsl(var(--ns-h, 186) 45% 62%); }
+html.nina-skin-on::-webkit-scrollbar-thumb:active, #nina-skin ::-webkit-scrollbar-thumb:active { background-color: hsl(var(--ns-h, 186) 60% 78%); }
+html.nina-skin-on::-webkit-scrollbar-button, #nina-skin ::-webkit-scrollbar-button { display: none; height: 0; width: 0; }
+/* inside cards (episode list on the side, menus) a little narrower */
+#nina-skin .ns-side ::-webkit-scrollbar, #nina-skin .ns-menu::-webkit-scrollbar, #nina-skin .ns-suggest::-webkit-scrollbar, #nina-skin .ns-side .ns-eps::-webkit-scrollbar { width: 10px; }
+#nina-skin .ns-side .ns-eps { scrollbar-gutter: stable; padding-right: 2px; }
+
+/* ── phones & tablets: finger-friendly, and light on the battery ── */
+/* long "Alle Animes" list: letters far off screen are not laid out or painted at all */
+#nina-skin .ns-all .ns-grid { content-visibility: auto; contain-intrinsic-size: auto 1400px; }
+#nina-skin :is(a, button, input, select, label) { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+#nina-skin :is(.ns-row, .ns-hero, .ns-cal-days, .ns-seasons, .ns-az, .ns-cal-list.compact) { overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+@media (hover: none) {
+  /* no hover on a phone: no stuck lift / zoom after a tap, a short press feedback instead */
+  #nina-skin .ns-card:hover .cv { border-radius: var(--r-l); transform: none; box-shadow: none; }
+  #nina-skin .ns-hero a:hover, #nina-skin .ns-cal-e:hover, #nina-skin .ns-star:hover, #nina-skin .ns-tick:hover, #nina-skin .ns-vpn:hover { transform: none; }
+  #nina-skin .ns-card:active .cv, #nina-skin .ns-hero a:active { transform: scale(.97); transition-duration: .1s; }
+  #nina-skin .ns-ep:active, #nina-skin .ns-cal-e:active, #nina-skin .ns-sug:active { background: var(--surface-c-high); }
+  #nina-skin :is(.ns-chip, .ns-tick, .ns-act, .ns-icon, .ns-star):active { transform: scale(.94); }
+  /* blur behind the bars costs a lot while scrolling on phones: solid instead */
+  #nina-skin .ns-top { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  #nina-skin .ns-bnav { background: var(--surface-c); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  #nina-skin .ns-az { background: var(--surface-c-low); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  #nina-skin .ns-badge { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(0,0,0,.72); }
+  #nina-skin .ns-backdrop img { filter: blur(18px) saturate(1.2); }
+}
+@media (max-width: 760px) {
+  /* bigger tap targets */
+  #nina-skin .ns-chip { height: 40px; }
+  #nina-skin .ns-ep .ns-tick { width: 40px; height: 40px; }
+  #nina-skin .ns-act { width: 48px; height: 48px; }
+  #nina-skin .ns-star { padding: 6px 4px; }
+  #nina-skin .ns-menu button { padding: 14px 16px; }
+  #nina-skin .ns-az a { min-width: 40px; height: 40px; }
+  #nina-skin .ns-search input { font-size: 16px; }   /* 16 px: no auto-zoom when typing */
+  #nina-skin .ns-all-sel select { height: 40px; font-size: 16px; }
+  #nina-skin .ns-ep-acts { gap: 8px; }
+  #nina-skin .ns-ep-acts .ns-btn, #nina-skin .ns-ep-acts .ns-tonal { height: 44px; }
+  #nina-skin .ns-a16-banner { flex-wrap: wrap; padding: 12px 14px !important; }
+  #nina-skin .ns-a16-btn { width: 100%; justify-content: center; padding: 12px 18px !important; }
+  #nina-skin .ns-vpn-block-card { padding: 30px 20px 24px !important; border-radius: 26px !important; }
+  #nina-skin .ns-vpn-block-title { font-size: 21px !important; }
+  #nina-skin .ns-player { margin: 0 -14px !important; border-radius: 0 !important; box-shadow: none !important; }   /* edge to edge */
+}
+/* phone turned sideways on an episode: the player takes the whole screen height */
+@media (max-height: 500px) and (orientation: landscape) and (hover: none) {
+  #nina-skin .ns-watch .ns-player { aspect-ratio: auto !important; height: calc(100vh - 20px); height: calc(100dvh - 20px); max-width: none; }
+}

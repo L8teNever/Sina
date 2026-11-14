@@ -28,6 +28,7 @@ static JS_REDIRECT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"window\.location\.href\s*=\s*['"](https?://[^'"]+)['"]"#).unwrap());
 static SEASON_HREF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"/(?:staffel-(\d+)|(filme))/?$").unwrap());
 static NUM_END: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(\d+)/?$").unwrap());
+static BG_URL: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"url\(['"]?([^'")]+)['"]?\)"#).unwrap());
 static REDIRECT_ID: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"/redirect/(\d+)").unwrap());
 
 fn sel(s: &str) -> Selector {
@@ -97,7 +98,27 @@ pub fn parse_series(html: &str, slug: &str) -> Option<Value> {
             [v.attr("data-src"), v.attr("src")].into_iter().flatten().find(|s| !s.starts_with("data:")).map(str::to_string)
         })
         .unwrap_or_default();
-    let genres: Vec<String> = doc.select(&sel(".genres a")).map(text).filter(|g| !g.is_empty()).collect();
+    let is_lang = |g: &str| matches!(g, "Ger" | "GerSub" | "EngSub" | "Eng");
+    let all_genre: Vec<String> = doc.select(&sel(".genres li a")).map(text).filter(|g| !g.is_empty()).collect();
+    let genres: Vec<String> = all_genre.iter().filter(|g| !is_lang(g)).cloned().collect();
+    let langs: Vec<String> = all_genre.iter().filter(|g| is_lang(g)).cloned().collect();
+    let backdrop = doc
+        .select(&sel(".backdrop"))
+        .next()
+        .and_then(|b| b.value().attr("style"))
+        .and_then(|st| BG_URL.captures(st).map(|c| c[1].to_string()))
+        .unwrap_or_default();
+    let years: Vec<String> = doc
+        .select(&sel("[itemprop='startDate'], [itemprop='endDate']"))
+        .map(text)
+        .filter(|y| !y.is_empty())
+        .collect();
+    let fsk = doc
+        .select(&sel(".fsk"))
+        .next()
+        .map(|e| text(e).trim_start_matches("Ab:").trim().to_string())
+        .map(|f| if f.is_empty() { f } else { format!("FSK {f}") })
+        .unwrap_or_default();
 
     let mut seasons: Vec<Value> = Vec::new();
     let mut seen: Vec<String> = Vec::new();
@@ -122,6 +143,10 @@ pub fn parse_series(html: &str, slug: &str) -> Option<Value> {
         "description": description,
         "cover": cover,
         "genres": genres,
+        "langs": langs,
+        "backdrop": backdrop,
+        "years": years,
+        "fsk": fsk,
         "seasons": seasons,
     }))
 }
@@ -161,12 +186,19 @@ pub fn parse_episode(html: &str) -> Value {
             Some(json!({"id": id, "lang": v.attr("data-lang-key").unwrap_or(""), "name": name}))
         })
         .collect();
-    json!({"langs": langs, "hosters": hosters})
+    let one = |q: &str| doc.select(&sel(q)).next().map(text).unwrap_or_default();
+    json!({
+        "langs": langs,
+        "hosters": hosters,
+        "de": one(".hosterSiteTitle .episodeGermanTitle"),
+        "en": one(".hosterSiteTitle .episodeEnglishTitle"),
+        "desc": one(".hosterSiteTitle .descriptionSpoiler"),
+    })
 }
 
 // ---------- Seiten holen ----------
 
-async fn get_html(st: &AppState, path: &str, marker: &str) -> Result<String, ApiError> {
+pub async fn get_html(st: &AppState, path: &str, marker: &str) -> Result<String, ApiError> {
     let url = format!("{}{}", st.base, path);
     if let Ok(resp) = st.http.get(&url).header(USER_AGENT, UA).timeout(Duration::from_secs(15)).send().await {
         let status = resp.status();
@@ -318,7 +350,7 @@ pub struct StreamQ {
 }
 
 /// Folgt der Weiterleitung des Hosters (auch JavaScript-Weiterleitungen) und liefert die Hoster-Seite.
-async fn resolve_plain(st: &AppState, start: &str) -> Result<(String, String), String> {
+pub async fn resolve_plain(st: &AppState, start: &str) -> Result<(String, String), String> {
     let mut url = start.to_string();
     let mut referer: Option<String> = None;
     for _ in 0..8 {
@@ -361,7 +393,7 @@ async fn resolve_plain(st: &AppState, start: &str) -> Result<(String, String), S
     Err("Zu viele Weiterleitungen".into())
 }
 
-fn origin_of(url: &str) -> String {
+pub fn origin_of(url: &str) -> String {
     Url::parse(url).map(|u| format!("{}/", u.origin().ascii_serialization())).unwrap_or_default()
 }
 

@@ -1,0 +1,47 @@
+# Sina mit Proton VPN über gluetun: Server UND Browser gehen über dieselbe VPN-Adresse.
+# Wichtig: Der Stream-Link eines Hosters gilt nur für die IP, die die Hoster-Seite geholt hat.
+# Gehen Server und Chromium nicht über denselben Ausgang, lehnt der Hoster das Video ab.
+# Die Proton-Erweiterung im Chromium wird dann nicht mehr gebraucht (sie schützt nur den Browser).
+#
+# Starten:  cp docker-compose.vpn.example.yml docker-compose.yml  (Zugangsdaten eintragen)  dann  docker compose up -d
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: sina-vpn
+    restart: unless-stopped
+    cap_add: [NET_ADMIN]
+    devices: [/dev/net/tun:/dev/net/tun]
+    environment:
+      VPN_SERVICE_PROVIDER: protonvpn
+      # Variante A: WireGuard (Schlüssel aus dem Proton-Konto: Downloads → WireGuard-Konfiguration)
+      VPN_TYPE: wireguard
+      WIREGUARD_PRIVATE_KEY: "HIER_PRIVATER_SCHLUESSEL"
+      # Variante B: OpenVPN (VPN_TYPE weglassen; das sind die OpenVPN-Zugangsdaten von Proton, nicht das Login)
+      # OPENVPN_USER: "..."
+      # OPENVPN_PASSWORD: "..."
+      SERVER_COUNTRIES: Netherlands
+      FREE_ONLY: "on"            # nur Free-Server; bei bezahltem Konto entfernen
+      HTTPPROXY: "on"
+      HTTPPROXY_LISTENING_ADDRESS: ":8888"
+
+  sina:
+    image: ghcr.io/l8tenever/sina:latest
+    pull_policy: always
+    container_name: sina
+    restart: unless-stopped
+    shm_size: "1gb"
+    depends_on: [gluetun]
+    ports:
+      - "8180:8080"
+      - "8181:8081"
+    volumes:
+      - sina-data:/data
+    environment:
+      HTTPS_PROXY: http://sina-vpn:8888     # Server-Anfragen und Video-Proxy
+      HTTP_PROXY: http://sina-vpn:8888
+      NO_PROXY: localhost,127.0.0.1
+      # BROWSER_PROXY: http://sina-vpn:8888   # Chromium nutzt sonst automatisch HTTPS_PROXY
+      # VIEW_PASSWORD: "geheim"
+
+volumes:
+  sina-data:

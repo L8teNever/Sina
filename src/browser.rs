@@ -33,6 +33,12 @@ impl BrowserError {
     }
 }
 
+pub struct Media {
+    pub url: String,
+    pub m3u8: Option<String>,
+    pub mp4: Option<String>,
+}
+
 pub struct Loaded {
     pub url: String,
     pub title: String,
@@ -148,6 +154,41 @@ impl Browser {
         let keep = matches!(res, Err(BrowserError::NeedsHuman(_)));
         self.finish(tab, keep).await;
         res
+    }
+
+    /// Öffnet eine Player-Seite und sucht, bis sie einen Stream (.m3u8/.mp4) lädt (Video-Quelle oder Netzwerk-Anfragen).
+    pub async fn find_media(&self, url: &str, wait: Duration) -> Result<Media, BrowserError> {
+        const EXPR: &str = "JSON.stringify((()=>{const v=document.querySelector('video');if(v){try{v.muted=true;v.play&&v.play().catch(()=>{});}catch(e){}}const rs=performance.getEntriesByType('resource').map(e=>e.name).filter(n=>/\\.(m3u8|mp4)(\\?|$)/i.test(n));return {u:location.href,t:document.title,s:(v&&(v.currentSrc||v.src))||'',r:rs};})())";
+        let _permit = self.sem.acquire().await.map_err(failed)?;
+        let mut tab = self.open(url).await?;
+        let deadline = Instant::now() + wait;
+        let mut result: Result<Media, BrowserError> =
+            Err(BrowserError::Failed("Die Player-Seite hat keinen Stream geladen.".into()));
+        while Instant::now() < deadline {
+            if let Ok(v) = tab.eval(EXPR, false).await {
+                if let Ok(p) = serde_json::from_str::<Value>(v.as_str().unwrap_or("")) {
+                    let mut urls: Vec<String> = p["r"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(str::to_string)).collect()).unwrap_or_default();
+                    if let Some(s) = p["s"].as_str().filter(|s| s.starts_with("http")) {
+                        urls.insert(0, s.to_string());
+                    }
+                    let m3u8 = urls.iter().find(|u| u.contains(".m3u8")).cloned();
+                    let mp4 = urls.iter().find(|u| u.contains(".mp4")).cloned();
+                    if m3u8.is_some() || mp4.is_some() {
+                        result = Ok(Media { url: p["u"].as_str().unwrap_or(url).to_string(), m3u8, mp4 });
+                        break;
+                    }
+                    if is_challenge(p["t"].as_str().unwrap_or("")) {
+                        result = Err(BrowserError::NeedsHuman(
+                            "Die Seite zeigt eine Schutzprüfung. Öffne die Browser-Seite und löse sie dort.".into(),
+                        ));
+                    }
+                }
+            }
+            sleep(Duration::from_millis(700)).await;
+        }
+        let keep = matches!(result, Err(BrowserError::NeedsHuman(_)));
+        self.finish(tab, keep).await;
+        result
     }
 
     /// Lädt `url`, wartet bis die Seite fertig ist und führt dann `expr` darin aus (darf ein Promise sein).

@@ -1,353 +1,692 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" class="nina-skin-on">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0e1116">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101414">
 <meta name="referrer" content="no-referrer">
 <title>Sina</title>
+<link rel="stylesheet" href="skin.css">
+<link rel="stylesheet" href="player.css">
 <style>
-  :root { --bg:#0e1116; --card:#171c24; --line:#252c38; --text:#e8ecf2; --dim:#8b95a7; --acc:#7c9cff; --acc2:#4f6fe0; --bad:#ff6b6b; }
-  * { box-sizing:border-box; }
-  html,body { margin:0; background:var(--bg); color:var(--text); font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
-  a { color:inherit; text-decoration:none; }
-  button { font:inherit; color:inherit; cursor:pointer; }
-  header { position:sticky; top:0; z-index:10; display:flex; gap:12px; align-items:center; padding:10px 16px; background:rgba(14,17,22,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
-  .logo { font-weight:700; font-size:20px; letter-spacing:.5px; color:var(--acc); }
-  .search { flex:1; max-width:560px; position:relative; }
-  .search input { width:100%; padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font:inherit; outline:none; }
-  .search input:focus { border-color:var(--acc); }
-  .pill { padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:14px; color:var(--dim); white-space:nowrap; }
-  .pill:hover { color:var(--text); border-color:var(--acc); }
-  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--bad); margin-right:6px; }
-  .dot.up { background:#4ade80; }
-  main { max-width:1100px; margin:0 auto; padding:18px 16px 60px; }
-  h1,h2,h3 { margin:0 0 10px; }
-  h2 { font-size:18px; color:var(--dim); font-weight:600; margin-top:26px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; }
-  .card:hover { border-color:var(--acc); }
-  .card .img { aspect-ratio:2/3; background:#10141b center/cover no-repeat; display:flex; align-items:center; justify-content:center; font-size:38px; color:var(--line); }
-  .card .t { padding:9px 11px 11px; font-size:14px; font-weight:600; }
-  .card .d { padding:0 11px 11px; font-size:12px; color:var(--dim); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .series { display:flex; gap:20px; flex-wrap:wrap; }
-  .series .cover { width:200px; flex:none; border-radius:14px; border:1px solid var(--line); aspect-ratio:2/3; background:var(--card) center/cover no-repeat; }
-  .series .info { flex:1; min-width:260px; }
-  .dim { color:var(--dim); }
-  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 14px; }
-  .chip { padding:7px 13px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:14px; }
-  .chip.on { background:var(--acc2); border-color:var(--acc); color:#fff; }
-  .chip:hover { border-color:var(--acc); }
-  .eps { display:flex; flex-direction:column; gap:6px; }
-  .ep { display:flex; gap:12px; align-items:center; padding:10px 12px; border-radius:12px; background:var(--card); border:1px solid var(--line); }
-  .ep:hover { border-color:var(--acc); }
-  .ep .n { width:34px; flex:none; color:var(--acc); font-weight:700; text-align:right; }
-  .ep .tt { flex:1; min-width:0; }
-  .ep .tt b { display:block; font-weight:600; font-size:15px; }
-  .ep .tt small { color:var(--dim); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .ep .seen { color:#4ade80; font-size:13px; }
-  .player { position:relative; background:#000; border-radius:14px; overflow:hidden; aspect-ratio:16/9; }
-  .player video { width:100%; height:100%; background:#000; }
-  .player .msg { position:absolute; inset:0; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; text-align:center; padding:20px; background:rgba(0,0,0,.72); }
-  .spin { width:34px; height:34px; border:3px solid var(--line); border-top-color:var(--acc); border-radius:50%; animation:sp 1s linear infinite; }
-  @keyframes sp { to { transform:rotate(360deg); } }
-  .btn { padding:9px 16px; border-radius:10px; border:1px solid var(--acc); background:var(--acc2); color:#fff; font-weight:600; }
-  .btn.ghost { background:transparent; border-color:var(--line); color:var(--text); }
-  .bar { display:flex; gap:10px; align-items:center; justify-content:space-between; margin:12px 0; flex-wrap:wrap; }
-  .err { color:var(--bad); }
-  .empty { color:var(--dim); padding:30px 0; text-align:center; }
-  .crumb { color:var(--dim); font-size:14px; margin-bottom:10px; }
-  .crumb a:hover { color:var(--text); }
+  html, body { margin: 0; background: hsl(186 10% 7%); }
+  #nina-skin .sina-ph-msg { position: relative; display: grid; gap: 12px; justify-items: center; text-align: center; padding: 0 24px; color: #fff; }
+  #nina-skin .sina-ph-msg .spin { width: 40px; height: 40px; border-radius: 50%; border: 4px solid rgba(255,255,255,.22); border-top-color: var(--primary); animation: sinaSpin 1s linear infinite; }
+  #nina-skin .sina-ph-msg small { color: rgba(255,255,255,.75); max-width: 460px; }
+  #nina-skin .sina-ph-msg .err { color: #ffb4ab; font-weight: 600; }
+  #nina-skin .sina-ph-msg .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  #nina-skin .sina-ph-msg .ns-btn, #nina-skin .sina-ph-msg .ns-tonal { text-decoration: none; }
+  @keyframes sinaSpin { to { transform: rotate(360deg); } }
+  #nina-skin .ns-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ffb4ab; margin-right: 8px; }
+  #nina-skin .ns-dot.up { background: #81c784; }
+  #nina-skin .ns-ep .bar { display: block; height: 3px; border-radius: 3px; background: var(--outline-variant); margin-top: 4px; overflow: hidden; }
+  #nina-skin .ns-ep .bar b { display: block; height: 100%; background: var(--primary); }
 </style>
 </head>
 <body>
-<header>
-  <a class="logo" href="#/">Sina</a>
-  <div class="search"><input id="q" type="search" placeholder="Anime suchen …" autocomplete="off" enterkeyhint="search"></div>
-  <a class="pill" id="browserLink" href="#" target="_blank" rel="noopener" title="Der Browser im Container (Schutzprüfungen lösen, Anmeldungen)"><span class="dot" id="dot"></span>Browser</a>
-</header>
-<main id="app"></main>
+<div id="nina-skin">
+  <header class="ns-top">
+    <a class="ns-brand" href="#/"><span class="ns-logo">S</span><span><b>Sina</b><small>AniWorld</small></span></a>
+    <nav class="ns-nav" id="nav"></nav>
+    <div class="ns-search"><label id="searchIcon"></label><div class="ns-suggest"></div></div>
+    <button type="button" class="ns-vpn" id="vpnChip" title="Server und Browser: gleiche IP? (klicken: prüfen)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg><span class="dot"></span><span class="t">IP …</span></button>
+    <div class="ns-acts"><a class="ns-tonal" id="browserLink" href="#" target="_blank" rel="noopener" title="Der Browser im Container (Schutzprüfungen lösen)"></a></div>
+  </header>
+  <main class="ns-main" id="main"></main>
+  <nav class="ns-bnav" id="bnav"></nav>
+</div>
 
 <script src="hls.min.js"></script>
+<script src="shim.js"></script>
+<script src="player.js"></script>
 <script>
 'use strict';
 const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const app = $('#app');
+const svg = (d) => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '"/></svg>';
+const I = {
+  search: svg('M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'),
+  chev: svg('M7 10l5 5 5-5z'),
+  chevUp: svg('M7 14l5-5 5 5z'),
+  bookmark: svg('M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z'),
+  check: svg('M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'),
+  play: svg('M8 5v14l11-7z'),
+  clock: svg('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-8 3.58-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z'),
+  prev: svg('M6 6h2v12H6zm3.5 6 8.5 6V6z'),
+  next: svg('M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z'),
+  web: svg('M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm6.93 6h-2.95a15.65 15.65 0 0 0-1.38-3.56A8.03 8.03 0 0 1 18.93 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 0 1 5.08 16zm2.95-8H5.08a7.99 7.99 0 0 1 4.33-3.56A15.65 15.65 0 0 0 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z'),
+  tv: svg('M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z'),
+};
+
+// ---------- Hilfen ----------
 const store = {
-  get(k, d) { try { return JSON.parse(localStorage.getItem('sina:' + k)) ?? d; } catch { return d; } },
+  get(k, d) { try { const v = localStorage.getItem('sina:' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem('sina:' + k, JSON.stringify(v)); } catch {} },
 };
-let cfg = { viewUrl: '', viewPort: '8081' };
+const main = $('#main');
+let cfg = { viewUrl: '', viewPort: '8081', browserUp: false };
 
 async function api(path, params) {
-  const url = '/api/' + path + (params ? '?' + new URLSearchParams(params) : '');
-  const r = await fetch(url);
+  const r = await fetch('/api/' + path + (params ? '?' + new URLSearchParams(params) : ''));
   let j = null;
   try { j = await r.json(); } catch {}
   if (!r.ok) { const e = new Error((j && j.error) || 'Fehler ' + r.status); e.needsBrowser = !!(j && j.needsBrowser); throw e; }
   return j;
 }
-const coverUrl = (p) => (p ? '/api/img?p=' + encodeURIComponent(p) : '');
+const imgUrl = (p) => (!p ? '' : p.startsWith('/public/') ? '/api/img?p=' + encodeURIComponent(p) : p);
 const viewUrl = () => cfg.viewUrl || `${location.protocol}//${location.hostname}:${cfg.viewPort}/`;
+const H = {
+  show: (slug) => `#/anime/stream/${slug}`,
+  season: (slug, key) => (key === 'filme' ? `#/anime/stream/${slug}/filme` : `#/anime/stream/${slug}/staffel-${key}`),
+  ep: (slug, season, n, film) => (film ? `#/anime/stream/${slug}/filme/film-${n}` : `#/anime/stream/${slug}/staffel-${season}/episode-${n}`),
+};
+const fmtTime = (s) => { s = Math.floor(s); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(s % 60).padStart(2, '0'); };
 
-async function loadConfig() {
-  try {
-    cfg = await api('config');
-    $('#dot').classList.toggle('up', !!cfg.browserUp);
-  } catch {}
-  $('#browserLink').href = viewUrl();
+// Fortschritt (lokal im Browser)
+const epKey = (slug, season, n, film) => `${slug}/${film ? 'f' : season}/${n}`;
+function epState(slug, season, n, film) {
+  const k = epKey(slug, season, n, film);
+  const seen = store.get('seen', {})[k];
+  const p = store.get('prog', {})[k];
+  if (seen || (p && p.frac >= 0.8)) return { status: 'w', frac: 1 };
+  if (p && p.frac > 0.02) return { status: 's', frac: p.frac };
+  return null;
 }
-loadConfig();
-setInterval(loadConfig, 30000);
 
-// ---------- Suche ----------
-const qEl = $('#q');
-let qTimer = null, qSeq = 0;
-qEl.addEventListener('input', () => {
-  clearTimeout(qTimer);
-  const v = qEl.value.trim();
-  if (v.length < 2) return;
-  qTimer = setTimeout(() => { if (location.hash !== '#/search/' + encodeURIComponent(v)) location.hash = '#/search/' + encodeURIComponent(v); }, 350);
-});
-qEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const v = qEl.value.trim(); if (v.length >= 2) location.hash = '#/search/' + encodeURIComponent(v); } });
+// ---------- Rahmen: Navigation, Suche ----------
+const NAV = [
+  ['#/', 'Start', 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'],
+  ['#/animes', 'Alle Animes', 'M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z'],
+  ['#/beliebt', 'Beliebt', 'M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z'],
+  ['#/kalender', 'Kalender', 'M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z'],
+];
+function paintNav(route) {
+  const on = (h) => (h === '#/' ? route.name === 'home' : route.name === { '#/animes': 'all', '#/beliebt': 'popular', '#/kalender': 'calendar' }[h]);
+  $('#nav').innerHTML = NAV.map(([h, t]) => `<a href="${h}" class="${on(h) ? 'on' : ''}">${t}</a>`).join('');
+  $('#bnav').innerHTML = NAV.map(([h, t, d]) => `<a href="${h}" class="${on(h) ? 'on' : ''}"><span class="ind">${svg(d)}</span>${t === 'Alle Animes' ? 'Animes' : t}</a>`).join('') +
+    `<a href="${esc(viewUrl())}" target="_blank" rel="noopener"><span class="ind">${I.web}</span>Browser</a>`;
+}
+function paintBrowser() {
+  const a = $('#browserLink');
+  a.href = viewUrl();
+  a.innerHTML = `<span class="ns-dot ${cfg.browserUp ? 'up' : ''}"></span>${I.web}<span>Browser</span>`;
+}
+async function checkVpn() {
+  const b = $('#vpnChip');
+  b.className = 'ns-vpn busy';
+  $('.t', b).textContent = 'Prüfe …';
+  try {
+    const v = await api('vpn');
+    const cls = v.same ? 'ok' : v.server && v.browser ? 'bad' : 'warn';
+    b.className = 'ns-vpn ' + cls;
+    $('.t', b).textContent = v.same ? (v.proxy ? 'VPN · gleiche IP' : 'Gleiche IP') : v.server && v.browser ? 'IP verschieden' : 'IP ?';
+    b.title = `Server: ${v.server || '?'} · Browser: ${v.browser || '?'}` + (v.same ? '' : ' – Videos können abgelehnt werden. Beide müssen über denselben Proxy/VPN gehen.') + ' (klicken: neu prüfen)';
+  } catch { b.className = 'ns-vpn warn'; $('.t', b).textContent = 'IP ?'; }
+}
+$('#vpnChip').addEventListener('click', checkVpn);
+async function loadConfig() {
+  try { cfg = await api('config'); } catch {}
+  paintBrowser();
+}
 
-const coverQueue = [];
-let coverBusy = false;
-const io = new IntersectionObserver((entries) => {
-  for (const en of entries) if (en.isIntersecting) { io.unobserve(en.target); coverQueue.push(en.target); }
-  pump();
-}, { rootMargin: '200px' });
-async function pump() {
-  if (coverBusy) return;
-  coverBusy = true;
-  while (coverQueue.length) {
-    const el = coverQueue.shift();
-    if (!el.isConnected) continue;
-    try {
-      const s = await api('series', { slug: el.dataset.slug });
-      if (s.cover) el.style.backgroundImage = `url("${coverUrl(s.cover)}")`, el.textContent = '';
-    } catch {}
+// Suche mit Vorschlägen
+(function setupSearch() {
+  $('#searchIcon').innerHTML = I.search + '<input type="search" placeholder="Anime suchen …" autocomplete="off" spellcheck="false">';
+  const input = $('.ns-search input'), box = $('.ns-suggest');
+  let timer = null, seq = 0, sel = -1;
+  const paint = (list, q) => {
+    if (!list.length) { box.innerHTML = `<div class="ns-sug"><small>Keine Treffer für „${esc(q)}“</small></div>`; box.classList.add('on'); return; }
+    box.innerHTML = list.slice(0, 7).map((r, i) => `<a class="ns-sug" href="${H.show(r.slug)}" data-i="${i}"><span class="c" data-cover="${esc(r.slug)}"></span><span><b>${esc(r.title)}</b><small>${esc(r.description)}</small></span></a>`).join('') +
+      `<a class="ns-sug-all" href="#/search/${encodeURIComponent(q)}">Alle ${list.length} Treffer anzeigen</a>`;
+    box.classList.add('on');
+    fillCovers(box);
+  };
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    sel = -1;
+    if (q.length < 2) { box.classList.remove('on'); return; }
+    timer = setTimeout(async () => { const my = ++seq; try { const l = await api('search', { q }); if (my === seq) paint(l, q); } catch {} }, 250);
+  });
+  input.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    const items = $$('.ns-sug[href]', box);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      sel = Math.max(-1, Math.min(items.length - 1, sel + (e.key === 'ArrowDown' ? 1 : -1)));
+      items.forEach((it, i) => it.classList.toggle('sel', i === sel));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const q = input.value.trim();
+      box.classList.remove('on');
+      if (sel >= 0 && items[sel]) location.hash = items[sel].getAttribute('href');
+      else if (q) location.hash = '#/search/' + encodeURIComponent(q);
+    } else if (e.key === 'Escape') { box.classList.remove('on'); input.blur(); }
+  });
+  for (const t of ['keyup', 'keypress']) input.addEventListener(t, (e) => e.stopPropagation());
+  document.addEventListener('mousedown', (e) => { if (!e.target.closest('.ns-search')) box.classList.remove('on'); }, true);
+  box.addEventListener('click', () => box.classList.remove('on'));
+  input.addEventListener('focus', () => { if (box.innerHTML && input.value.trim().length >= 2) box.classList.add('on'); });
+  window.__searchInput = input;
+})();
+
+// Cover, die in Listen fehlen: eines pro Serienseite, nur für sichtbare Karten
+const coverCache = store.get('covers', {});
+let coverSave = null;
+const coverBusy = new Map();
+function coverFor(slug) {
+  if (coverCache[slug] !== undefined) return Promise.resolve(coverCache[slug]);
+  if (!coverBusy.has(slug)) {
+    coverBusy.set(slug, api('series', { slug }).then((s) => s.cover || '').catch(() => '').then((c) => {
+      coverCache[slug] = c;
+      clearTimeout(coverSave);
+      coverSave = setTimeout(() => {
+        const keys = Object.keys(coverCache);
+        if (keys.length > 3000) for (const k of keys.slice(0, keys.length - 2500)) delete coverCache[k];
+        store.set('covers', coverCache);
+      }, 800);
+      coverBusy.delete(slug);
+      return c;
+    }));
   }
-  coverBusy = false;
+  return coverBusy.get(slug);
+}
+let coverIo = null, coverRunning = 0;
+const coverQ = [];
+function coverPump() {
+  while (coverRunning < 3 && coverQ.length) {
+    const el = coverQ.shift();
+    if (!el.isConnected) continue;
+    coverRunning++;
+    coverFor(el.dataset.cover).then((src) => {
+      coverRunning--;
+      if (src && el.isConnected) {
+        const img = new Image();
+        img.alt = ''; img.decoding = 'async'; img.src = imgUrl(src);
+        const ph = el.querySelector('.ph'); if (ph) ph.remove();
+        el.appendChild(img);
+      }
+      coverPump();
+    });
+  }
+}
+function fillCovers(scope) {
+  const els = $$('[data-cover]', scope).filter((e) => !e.dataset.done);
+  const take = (el) => { if (el.dataset.done) return; el.dataset.done = '1'; coverQ.push(el); };
+  if (typeof IntersectionObserver !== 'function') { els.forEach(take); coverPump(); return; }
+  if (!coverIo) {
+    coverIo = new IntersectionObserver((ents) => {
+      for (const en of ents) if (en.isIntersecting) { coverIo.unobserve(en.target); take(en.target); }
+      coverPump();
+    }, { rootMargin: '400px 0px' });
+  }
+  els.forEach((el) => coverIo.observe(el));
+}
+
+// ---------- Bausteine ----------
+const card = (c) => {
+  const st = c.state;
+  return `<a class="ns-card ${st === 'w' ? 'seen' : st === 's' ? 'part' : ''}" href="${H.show(c.slug)}">
+    <div class="cv" ${c.img ? '' : `data-cover="${esc(c.slug)}"`}>${c.img ? `<img src="${esc(imgUrl(c.img))}" alt="" loading="lazy" decoding="async">` : `<span class="ph">${esc((c.title || '?').slice(0, 1))}</span>`}</div>
+    <b>${esc(c.title)}</b>${c.sub ? `<small>${esc(c.sub)}</small>` : ''}</a>`;
+};
+const spinner = () => `<div class="ns-empty"><div class="sina-ph-msg"><div class="spin"></div></div></div>`;
+const errBox = (e) => `<div class="ns-empty">${I.tv}${esc(e.message)}${e.needsBrowser ? `<br><br><a class="ns-btn" href="${esc(viewUrl())}" target="_blank" rel="noopener">${I.web}Browser öffnen</a>` : ''}</div>`;
+
+// ---------- Ansichten ----------
+let viewSeq = 0;
+
+async function viewHome() {
+  const my = ++viewSeq;
+  main.innerHTML = spinner();
+  let d;
+  try { d = await api('home'); } catch (e) { if (my === viewSeq) main.innerHTML = errBox(e); return; }
+  if (my !== viewSeq) return;
+  const recent = store.get('recent', []);
+  main.innerHTML =
+    (d.hero.length ? `<div class="ns-hero">${d.hero.map((c, i) => `<a href="${H.show(c.slug)}"><img src="${esc(imgUrl(c.img))}" alt="" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async"><span>${esc(c.title)}</span></a>`).join('')}</div>` : '') +
+    (recent.length ? `<section class="ns-sec"><div class="ns-sec-h"><h2>Weiter schauen</h2></div><div class="ns-row">${recent.map((r) => `
+      <a class="ns-card part" href="${H.ep(r.slug, r.season, r.ep, r.film)}"><div class="cv"${r.cover ? '' : ` data-cover="${esc(r.slug)}"`}>${r.cover ? `<img src="${esc(imgUrl(r.cover))}" alt="" loading="lazy">` : `<span class="ph">${esc(r.title.slice(0, 1))}</span>`}</div>
+      <b>${esc(r.title)}</b><small>${r.film ? 'Film ' + r.ep : 'S' + r.season + ' · F' + r.ep}</small></a>`).join('')}</div></section>` : '') +
+    d.sections.map((s) => `<section class="ns-sec"><div class="ns-sec-h"><h2>${esc(s.title)}</h2></div><div class="ns-row">${s.cards.map(card).join('')}</div></section>`).join('');
+  fillCovers(main);
+}
+
+async function viewPopular() {
+  const my = ++viewSeq;
+  main.innerHTML = spinner();
+  try {
+    const d = await api('list', { kind: 'popular' });
+    if (my !== viewSeq) return;
+    main.innerHTML = `<h1 class="ns-h1">${esc(d.title)}</h1><p class="ns-sub">${d.cards.length} Titel</p><div class="ns-grid">${d.cards.map(card).join('')}</div>`;
+  } catch (e) { if (my === viewSeq) main.innerHTML = errBox(e); }
 }
 
 async function viewSearch(q) {
-  qEl.value = q;
-  const seq = ++qSeq;
-  app.innerHTML = `<h1>Suche: „${esc(q)}“</h1><div class="empty"><div class="spin" style="margin:0 auto"></div></div>`;
+  const my = ++viewSeq;
+  window.__searchInput.value = q;
+  main.innerHTML = `<h1 class="ns-h1">Suche: „${esc(q)}“</h1><p class="ns-sub">Ergebnisse von AniWorld</p><div class="ns-grid">${[1, 2, 3, 4, 5, 6].map(() => '<div class="ns-card"><div class="cv ns-skel"></div></div>').join('')}</div>`;
   try {
-    const res = await api('search', { q });
-    if (seq !== qSeq) return;
-    if (!res.length) { app.innerHTML = `<h1>Suche: „${esc(q)}“</h1><div class="empty">Nichts gefunden.</div>`; return; }
-    app.innerHTML = `<h1>Suche: „${esc(q)}“</h1><div class="grid">${res.map((r) => `
-      <a class="card" href="#/s/${esc(r.slug)}"><div class="img" data-slug="${esc(r.slug)}">${esc(r.title.slice(0, 1))}</div>
-      <div class="t">${esc(r.title)}</div><div class="d">${esc(r.description)}</div></a>`).join('')}</div>`;
-    app.querySelectorAll('.img[data-slug]').forEach((el) => io.observe(el));
-  } catch (e) {
-    if (seq !== qSeq) return;
-    app.innerHTML = `<h1>Suche: „${esc(q)}“</h1>${errBox(e)}`;
+    const list = await api('search', { q });
+    if (my !== viewSeq) return;
+    if (!list.length) { main.innerHTML = `<h1 class="ns-h1">Suche: „${esc(q)}“</h1><div class="ns-empty">${I.search}Keine Treffer.</div>`; return; }
+    main.innerHTML = `<h1 class="ns-h1">Suche: „${esc(q)}“</h1><p class="ns-sub">${list.length} Treffer bei AniWorld</p><div class="ns-grid">${list.map((r) => card({ slug: r.slug, title: r.title })).join('')}</div>`;
+    fillCovers(main);
+  } catch (e) { if (my === viewSeq) main.innerHTML = errBox(e); }
+}
+
+// „Alle Animes“: Cover-Karten, A–Z, Genres, Filter
+async function viewAll() {
+  const my = ++viewSeq;
+  main.innerHTML = spinner();
+  let d;
+  try { d = await api('list', { kind: 'all' }); } catch (e) { if (my === viewSeq) main.innerHTML = errBox(e); return; }
+  if (my !== viewSeq) return;
+  const all = d.items.slice().sort((a, b) => a.title.localeCompare(b.title, 'de', { sensitivity: 'base' }));
+  const letterOf = (t) => { const c = t.trim().charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : '#'; };
+  const letters = [...new Set(all.map((x) => letterOf(x.title)))];
+  const genres = [...new Set(all.flatMap((x) => x.genres))].filter((g) => !/^(Ger|GerSub|EngSub|Eng)$/i.test(g)).sort((a, b) => a.localeCompare(b, 'de'));
+  const st = { genre: '', q: '' };
+  main.innerHTML = `<h1 class="ns-h1">${esc(d.title)}</h1><p class="ns-sub"><span class="ns-all-n">${all.length}</span> Titel · Cover laden beim Scrollen</p>
+    <div class="ns-all-bar">
+      <label class="ns-chip ns-all-q">${I.search}<input placeholder="Titel filtern …" spellcheck="false"></label>
+      <span class="ns-all-sel"><select class="ns-all-genre"><option value="">Alle Genres</option>${genres.map((g) => `<option>${esc(g)}</option>`).join('')}</select>${I.chev}</span>
+    </div>
+    <nav class="ns-az">${letters.map((l) => `<a href="javascript:void 0" data-az="${l}">${l}</a>`).join('')}</nav>
+    <div class="ns-all"></div>`;
+  const box = $('.ns-all');
+  const paint = () => {
+    const q = st.q.toLowerCase();
+    const list = all.filter((x) => (!st.genre || x.genres.includes(st.genre)) && (!q || (x.title + ' ' + x.alt).toLowerCase().includes(q)));
+    $('.ns-all-n').textContent = list.length;
+    let html = '', last = '';
+    for (const x of list) {
+      const l = letterOf(x.title);
+      if (l !== last) { html += `${last ? '</div>' : ''}<h2 class="ns-az-h" id="az-${l === '#' ? 'num' : l}">${l}</h2><div class="ns-grid">`; last = l; }
+      html += `<a class="ns-card" href="${H.show(x.slug)}"><div class="cv" data-cover="${esc(x.slug)}"><span class="ph">${esc(x.title.slice(0, 1))}</span></div><b>${esc(x.title)}</b><small>${esc(x.genres.slice(0, 2).join(' · '))}</small></a>`;
+    }
+    box.innerHTML = list.length ? html + '</div>' : `<div class="ns-empty">${I.search}Nichts gefunden.</div>`;
+    $$('[data-az]').forEach((a) => a.classList.toggle('off', !list.some((x) => letterOf(x.title) === a.dataset.az)));
+    fillCovers(box);
+  };
+  paint();
+  const qi = $('.ns-all-q input');
+  qi.addEventListener('keydown', (e) => e.stopPropagation());
+  let t = null;
+  qi.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { st.q = qi.value.trim(); paint(); }, 150); });
+  $('.ns-all-genre').addEventListener('change', (e) => { st.genre = e.target.value; paint(); });
+  $('.ns-az').addEventListener('click', (e) => {
+    const a = e.target.closest('[data-az]');
+    if (!a) return;
+    const el = $('#az-' + (a.dataset.az === '#' ? 'num' : a.dataset.az));
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+// Kalender
+function mergeDay(entries) {
+  const map = new Map();
+  for (const e of entries) {
+    const k = e.slug + ':' + e.season + ':' + e.episode + ':' + (e.film ? 1 : 0);
+    const cur = map.get(k);
+    if (!cur) { map.set(k, { ...e, langs: e.lang ? [e.lang] : [] }); continue; }
+    if (e.lang && !cur.langs.includes(e.lang)) cur.langs.push(e.lang);
+    cur.out = cur.out || e.out;
+    if (!cur.img && e.img) cur.img = e.img;
+    if (e.time && (!cur.time || e.time < cur.time)) cur.time = e.time;
   }
+  return [...map.values()].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+}
+async function viewCalendar() {
+  const my = ++viewSeq;
+  main.innerHTML = spinner();
+  let d;
+  try { d = await api('calendar'); } catch (e) { if (my === viewSeq) main.innerHTML = errBox(e); return; }
+  if (my !== viewSeq) return;
+  const days = d.days.map((x) => ({ ...x, entries: mergeDay(x.entries) }));
+  if (!days.length) { main.innerHTML = `<h1 class="ns-h1">Kalender</h1><div class="ns-empty">${I.clock}Der Kalender ist leer.</div>`; return; }
+  let pick = Math.max(0, days.findIndex((x) => x.today));
+  const total = days.reduce((a, x) => a + x.entries.length, 0);
+  const entry = (e) => `<a class="ns-cal-e" href="${e.episode ? H.ep(e.slug, e.season, e.episode, e.film) : H.show(e.slug)}">
+    <span class="tm">${esc(e.time || '–')}</span>
+    <span class="cv" ${e.img ? '' : `data-cover="${esc(e.slug)}"`}>${e.img ? `<img src="${esc(imgUrl(e.img))}" alt="" loading="lazy" decoding="async">` : ''}</span>
+    <span class="tx"><b>${esc(e.title)}</b><span class="tags">
+      ${e.episode ? `<span class="ns-pill">${e.film ? 'Film ' + e.episode : 'S' + e.season + ' · F' + e.episode}</span>` : ''}
+      ${e.langs.map((l) => `<span class="ns-pill">${esc(l)}</span>`).join('')}
+      ${e.out ? `<span class="ns-pill out">${I.check}Erschienen</span>` : `<span class="ns-pill soon">${I.clock}Erwartet</span>`}</span></span></a>`;
+  const paintDay = () => {
+    const day = days[pick];
+    const now = new Date(), hm = now.getHours() * 60 + now.getMinutes();
+    const later = (e) => { const [h, m] = (e.time || '0:0').split(':').map(Number); return h * 60 + m > hm; };
+    let done = false;
+    $('.ns-cal-list').innerHTML = day.entries.map((e) => {
+      const mark = day.today && !done && later(e) ? (done = true, '<div class="ns-cal-now"><span>Jetzt</span></div>') : '';
+      return mark + entry(e);
+    }).join('') || '<div class="ns-empty">Keine Folgen an diesem Tag.</div>';
+    $$('[data-calday]').forEach((b, i) => b.classList.toggle('on', i === pick));
+    fillCovers($('.ns-cal-list'));
+  };
+  main.innerHTML = `<h1 class="ns-h1">Kalender</h1><p class="ns-sub">${total} Folgen in den nächsten ${days.length} Tagen · Uhrzeiten wie bei AniWorld</p>
+    <div class="ns-cal"><div class="ns-cal-days">${days.map((x, i) => `<button class="ns-chip ${i === pick ? 'on' : ''}" data-calday="${i}">${esc(x.label)}<span class="cnt">${x.entries.length}</span></button>`).join('')}</div><div class="ns-cal-list"></div></div>`;
+  $('.ns-cal-days').addEventListener('click', (e) => { const b = e.target.closest('[data-calday]'); if (b) { pick = +b.dataset.calday; paintDay(); } });
+  paintDay();
 }
 
-function errBox(e) {
-  return `<div class="empty err">${esc(e.message)}${e.needsBrowser ? `<br><br><a class="btn" href="${esc(viewUrl())}" target="_blank" rel="noopener">Browser öffnen</a>` : ''}</div>`;
+// Serie
+const epRow = (slug, e, cur) => {
+  const s = epState(slug, e.season, e.n, e.film);
+  const label = e.film ? 'Film ' + e.n : 'Folge ' + e.n;
+  return `<a class="ns-ep ${s ? s.status : ''} ${cur ? 'cur' : ''}" href="${H.ep(slug, e.season, e.n, e.film)}">
+    ${e.film ? '<span></span>' : `<button class="ns-tick" data-tick="${esc(epKey(slug, e.season, e.n, e.film))}" title="${s && s.status === 'w' ? 'Als ungesehen markieren' : 'Als gesehen markieren'}">${I.check}</button>`}
+    <span class="n">${e.film ? 'F' + e.n : e.n}</span>
+    <span class="t"><b>${esc(e.title || label)}</b><small>${esc(e.titleEn ? label + ' · ' + e.titleEn : label)}</small></span>
+    ${s && s.status === 'w' ? `<span class="ns-state">${I.check}Gesehen</span>` : s ? `<span class="ns-state s">${I.play}Angefangen<i><b style="width:${Math.round(s.frac * 100)}%"></b></i></span>` : '<span></span>'}
+    <span class="play">${I.play}</span></a>`;
+};
+const seasonChips = (slug, p, cur) => (p.seasons.length > 1 ? `<div class="ns-seasons">${p.seasons.map((s) => `<a class="ns-chip ${s.key === cur ? 'on' : ''}" href="${H.season(slug, s.key)}">${esc(s.label)}</a>`).join('')}</div>` : '');
+const normEps = (slug, list, key) => list.map((e) => ({ ...e, season: key === 'filme' ? 0 : Number(key), film: key === 'filme', slug }));
+let descOpen = false;
+
+async function loadShow(slug, key) {
+  const p = await api('series', { slug });
+  const k = key || (p.seasons.find((s) => s.key === '1') || p.seasons[0] || { key: '1' }).key;
+  const eps = normEps(slug, await api('season', { slug, season: k }), k);
+  return { p, key: k, eps };
 }
 
-// ---------- Startseite ----------
-function viewHome() {
-  qEl.value = '';
-  const recent = store.get('recent', []);
-  app.innerHTML = recent.length
-    ? `<h1>Weiter schauen</h1><div class="eps">${recent.map((r) => `
-        <a class="ep" href="#/w/${esc(r.slug)}/${esc(r.season)}/${esc(r.ep)}"><span class="n">▶</span>
-        <span class="tt"><b>${esc(r.title)}</b><small>${r.season === 'filme' ? 'Film' : 'Staffel ' + esc(r.season)} · Folge ${esc(r.ep)}${r.pos ? ' · bei ' + fmt(r.pos) : ''}</small></span></a>`).join('')}</div>`
-    : `<div class="empty"><h1>Sina</h1>Oben einen Anime suchen.</div>`;
-}
-const fmt = (s) => { s = Math.floor(s); const m = Math.floor(s / 60); return m + ':' + String(s % 60).padStart(2, '0'); };
-
-// ---------- Serie ----------
-async function viewSeries(slug, season) {
-  app.innerHTML = `<div class="empty"><div class="spin" style="margin:0 auto"></div></div>`;
-  let s;
-  try { s = await api('series', { slug }); } catch (e) { app.innerHTML = errBox(e); return; }
-  document.title = s.title + ' – Sina';
-  const cur = season || (s.seasons.find((x) => x.key === '1') || s.seasons[0] || {}).key || '1';
-  app.innerHTML = `
-    <div class="series">
-      <div class="cover" style="background-image:url('${coverUrl(s.cover)}')"></div>
-      <div class="info"><h1>${esc(s.title)}</h1>
-        <div class="dim">${esc(s.genres.join(' · '))}</div>
-        <p>${esc(s.description)}</p>
-        ${s.alt.length ? `<div class="dim" style="font-size:13px">Auch bekannt als: ${esc(s.alt.slice(0, 5).join(', '))}</div>` : ''}
+async function viewShow(slug, key) {
+  const my = ++viewSeq;
+  main.innerHTML = spinner();
+  let d;
+  try { d = await loadShow(slug, key); } catch (e) { if (my === viewSeq) main.innerHTML = errBox(e); return; }
+  if (my !== viewSeq) return;
+  const { p, eps } = d;
+  document.title = p.title + ' – Sina';
+  const nSeasons = p.seasons.filter((s) => s.key !== 'filme').length;
+  const meta = [p.years.length ? p.years.join(' – ') : '', nSeasons ? nSeasons + ' Staffeln' : ''].filter(Boolean);
+  const cur = p.seasons.find((s) => s.key === d.key);
+  const cover = imgUrl(p.cover), back = imgUrl(p.backdrop || p.cover);
+  main.innerHTML = `<div class="ns-show">
+    ${back ? `<div class="ns-backdrop"><img src="${esc(back)}" alt="" decoding="async" fetchpriority="low"></div>` : ''}
+    <div class="ns-top-grid">
+      <div class="ns-poster">${cover ? `<img src="${esc(cover)}" alt="" decoding="async" fetchpriority="high">` : `<span class="ph">${esc(p.title.slice(0, 1))}</span>`}</div>
+      <div>
+        <h1 class="ns-title">${esc(p.title)}</h1>
+        ${p.alt.length ? `<p class="ns-alt">${esc(p.alt.slice(0, 6).join(', '))}</p>` : ''}
+        <div class="ns-meta">${meta.map((m) => `<span>${esc(m)}</span>`).join('<span>·</span>')}${p.fsk ? `<span class="ns-pill fsk">${esc(p.fsk)}</span>` : ''}${p.langs.map((l) => `<span class="ns-pill">${esc(l)}</span>`).join('')}</div>
+        ${p.genres.length ? `<div class="ns-genres">${p.genres.map((g) => `<a href="#/search/${encodeURIComponent(g)}">${esc(g)}</a>`).join('')}</div>` : ''}
+        ${p.description ? `<p class="ns-desc ${descOpen ? 'open' : ''}">${esc(p.description)}</p>${p.description.length > 300 ? `<button class="ns-more" data-ns="desc">${descOpen ? 'Weniger anzeigen' + I.chevUp : 'Mehr anzeigen' + I.chev}</button>` : ''}` : ''}
       </div>
     </div>
-    <h2>Staffeln</h2>
-    <div class="chips">${s.seasons.map((x) => `<a class="chip ${x.key === cur ? 'on' : ''}" href="#/s/${esc(slug)}/${esc(x.key)}">${esc(x.label)}</a>`).join('')}</div>
-    <div id="eps"><div class="empty"><div class="spin" style="margin:0 auto"></div></div></div>`;
-  try {
-    const eps = await api('season', { slug, season: cur });
-    const seen = store.get('seen', {});
-    $('#eps').innerHTML = `<div class="eps">${eps.map((e) => {
-      const done = seen[`${slug}/${cur}/${e.n}`];
-      return `<a class="ep" href="#/w/${esc(slug)}/${esc(cur)}/${e.n}"><span class="n">${e.n}</span>
-        <span class="tt"><b>${esc(e.title || e.titleEn || 'Folge ' + e.n)}</b><small>${esc(e.titleEn && e.title ? e.titleEn : e.hosters.join(', '))}</small></span>
-        ${done ? '<span class="seen">✓</span>' : ''}</a>`;
-    }).join('')}</div>`;
-  } catch (e) { $('#eps').innerHTML = errBox(e); }
+    <section class="ns-sec">
+      <div class="ns-sec-h"><h2>${cur ? esc(cur.label) : 'Folgen'}</h2><span class="ns-muted">${eps.length} ${d.key === 'filme' ? 'Filme' : 'Folgen'}</span></div>
+      ${seasonChips(slug, p, d.key)}
+      ${eps.length ? `<div class="ns-eps">${eps.map((e) => epRow(slug, e, false)).join('')}</div>` : `<div class="ns-empty">${I.tv}Keine Folgen gefunden.</div>`}
+    </section></div>`;
 }
 
-// ---------- Player ----------
-let hls = null;
-let playTimer = null;
-function stopPlayer() {
-  if (hls) { try { hls.destroy(); } catch {} hls = null; }
-  clearInterval(playTimer);
+// ---------- Folge + Player ----------
+const player = { token: 0, hls: null, video: null };
+function teardown() {
+  player.token++;
+  if (player.hls) { try { player.hls.destroy(); } catch {} player.hls = null; }
+  if (player.video) { try { player.video.pause(); player.video.removeAttribute('src'); player.video.load(); } catch {} player.video = null; }
+  window.__sinaCtx = null; window.__sinaSkip = null; window.__sinaOnProgress = null;
 }
+const proxied = (u, r) => '/api/hls?u=' + encodeURIComponent(u) + '&r=' + encodeURIComponent(r || '');
 
-async function viewWatch(slug, season, ep) {
-  app.innerHTML = `<div class="empty"><div class="spin" style="margin:0 auto"></div></div>`;
-  let s, eps, info;
+async function viewEpisode(slug, key, num) {
+  const my = ++viewSeq;
+  main.innerHTML = spinner();
+  const film = key === 'filme';
+  let d, info;
   try {
-    [s, eps, info] = await Promise.all([api('series', { slug }), api('season', { slug, season }), api('episode', { slug, season, episode: ep })]);
-  } catch (e) { app.innerHTML = errBox(e); return; }
-  const num = Number(ep);
-  const idx = eps.findIndex((x) => x.n === num);
-  const cur = eps[idx] || { n: num, title: '', titleEn: '' };
-  const prev = eps[idx - 1], next = eps[idx + 1];
-  const sLabel = season === 'filme' ? 'Film' : 'Staffel ' + season;
-  document.title = `${s.title} ${sLabel} · ${ep} – Sina`;
+    [d, info] = await Promise.all([loadShow(slug, key), api('episode', { slug, season: key, episode: String(num) })]);
+  } catch (e) { if (my === viewSeq) main.innerHTML = errBox(e); return; }
+  if (my !== viewSeq) return;
+  const { p, eps } = d;
+  const season = film ? 0 : Number(key);
+  const idx = eps.findIndex((e) => e.n === num);
+  const prev = idx > 0 ? eps[idx - 1] : null, next = idx >= 0 && idx < eps.length - 1 ? eps[idx + 1] : null;
+  const row = eps[idx] || {};
+  const de = info.de || row.title || '', en = info.en || row.titleEn || '';
+  const label = film ? 'Film ' + num : 'Staffel ' + season + ' · Folge ' + num;
+  const k = epKey(slug, season, num, film);
+  const st = epState(slug, season, num, film);
+  document.title = `${p.title} – ${label} – Sina`;
+  const back = imgUrl(p.backdrop || p.cover);
 
-  let lang = store.get('lang', null);
-  if (!info.langs.some((l) => l.key === lang)) lang = (info.langs.find((l) => l.on) || info.langs[0] || { key: info.hosters[0].lang }).key;
-  const hostersFor = (k) => info.hosters.filter((h) => h.lang === k);
-  let hosterId = null;
-
-  app.innerHTML = `
-    <div class="crumb"><a href="#/s/${esc(slug)}/${esc(season)}">← ${esc(s.title)}</a> · ${esc(sLabel)} · Folge ${esc(ep)}</div>
-    <h1 style="font-size:20px">${esc(cur.title || cur.titleEn || 'Folge ' + ep)}</h1>
-    <div class="player" id="pl"><video id="v" controls playsinline></video><div class="msg" id="msg"></div></div>
-    <div class="bar">
-      ${prev ? `<a class="btn ghost" href="#/w/${esc(slug)}/${esc(season)}/${prev.n}">← Folge ${prev.n}</a>` : '<span></span>'}
-      ${next ? `<a class="btn" id="next" href="#/w/${esc(slug)}/${esc(season)}/${next.n}">Folge ${next.n} →</a>` : '<span></span>'}
+  main.innerHTML = `<div class="ns-watch">
+    <div>
+      <div class="ns-crumb">${p.cover ? `<img src="${esc(imgUrl(p.cover))}" alt="" decoding="async">` : ''}<a href="${H.season(slug, d.key)}"><b>${esc(p.title)}</b><small>${esc(label)}</small></a></div>
+      <div class="ns-player"><div class="ns-player-ph" id="ph">${back ? `<img src="${esc(back)}" alt="" decoding="async">` : ''}<div class="sina-ph-msg" id="phmsg"></div></div><div class="inSiteWebStream" data-a16-active="true" id="stream"></div></div>
+      <h1 class="ns-ep-title">${esc(de || en || label)}</h1>
+      ${en && de ? `<p class="ns-ep-sub">${esc(en)}</p>` : ''}
+      ${info.desc ? `<p class="ns-ep-sub">${esc(info.desc)}</p>` : ''}
+      <div class="ns-ep-acts">
+        ${prev ? `<a class="ns-tonal" href="${H.ep(slug, season, prev.n, film)}">${I.prev}Vorherige</a>` : ''}
+        ${next ? `<a class="ns-btn" href="${H.ep(slug, season, next.n, film)}">Nächste Folge${I.next}</a>` : ''}
+        <span class="sp"></span>
+        ${film ? '' : `<button class="${st && st.status === 'w' ? 'ns-btn' : 'ns-tonal'}" data-tick="${esc(k)}">${I.check}${st && st.status === 'w' ? 'Gesehen' : 'Als gesehen markieren'}</button>`}
+      </div>
+      <div class="ns-opts" id="opts"></div>
     </div>
-    <h3 class="dim" style="font-size:14px">Sprache</h3><div class="chips" id="langs"></div>
-    <h3 class="dim" style="font-size:14px">Hoster</h3><div class="chips" id="hosters"></div>`;
-  const v = $('#v'), msg = $('#msg');
-  const say = (html) => { msg.innerHTML = html; msg.style.display = html ? 'flex' : 'none'; };
+    <aside class="ns-side">
+      <div class="ns-side-h"><b>${esc(p.title)}</b><div class="ns-muted">${eps.length} ${film ? 'Filme' : 'Folgen'}</div></div>
+      ${seasonChips(slug, p, d.key)}
+      <div class="ns-eps">${eps.map((e) => epRow(slug, e, e.n === num)).join('')}</div>
+    </aside></div>`;
+  const curRow = $('.ns-side .ns-ep.cur');
+  if (curRow) curRow.scrollIntoView({ block: 'center' });
 
-  function paintChips() {
-    $('#langs').innerHTML = info.langs.map((l) => `<button class="chip ${l.key === lang ? 'on' : ''}" data-l="${esc(l.key)}">${esc(l.label)}</button>`).join('');
-    $('#hosters').innerHTML = hostersFor(lang).map((h) => `<button class="chip ${h.id === hosterId ? 'on' : ''}" data-h="${esc(h.id)}">${esc(h.name)}</button>`).join('');
+  // Kontext für den Player (Titel, nächste Folge, Intro/Outro)
+  window.__sinaCtx = {
+    series: p.title, season: film ? 1 : season, episode: num, movie: film, title: de || en || '',
+    next: next ? { href: H.ep(slug, season, next.n, film), label: film ? 'Film ' + next.n : 'Staffel ' + season + ' · Folge ' + next.n } : null,
+  };
+  window.__sinaOnProgress = (dta) => {
+    if (!dta || !dta.duration) return;
+    const prog = store.get('prog', {});
+    const frac = Math.min(1, dta.position / dta.duration);
+    prog[k] = { pos: dta.position, frac, at: Date.now() };
+    const keys = Object.keys(prog);
+    if (keys.length > 600) for (const x of keys.sort((a, b) => prog[a].at - prog[b].at).slice(0, 100)) delete prog[x];
+    store.set('prog', prog);
+    const recent = store.get('recent', []).filter((r) => r.slug !== slug);
+    recent.unshift({ slug, title: p.title, cover: p.cover, season, ep: num, film });
+    store.set('recent', recent.slice(0, 14));
+  };
+
+  // Sprache + Hoster
+  let lang = store.get('lang', null);
+  if (!info.langs.some((l) => l.key === lang)) lang = (info.langs.find((l) => l.on) || info.langs[0] || { key: (info.hosters[0] || {}).lang }).key;
+  let hosterId = null, mode = 'aw', anipm = null, anipmLang = null;
+  const hostersFor = (lk) => info.hosters.filter((h) => h.lang === lk);
+  const paintOpts = () => {
+    const lis = hostersFor(lang);
+    const pm = anipm && anipm.found ? `
+      ${anipm.hasDub ? `<button type="button" class="ns-chip ${mode === 'pm' && anipmLang === 'dub' ? 'on' : ''}" data-anipm-lang="dub">🇬🇧 Eng-Dub <small style="opacity:.75;margin-left:4px">ani.pm</small></button>` : ''}
+      ${anipm.hasSub ? `<button type="button" class="ns-chip ${mode === 'pm' && anipmLang === 'sub' ? 'on' : ''}" data-anipm-lang="sub">🇬🇧 Eng-Sub <small style="opacity:.75;margin-left:4px">ani.pm</small></button>` : ''}` : '';
+    $('#opts').innerHTML = `
+      ${(info.langs.length > 1 || pm) ? `<div><h3>Sprache</h3><div class="row">${info.langs.map((l) => `<button class="ns-chip ${mode === 'aw' && l.key === lang ? 'on' : ''}" data-lang="${esc(l.key)}">${esc(l.label)}</button>`).join('')}${pm}</div></div>` : ''}
+      ${lis.length && mode === 'aw' ? `<div><h3>Hoster</h3><div class="row">${lis.map((h) => `<button class="ns-chip ${h.id === hosterId ? 'on' : ''}" data-hoster="${esc(h.id)}">${esc(h.name)}</button>`).join('')}</div></div>` : ''}`;
+  };
+
+  const ph = $('#ph'), phmsg = $('#phmsg');
+  const say = (html) => { ph.classList.remove('hidden'); ph.style.removeProperty('display'); phmsg.innerHTML = html; };
+  const sayLoad = (t, sub) => say(`<div class="spin"></div><b>${esc(t)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}`);
+  const sayErr = (msg) => say(`<div class="err">${esc(msg)}</div><div class="row"><button class="ns-btn" data-ns="retry">Nochmal</button><a class="ns-tonal" href="${esc(viewUrl())}" target="_blank" rel="noopener">${I.web}Browser öffnen</a></div>`);
+
+  async function run(fn) {
+    teardown();
+    window.__sinaCtx = { ...window.__sinaCtxKeep };
+    const mine = player.token;
+    try { await fn(mine); } catch (e) { if (mine === player.token) sayErr(e.message); }
   }
-  $('#langs').onclick = (e) => { const b = e.target.closest('[data-l]'); if (b) { lang = b.dataset.l; store.set('lang', lang); start(); } };
-  $('#hosters').onclick = (e) => { const b = e.target.closest('[data-h]'); if (b) start(b.dataset.h, true); };
+  window.__sinaCtxKeep = window.__sinaCtx;
+  window.__sinaOnProgressKeep = window.__sinaOnProgress;
 
-  const posKey = `${slug}/${season}/${ep}`;
-  let startAt = (store.get('pos', {})[posKey]) || 0;
-  let token = 0;
-
-  async function start(forceId, single) {
-    const my = ++token;
-    stopPlayer();
-    v.removeAttribute('src'); v.load();
-    const list = hostersFor(lang);
-    if (!list.length) { say(`<div class="err">Für diese Sprache gibt es keine Hoster.</div>`); paintChips(); return; }
-    // VOE zuerst, dann der Rest
-    const order = [...list].sort((a, b) => (/voe/i.test(b.name) ? 1 : 0) - (/voe/i.test(a.name) ? 1 : 0));
-    const queue = forceId ? (single ? order.filter((h) => h.id === forceId) : order) : order;
-    let lastErr = null;
-    for (const h of queue) {
-      if (my !== token) return;
-      hosterId = h.id; paintChips();
-      say(`<div class="spin"></div><div>Hoster ${esc(h.name)} wird geöffnet …<br><span class="dim" style="font-size:13px">Das kann bis zu einer halben Minute dauern.</span></div>`);
-      try {
-        const st = await api('stream', { id: h.id });
-        if (my !== token) return;
-        await play(st, my);
-        return;
-      } catch (e) {
-        lastErr = e;
-        if (e.needsBrowser) break;
+  function startAw(forceId) {
+    return run(async (mine) => {
+      window.__sinaOnProgress = window.__sinaOnProgressKeep;
+      mode = 'aw'; anipmLang = null;
+      const list = hostersFor(lang);
+      if (!list.length) throw new Error('Für diese Sprache gibt es keine Hoster.');
+      const order = [...list].sort((a, b) => (/voe/i.test(b.name) ? 1 : 0) - (/voe/i.test(a.name) ? 1 : 0));
+      const queue = forceId ? order.filter((h) => h.id === forceId) : order;
+      let last = null;
+      for (const h of queue) {
+        if (mine !== player.token) return;
+        hosterId = h.id; paintOpts();
+        sayLoad('Hoster ' + h.name + ' wird geöffnet …', 'Das kann bis zu einer halben Minute dauern.');
+        try {
+          const s = await api('stream', { id: h.id });
+          if (mine !== player.token) return;
+          window.__sinaSkip = null;
+          return await playStream(s, mine);
+        } catch (e) { last = e; if (e.needsBrowser) break; }
       }
-    }
-    if (my !== token) return;
-    say(`<div class="err">${esc(lastErr ? lastErr.message : 'Kein Stream gefunden')}</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-        <button class="btn" id="retry">Nochmal</button>
-        <a class="btn ghost" href="${esc(viewUrl())}" target="_blank" rel="noopener">Browser öffnen</a></div>`);
-    $('#retry').onclick = () => start();
+      throw last || new Error('Kein Stream gefunden');
+    });
   }
-
-  const proxied = (u, r) => '/api/hls?u=' + encodeURIComponent(u) + '&r=' + encodeURIComponent(r || '');
-
-  function play(st, my) {
-    return new Promise((resolve, reject) => {
-      let settled = false;
-      const ok = () => { if (settled) return; settled = true; say(''); resolve(); };
-      const fail = (m) => { if (settled) return; settled = true; stopPlayer(); reject(new Error(m)); };
-      const onMeta = () => {
-        if (startAt > 5 && startAt < (v.duration || 1e9) - 20) v.currentTime = startAt;
-        startAt = 0;
-        v.play().catch(() => {});
-        ok();
-      };
-      v.onloadedmetadata = onMeta;
-      v.onerror = () => fail('Das Video konnte nicht abgespielt werden.');
-      if (st.m3u8 && window.Hls && Hls.isSupported()) {
-        hls = new Hls({ maxBufferLength: 40, enableWorker: true });
-        hls.loadSource(proxied(st.m3u8, st.referer));
-        hls.attachMedia(v);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => { if (!settled) onMeta(); });
-        hls.on(Hls.Events.ERROR, (_e, d) => {
-          if (!d.fatal) return;
-          if (!settled) return fail('Der Stream ist nicht erreichbar (' + (d.details || 'Fehler') + ').');
-          if (d.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
-          else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
-        });
-      } else if (st.m3u8 && v.canPlayType('application/vnd.apple.mpegurl')) {
-        v.src = proxied(st.m3u8, st.referer);
-      } else if (st.mp4) {
-        v.src = proxied(st.mp4, st.referer);
-      } else {
-        return fail('Kein abspielbares Format.');
-      }
-      setTimeout(() => fail('Der Stream startet nicht (Zeitüberschreitung).'), 45000);
-    }).then(() => {
-      playTimer = setInterval(() => {
-        if (v.paused || !v.duration) return;
-        const p = store.get('pos', {});
-        p[posKey] = v.currentTime;
-        store.set('pos', p);
-        const recent = store.get('recent', []).filter((r) => !(r.slug === slug));
-        recent.unshift({ slug, title: s.title, season, ep, pos: v.currentTime });
-        store.set('recent', recent.slice(0, 12));
-        if (v.currentTime / v.duration > 0.85) { const sn = store.get('seen', {}); sn[posKey] = 1; store.set('seen', sn); }
-      }, 5000);
-      v.onended = () => {
-        const sn = store.get('seen', {}); sn[posKey] = 1; store.set('seen', sn);
-        const p = store.get('pos', {}); delete p[posKey]; store.set('pos', p);
-        const n = $('#next'); if (n) location.hash = n.getAttribute('href');
-      };
+  function startPm(l) {
+    return run(async (mine) => {
+      window.__sinaOnProgress = window.__sinaOnProgressKeep;
+      mode = 'pm'; anipmLang = l; hosterId = null; paintOpts();
+      sayLoad('ani.pm wird geöffnet …', 'Englische Version, das kann etwas dauern.');
+      const s = await api('anipm/stream', { id: String(anipm.animeId), routeId: anipm.routeId || '', source: anipm.source || 'settlar', ep: String(num), lang: l });
+      if (mine !== player.token) return;
+      window.__sinaSkip = s.skip || null;
+      return await playStream(s, mine);
     });
   }
 
-  paintChips();
-  start();
+  function playStream(s, mine) {
+    return new Promise((resolve, reject) => {
+      const holder = $('#stream');
+      holder.innerHTML = '';
+      const v = document.createElement('video');
+      v.setAttribute('playsinline', '');
+      holder.appendChild(v);
+      player.video = v;
+      let settled = false;
+      const done = () => { if (settled) return; settled = true; ph.classList.add('hidden'); resolve(); };
+      const fail = (m) => { if (settled) return; settled = true; reject(new Error(m)); };
+      const onMeta = () => { v.play().catch(() => {}); done(); };
+      v.addEventListener('loadedmetadata', onMeta, { once: true });
+      v.addEventListener('error', () => fail('Das Video konnte nicht abgespielt werden.'), { once: true });
+      if (s.m3u8 && window.Hls && Hls.isSupported()) {
+        const hls = new Hls({ maxBufferLength: 60, enableWorker: true });
+        player.hls = hls;
+        v.__hlsInstance = hls;
+        hls.loadSource(proxied(s.m3u8, s.referer));
+        hls.attachMedia(v);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => { if (!settled) onMeta(); });
+        hls.on(Hls.Events.ERROR, (_e, e) => {
+          if (!e.fatal) return;
+          if (!settled) return fail('Der Stream ist nicht erreichbar (' + (e.details || 'Fehler') + ').');
+          if (e.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+          else if (e.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+        });
+      } else if (s.m3u8 && v.canPlayType('application/vnd.apple.mpegurl')) {
+        v.src = proxied(s.m3u8, s.referer);
+      } else if (s.mp4) {
+        v.src = proxied(s.mp4, s.referer);
+      } else { return fail('Kein abspielbares Format.'); }
+      setTimeout(() => { if (mine === player.token) fail('Der Stream startet nicht (Zeitüberschreitung).'); }, 45000);
+    });
+  }
+
+  main.onclick = (e) => {
+    const t = e.target;
+    const tick = t.closest('[data-tick]');
+    if (tick) {
+      e.preventDefault(); e.stopPropagation();
+      const seen = store.get('seen', {}), prog = store.get('prog', {});
+      const key2 = tick.dataset.tick;
+      const was = (seen[key2] || (prog[key2] && prog[key2].frac >= 0.8));
+      if (was) { delete seen[key2]; if (prog[key2]) delete prog[key2]; } else seen[key2] = 1;
+      store.set('seen', seen); store.set('prog', prog);
+      route();
+      return;
+    }
+    const lg = t.closest('[data-lang]');
+    if (lg) { lang = lg.dataset.lang; store.set('lang', lang); startAw(); return; }
+    const hs = t.closest('[data-hoster]');
+    if (hs) { startAw(hs.dataset.hoster); return; }
+    const pm = t.closest('[data-anipm-lang]');
+    if (pm) { startPm(pm.dataset.anipmLang); return; }
+    if (t.closest('[data-ns="retry"]')) { mode === 'pm' && anipmLang ? startPm(anipmLang) : startAw(); return; }
+    if (t.closest('[data-ns="desc"]')) { descOpen = !descOpen; $('.ns-desc').classList.toggle('open', descOpen); }
+  };
+
+  paintOpts();
+  startAw();
+  // ani.pm: gibt es die Folge auch dort (Eng-Dub / Eng-Sub)?
+  api('anipm/check', { series: p.title, season: String(film ? 1 : season), episode: String(num), alts: p.alt.slice(0, 4).join('|') })
+    .then((r) => { if (my === viewSeq) { anipm = r; paintOpts(); } })
+    .catch(() => {});
 }
 
 // ---------- Routing ----------
-function route() {
-  stopPlayer();
-  document.title = 'Sina';
-  const parts = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/');
-  if (parts[0] === 'search' && parts[1]) return viewSearch(parts.slice(1).join('/'));
-  if (parts[0] === 's' && parts[1]) return viewSeries(parts[1], parts[2]);
-  if (parts[0] === 'w' && parts[3]) return viewWatch(parts[1], parts[2], parts[3]);
-  return viewHome();
+function parseRoute() {
+  const path = decodeURIComponent((location.hash || '').replace(/^#/, '').split('?')[0]).replace(/\/+$/, '');
+  const parts = path.split('/').filter(Boolean);
+  if (!parts.length) return { name: 'home' };
+  if (parts[0] === 'search' && parts[1]) return { name: 'search', q: parts.slice(1).join('/') };
+  if (parts[0] === 'animes') return { name: 'all' };
+  if (parts[0] === 'beliebt') return { name: 'popular' };
+  if (parts[0] === 'kalender') return { name: 'calendar' };
+  if (parts[0] === 'anime' && parts[1] === 'stream' && parts[2]) {
+    const slug = parts[2];
+    const sm = /^staffel-(\d+)$/.exec(parts[3] || '');
+    const em = /^episode-(\d+)$/.exec(parts[4] || '');
+    const fm = /^film-(\d+)$/.exec(parts[4] || '');
+    if (sm && em) return { name: 'episode', slug, key: sm[1], num: +em[1] };
+    if (parts[3] === 'filme' && fm) return { name: 'episode', slug, key: 'filme', num: +fm[1] };
+    if (sm) return { name: 'show', slug, key: sm[1] };
+    if (parts[3] === 'filme') return { name: 'show', slug, key: 'filme' };
+    return { name: 'show', slug };
+  }
+  return { name: 'home' };
 }
+function route() {
+  teardown();
+  main.onclick = null;
+  document.title = 'Sina';
+  const r = parseRoute();
+  paintNav(r);
+  if (r.name !== 'search') window.__searchInput.value = '';
+  scrollTo(0, 0);
+  if (r.name === 'home') return viewHome();
+  if (r.name === 'search') return viewSearch(r.q);
+  if (r.name === 'all') return viewAll();
+  if (r.name === 'popular') return viewPopular();
+  if (r.name === 'calendar') return viewCalendar();
+  if (r.name === 'show') return viewShow(r.slug, r.key);
+  if (r.name === 'episode') return viewEpisode(r.slug, r.key, r.num);
+}
+// Beschreibung ein-/ausklappen und Haken in der Serienansicht
+document.addEventListener('click', (e) => {
+  if (parseRoute().name !== 'show') return;
+  const more = e.target.closest('[data-ns="desc"]');
+  if (more) { descOpen = !descOpen; $('.ns-desc').classList.toggle('open', descOpen); more.innerHTML = descOpen ? 'Weniger anzeigen' + I.chevUp : 'Mehr anzeigen' + I.chev; return; }
+  const tick = e.target.closest('[data-tick]');
+  if (tick) {
+    e.preventDefault(); e.stopPropagation();
+    const seen = store.get('seen', {}), prog = store.get('prog', {});
+    const k = tick.dataset.tick;
+    if (seen[k] || (prog[k] && prog[k].frac >= 0.8)) { delete seen[k]; delete prog[k]; } else seen[k] = 1;
+    store.set('seen', seen); store.set('prog', prog);
+    route();
+  }
+}, true);
 window.addEventListener('hashchange', route);
+loadConfig();
+setInterval(loadConfig, 30000);
 route();
+setTimeout(checkVpn, 6000);
 </script>
 </body>
 </html>

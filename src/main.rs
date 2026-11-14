@@ -2,8 +2,10 @@
 //! und ist über eine zweite Seite (noVNC) sichtbar und bedienbar.
 
 mod ani;
+mod anipm;
 mod browser;
 mod cache;
+mod pages;
 mod proxy;
 mod supervisor;
 mod voe;
@@ -69,6 +71,31 @@ impl IntoResponse for ApiError {
     }
 }
 
+/// Ausgehende IP des Servers und des Browsers. Beide müssen gleich sein, sonst lehnt der Hoster das Video ab
+/// (der Stream-Link gilt nur für die IP, die die Hoster-Seite geholt hat).
+async fn vpn(axum::extract::State(st): axum::extract::State<Arc<AppState>>) -> Json<serde_json::Value> {
+    let server = async {
+        let r = st.raw.get("https://api.ipify.org?format=json").timeout(Duration::from_secs(10)).send().await.ok()?;
+        let j: serde_json::Value = r.json().await.ok()?;
+        j["ip"].as_str().map(str::to_string)
+    }
+    .await;
+    let browser = match st
+        .browser
+        .eval_after_load(
+            "https://api.ipify.org/",
+            "fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(j=>j.ip)",
+            Duration::from_secs(25),
+        )
+        .await
+    {
+        Ok(v) => v.as_str().map(str::to_string),
+        Err(_) => None,
+    };
+    let proxy = ["HTTPS_PROXY", "https_proxy", "BROWSER_PROXY"].iter().any(|k| env::var(k).map(|v| !v.trim().is_empty()).unwrap_or(false));
+    Json(json!({"server": server, "browser": browser, "proxy": proxy, "same": server.is_some() && server == browser}))
+}
+
 #[tokio::main]
 async fn main() {
     let port = env::var("PORT").unwrap_or_else(|_| "8080".into());
@@ -111,11 +138,18 @@ async fn main() {
     let app = Router::new()
         .route("/healthz", get(|| async { "ok" }))
         .route("/api/config", get(config))
+        .route("/api/vpn", get(vpn))
         .route("/api/search", get(ani::search))
         .route("/api/series", get(ani::series))
         .route("/api/season", get(ani::season))
         .route("/api/episode", get(ani::episode))
         .route("/api/stream", get(ani::stream))
+        .route("/api/home", get(pages::home))
+        .route("/api/list", get(pages::list))
+        .route("/api/calendar", get(pages::calendar))
+        .route("/api/aniskip", get(anipm::aniskip))
+        .route("/api/anipm/check", get(anipm::check))
+        .route("/api/anipm/stream", get(anipm::stream))
         .route("/api/hls", get(proxy::hls))
         .route("/api/img", get(proxy::img))
         .fallback_service(ServeDir::new(static_dir))

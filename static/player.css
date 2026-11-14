@@ -1,0 +1,1385 @@
+/**
+ * NINA Custom Video Player Stylesheet
+ * Material 3 Expressive with NINA design tokens & theme colors.
+ * Styled exactly to match NINA's look & feel.
+ */
+
+:root {
+  --h: var(--ns-h, 186);
+  --primary: hsl(var(--h) 60% 78%);
+  --on-primary: hsl(var(--h) 70% 16%);
+  --primary-container: hsl(var(--h) 50% 28%);
+  --on-primary-container: hsl(var(--h) 70% 90%);
+  --secondary-container: hsl(var(--h) 18% 30%);
+  --on-secondary-container: hsl(var(--h) 30% 90%);
+  --surface: hsl(var(--h) 10% 7%);
+  --surface-c-low: hsl(var(--h) 9% 10%);
+  --surface-c: hsl(var(--h) 9% 12%);
+  --surface-c-high: hsl(var(--h) 8% 16%);
+  --surface-c-highest: hsl(var(--h) 8% 21%);
+  --on-surface: hsl(var(--h) 10% 90%);
+  --on-surface-variant: hsl(var(--h) 9% 76%);
+  --outline: hsl(var(--h) 6% 58%);
+  --outline-variant: hsl(var(--h) 8% 28%);
+  --error: #ffb4ab;
+  --font: "Google Sans Flex", "Google Sans", "Roboto Flex", Roboto, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --spring: cubic-bezier(.34, 1.45, .64, 1);
+  --spring-soft: cubic-bezier(.3, 1.2, .5, 1);
+  --ease: cubic-bezier(.2, 0, 0, 1);
+}
+
+/* ========================================================
+   HARD-KILL ALL HOSTER CONTROLS & OVERLAYS
+   ======================================================== */
+.jw-controls,
+.jw-controlbar,
+.jw-overlays,
+.jw-preview,
+.jw-title,
+.jw-dock,
+.jw-display-icon-container,
+.jw-display,
+.jw-nextup-container,
+.jw-settings-menu,
+.jw-rightclick,
+.jw-logo,
+.jw-state-playing .jw-controls,
+.jw-state-paused .jw-controls,
+.jw-flag-fullscreen .jw-controls,
+.jwplayer .jw-controls,
+.plyr__controls,
+.plyr__poster,
+.plyr__captions,
+.vjs-control-bar,
+.vjs-big-play-button,
+.vjs-poster,
+#controls,
+.player-controls,
+.click-layer,
+.video-overlay,
+.glassplayer-controls,
+.glassplayer-ui,
+.p-controls,
+.p-toolbar {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  z-index: -9999 !important;
+}
+
+/* Base Player Containers */
+.jwplayer,
+.jw-wrapper,
+.jw-media,
+.plyr,
+.video-js,
+.a16-player-wrapper {
+  background-color: #000000 !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* Master Player Wrapper */
+.a16-player-wrapper {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  font-family: var(--font) !important;
+  color: var(--on-surface) !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  background: #000000 !important;
+}
+
+/* ani.pm / settlar.io: our UI lives in the site's own player container */
+.a16-foreign-root {
+  position: relative !important;
+  overflow: hidden !important;
+  background: #000000 !important;
+}
+
+.a16-foreign-root > .a16-controls-root {
+  z-index: 2147483000 !important;
+}
+
+.a16-foreign-root:fullscreen,
+.a16-foreign-root:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.a16-foreign-root video.a16-managed-video {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Fullscreen mode on wrapper */
+.a16-player-wrapper:fullscreen,
+.a16-player-wrapper:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #000000 !important;
+}
+
+/* HTML5 Video Element */
+.a16-player-wrapper video,
+video.a16-managed-video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background-color: #000000 !important;
+  display: block !important;
+  pointer-events: auto !important;
+}
+
+/* Master Controls Layer */
+.a16-controls-root {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  pointer-events: none !important;
+  z-index: 10 !important;
+  transition: opacity 0.35s var(--ease) !important;
+  font-family: var(--font) !important;
+}
+
+/* Idle Mode (Hover Auto-Hide) */
+.a16-controls-root.idle {
+  cursor: none !important;
+}
+
+.a16-controls-root.idle .a16-top-bar,
+.a16-controls-root.idle .a16-center-actions,
+.a16-controls-root.idle .a16-bottom-dock {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.a16-controls-root.idle .a16-top-bar {
+  transform: translateY(-12px) !important;
+}
+
+.a16-controls-root.idle .a16-center-actions {
+  transform: translate(-50%, -50%) scale(0.92) !important;
+}
+
+.a16-controls-root.idle .a16-bottom-dock {
+  transform: translateY(16px) !important;
+}
+
+/* ========================================================
+   TOP BAR (Brand Chip + Series Title + Close)
+   ======================================================== */
+.a16-top-bar {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  padding: 16px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  background: transparent !important;
+  pointer-events: auto !important;
+  z-index: 20 !important;
+  transition: opacity 0.35s var(--ease), transform 0.4s var(--spring-soft) !important;
+}
+
+.a16-top-left {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  max-width: 82% !important;
+  padding: 4px 6px !important;
+  border-radius: 99px !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.a16-top-right {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+.a16-brand-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 3px 10px 3px 6px !important;
+  border-radius: 99px !important;
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  flex-shrink: 0 !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55) !important;
+}
+
+.a16-brand-logo {
+  display: grid !important;
+  place-items: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  background: var(--on-primary) !important;
+  color: var(--primary) !important;
+  font-weight: 900 !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.a16-brand-name {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  color: var(--on-primary) !important;
+  text-transform: uppercase !important;
+}
+
+.a16-video-title {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--on-surface) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 2px 8px rgba(0, 0, 0, 0.85) !important;
+}
+
+.a16-close-btn {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--on-surface) !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: all 0.2s var(--ease) !important;
+  flex-shrink: 0 !important;
+}
+
+.a16-close-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+  fill: currentColor !important;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.9)) !important;
+}
+
+.a16-close-btn:hover {
+  background: color-mix(in srgb, var(--on-surface) 15%, transparent) !important;
+  transform: scale(1.08) !important;
+}
+
+.a16-quality-chip {
+  height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 99px !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: var(--on-surface) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.2s var(--ease) !important;
+}
+
+.a16-quality-chip:hover {
+  background: color-mix(in srgb, var(--on-surface) 15%, transparent) !important;
+  border-color: var(--primary) !important;
+  transform: scale(1.05) !important;
+}
+
+/* ========================================================
+   CENTER PLAY ACTIONS (Removed upon user request)
+   ======================================================== */
+.a16-center-actions {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.a16-secondary-fab {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: color-mix(in srgb, var(--surface-c-high) 85%, transparent) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid var(--outline-variant) !important;
+  color: var(--on-surface) !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  transition: transform 0.25s var(--spring), background-color 0.2s var(--ease) !important;
+}
+
+.a16-secondary-fab svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: currentColor !important;
+}
+
+.a16-secondary-fab:hover {
+  transform: scale(1.1) !important;
+  background: color-mix(in srgb, var(--on-surface) 14%, transparent) !important;
+}
+
+.a16-center-fab {
+  width: 66px !important;
+  height: 66px !important;
+  border-radius: 20px !important;
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  border: none !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), 0 0 24px color-mix(in srgb, var(--primary) 30%, transparent) !important;
+  transition: border-radius 0.4s var(--spring), transform 0.25s var(--spring), background-color 0.2s var(--ease) !important;
+}
+
+.a16-center-fab svg {
+  width: 32px !important;
+  height: 32px !important;
+  fill: currentColor !important;
+}
+
+.a16-center-fab:hover {
+  border-radius: 50% !important;
+  transform: scale(1.08) !important;
+}
+
+/* Double click skip ripple */
+.a16-ripple-overlay {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 36% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.3s ease !important;
+  z-index: 15 !important;
+}
+
+.a16-ripple-overlay.left {
+  left: 0 !important;
+  background: radial-gradient(circle at center, color-mix(in srgb, var(--primary) 22%, transparent) 0%, transparent 75%) !important;
+}
+
+.a16-ripple-overlay.right {
+  right: 0 !important;
+  background: radial-gradient(circle at center, color-mix(in srgb, var(--primary) 22%, transparent) 0%, transparent 75%) !important;
+}
+
+.a16-ripple-overlay.animate {
+  opacity: 1 !important;
+}
+
+.a16-ripple-content {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  border-radius: 99px !important;
+  background: color-mix(in srgb, var(--surface-c-highest) 85%, transparent) !important;
+  color: var(--primary) !important;
+  font-weight: 800 !important;
+  font-size: 14px !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.a16-ripple-content svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: currentColor !important;
+}
+
+/* ========================================================
+   CIRCULAR LOADING RING (NINA Teal)
+   ======================================================== */
+.a16-loading-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 25 !important;
+  pointer-events: none !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.a16-loading-overlay.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.a16-spinner-ring {
+  width: 52px !important;
+  height: 52px !important;
+}
+
+.a16-spinner-svg {
+  width: 100% !important;
+  height: 100% !important;
+  animation: a16Spin 1.4s linear infinite !important;
+}
+
+.a16-spinner-track {
+  stroke: color-mix(in srgb, var(--primary) 20%, transparent) !important;
+}
+
+.a16-spinner-arc {
+  stroke: var(--primary) !important;
+  stroke-dasharray: 80, 200 !important;
+  stroke-dashoffset: 0 !important;
+  stroke-linecap: round !important;
+}
+
+@keyframes a16Spin {
+  100% { transform: rotate(360deg); }
+}
+
+.a16-loading-text {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--on-surface) !important;
+  background: color-mix(in srgb, var(--surface-c-high) 85%, transparent) !important;
+  padding: 6px 16px !important;
+  border-radius: 99px !important;
+  border: 1px solid var(--outline-variant) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* ========================================================
+   BOTTOM FLOATING ISLAND DOCK (Slim Single Row)
+   ======================================================== */
+.a16-bottom-dock {
+  position: absolute !important;
+  left: 20px !important;
+  right: 20px !important;
+  bottom: 16px !important;
+  height: 52px !important;
+  padding: 0 14px 0 10px !important;
+  border-radius: 99px !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  pointer-events: auto !important;
+  z-index: 20 !important;
+  transition: opacity 0.35s var(--ease), transform 0.45s var(--spring-soft) !important;
+  box-sizing: border-box !important;
+}
+
+/* Left Section: Play Button + Volume */
+.a16-dock-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Primary Play/Pause Button in Dock */
+.a16-btn-play-dock {
+  width: 44px !important;
+  height: 32px !important;
+  border-radius: 11px !important;
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  border: none !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  transition: border-radius 0.35s var(--spring), transform 0.2s var(--spring) !important;
+  flex-shrink: 0 !important;
+}
+
+.a16-btn-play-dock svg {
+  width: 18px !important;
+  height: 18px !important;
+  fill: currentColor !important;
+}
+
+.a16-btn-play-dock:hover {
+  border-radius: 99px !important;
+  transform: scale(1.04) !important;
+}
+
+/* Center Section: Current Time + Seek Bar + Duration (In between Volume and Speed) */
+.a16-dock-center {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.a16-time-cur,
+.a16-time-dur {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.7) !important;
+  font-variant-numeric: tabular-nums !important;
+  user-select: none !important;
+  flex-shrink: 0 !important;
+}
+
+/* Timeline Track */
+.a16-timeline-track {
+  position: relative !important;
+  flex: 1 !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  box-sizing: border-box !important;
+}
+
+.a16-timeline-bg {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 4px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  transition: height 0.15s ease !important;
+}
+
+.a16-timeline-buffer {
+  position: absolute !important;
+  left: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 4px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.32) !important;
+  width: 0%;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  transition: height 0.15s ease !important;
+}
+
+.a16-timeline-played {
+  position: absolute !important;
+  left: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 4px !important;
+  border-radius: 99px !important;
+  background: var(--primary) !important;
+  width: 0%;
+  pointer-events: none !important;
+  z-index: 3 !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--primary) 40%, transparent) !important;
+  transition: height 0.15s ease !important;
+}
+
+.a16-timeline-thumb {
+  position: absolute !important;
+  right: -2.5px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 5px !important;
+  height: 16px !important;
+  border-radius: 99px !important;
+  background: var(--primary) !important;
+  box-shadow: 0 0 10px var(--primary) !important;
+  transition: height 0.2s var(--spring), width 0.2s var(--spring) !important;
+  pointer-events: none !important;
+  z-index: 4 !important;
+}
+
+.a16-timeline-track:hover .a16-timeline-bg,
+.a16-timeline-track:hover .a16-timeline-buffer,
+.a16-timeline-track:hover .a16-timeline-played {
+  height: 6px !important;
+}
+
+.a16-timeline-track:hover .a16-timeline-thumb {
+  height: 22px !important;
+  width: 7px !important;
+  right: -3.5px !important;
+}
+
+.a16-timeline-tooltip {
+  position: absolute !important;
+  bottom: 28px !important;
+  left: 0;
+  z-index: 5 !important;
+  transform: translateX(-50%) scale(0.9) !important;
+  padding: 4px 10px !important;
+  border-radius: 99px !important;
+  background: var(--surface-c-highest) !important;
+  color: var(--on-surface) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.15s, transform 0.25s var(--spring) !important;
+  white-space: nowrap !important;
+  border: 1px solid var(--outline-variant) !important;
+  z-index: 10 !important;
+}
+
+.a16-timeline-track:hover .a16-timeline-tooltip {
+  opacity: 1 !important;
+  transform: translateX(-50%) scale(1) !important;
+}
+
+/* Right Section: Quality + Speed + PiP + Fullscreen */
+.a16-dock-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+}
+
+/* General Dock Icon Buttons */
+.a16-btn {
+  height: 38px !important;
+  min-width: 38px !important;
+  padding: 0 8px !important;
+  border-radius: 99px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--on-surface) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--spring) !important;
+}
+
+.a16-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: currentColor !important;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.85)) !important;
+}
+
+.a16-btn:hover {
+  background: color-mix(in srgb, var(--on-surface) 10%, transparent) !important;
+  transform: scale(1.06) !important;
+}
+
+/* Dynamic Audio Normalizer Button (Dialogue Leveling & Night Mode) */
+.a16-dyn-audio-btn {
+  position: relative !important;
+  color: var(--on-surface-variant) !important;
+  transition: all 0.25s var(--ease) !important;
+}
+
+.a16-dyn-audio-btn:hover {
+  color: var(--on-surface) !important;
+  background: color-mix(in srgb, var(--on-surface) 12%, transparent) !important;
+  transform: scale(1.08) !important;
+}
+
+.a16-dyn-audio-btn.active {
+  color: var(--primary) !important;
+  background: color-mix(in srgb, var(--primary) 18%, transparent) !important;
+}
+
+.a16-dyn-audio-btn.active::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 4px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 4px !important;
+  height: 4px !important;
+  border-radius: 50% !important;
+  background: var(--primary) !important;
+  box-shadow: 0 0 6px var(--primary) !important;
+}
+
+/* Volume Slider (Up to 600% with Boost) */
+.a16-volume-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+}
+
+.a16-volume-slider-box {
+  width: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: width 0.35s var(--spring), opacity 0.2s, margin 0.25s !important;
+}
+
+.a16-volume-wrapper:hover .a16-volume-slider-box,
+.a16-volume-wrapper:focus-within .a16-volume-slider-box {
+  width: 145px !important;
+  opacity: 1 !important;
+  margin-right: 8px !important;
+}
+
+.a16-volume-slider {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  flex: 1 !important;
+  min-width: 70px !important;
+  height: 24px !important;
+  background: transparent !important;
+  cursor: pointer !important;
+}
+
+.a16-volume-slider::-webkit-slider-runnable-track {
+  height: 5px !important;
+  border-radius: 99px !important;
+  background: linear-gradient(to right, var(--primary) var(--v, 16.6%), var(--surface-c-highest) var(--v, 16.6%)) !important;
+}
+
+.a16-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: -4.5px !important;
+  border-radius: 50% !important;
+  background: var(--primary) !important;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.a16-volume-text {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--on-surface-variant) !important;
+  min-width: 38px !important;
+  text-align: right !important;
+  user-select: none !important;
+  flex-shrink: 0 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.a16-volume-text.boosted {
+  color: var(--primary) !important;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--primary) 60%, transparent) !important;
+}
+
+/* Speed Chip */
+.a16-speed-chip {
+  height: 30px !important;
+  padding: 0 10px !important;
+  border-radius: 99px !important;
+  background: transparent !important;
+  color: var(--on-surface) !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  cursor: pointer !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
+  transition: background-color 0.2s, transform 0.2s var(--spring) !important;
+}
+
+.a16-speed-chip svg {
+  width: 15px !important;
+  height: 15px !important;
+  fill: currentColor !important;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.85)) !important;
+}
+
+.a16-speed-chip:hover {
+  background: color-mix(in srgb, var(--on-surface) 15%, transparent) !important;
+  border-color: var(--primary) !important;
+  transform: scale(1.04) !important;
+}
+
+/* Popover Menu (NINA Speed) */
+.a16-menu-popover {
+  position: absolute !important;
+  right: 28px !important;
+  bottom: 84px !important;
+  min-width: 210px !important;
+  padding: 10px !important;
+  border-radius: 20px !important;
+  background: color-mix(in srgb, var(--surface-c-high) 95%, transparent) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid var(--outline-variant) !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6) !important;
+  z-index: 40 !important;
+  pointer-events: auto !important;
+  cursor: default !important;
+  transform-origin: bottom right !important;
+  transition: opacity 0.2s, transform 0.3s var(--spring) !important;
+}
+
+.a16-menu-popover.hidden {
+  opacity: 0 !important;
+  transform: scale(0.88) translateY(8px) !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+.a16-controls-root.idle .a16-menu-popover {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.a16-menu-header {
+  padding: 2px 6px 8px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--on-surface-variant) !important;
+}
+
+/* Speed Popover Menu (Wider 3-column layout) */
+.a16-speed-popover {
+  min-width: 320px !important;
+  width: 320px !important;
+}
+
+.a16-speed-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 6px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+
+.a16-menu-item {
+  height: 34px !important;
+  padding: 0 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 10px !important;
+  color: var(--on-surface-variant) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+  white-space: nowrap !important;
+  transition: background-color 0.15s, color 0.15s, transform 0.15s !important;
+}
+
+.a16-menu-item:hover {
+  background: color-mix(in srgb, var(--on-surface) 12%, transparent) !important;
+  color: var(--on-surface) !important;
+  transform: scale(1.02) !important;
+}
+
+.a16-menu-item:active {
+  transform: scale(0.98) !important;
+}
+
+.a16-menu-item.active {
+  background: var(--primary-container) !important;
+  color: var(--on-primary-container) !important;
+  font-weight: 700 !important;
+}
+
+/* Quality Popover Menu (Top Right) */
+.a16-quality-popover {
+  top: 60px !important;
+  right: 24px !important;
+  bottom: auto !important;
+  transform-origin: top right !important;
+  min-width: 190px !important;
+}
+
+.a16-quality-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  max-height: 260px !important;
+  overflow-y: auto !important;
+  padding-right: 2px !important;
+}
+
+.a16-quality-grid::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.a16-quality-grid::-webkit-scrollbar-thumb {
+  background: var(--outline-variant) !important;
+  border-radius: 99px !important;
+}
+
+/* ========================================================
+   AUTO-NEXT COUNTDOWN CARD (NINA Style)
+   ======================================================== */
+.a16-next-episode-card {
+  position: absolute !important;
+  right: 24px !important;
+  bottom: 86px !important;
+  z-index: 30 !important;
+  pointer-events: auto !important;
+  width: 275px !important;
+  padding: 14px 16px !important;
+  border-radius: 18px !important;
+  background: color-mix(in srgb, var(--surface-c-high) 95%, transparent) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid var(--outline-variant) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  color: var(--on-surface) !important;
+  font-family: var(--font) !important;
+  animation: a16FadeIn 0.35s var(--spring) !important;
+}
+
+.a16-next-episode-card.hidden {
+  display: none !important;
+}
+
+@keyframes a16FadeIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.a16-next-top {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.a16-next-label {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: var(--on-surface-variant) !important;
+  font-weight: 800 !important;
+}
+
+.a16-next-title {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--on-surface) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.a16-next-progress-bar {
+  height: 3px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  overflow: hidden !important;
+  margin: 2px 0 !important;
+}
+
+.a16-next-progress-fill {
+  height: 100% !important;
+  width: 100% !important;
+  background: var(--primary) !important;
+  transform-origin: left !important;
+  animation: a16NextBar 7s linear forwards !important;
+}
+
+@keyframes a16NextBar {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+.a16-next-buttons {
+  display: flex !important;
+  gap: 8px !important;
+  pointer-events: auto !important;
+}
+
+.a16-next-buttons button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.a16-next-cancel {
+  flex: 1 !important;
+  height: 34px !important;
+  border-radius: 99px !important;
+  border: none !important;
+  background: var(--surface-c-highest) !important;
+  color: var(--on-surface) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  transition: all 0.2s var(--ease) !important;
+}
+
+.a16-next-cancel:hover {
+  background: color-mix(in srgb, var(--on-surface) 18%, transparent) !important;
+}
+
+.a16-next-confirm {
+  flex: 1.2 !important;
+  height: 34px !important;
+  border-radius: 99px !important;
+  border: none !important;
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s var(--spring) !important;
+}
+
+.a16-next-confirm svg {
+  width: 15px !important;
+  height: 15px !important;
+  fill: currentColor !important;
+}
+
+.a16-next-confirm:hover {
+  transform: scale(1.03) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 40%, transparent) !important;
+}
+
+/* ========================================================
+   SUBTITLES & CAPTIONS STYLING (Untertitel)
+   ======================================================== */
+video::cue {
+  background: rgba(0, 0, 0, 0.78) !important;
+  color: #ffffff !important;
+  font-family: var(--font, sans-serif) !important;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 2px #000 !important;
+  line-height: 1.35 !important;
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+}
+
+/* ========================================================
+   RESUME INDICATOR BADGE (Fortgesetzt bei ...)
+   ======================================================== */
+.a16-resume-badge {
+  position: absolute !important;
+  top: 18px !important;
+  left: 20px !important;
+  z-index: 35 !important;
+  background: rgba(18, 20, 28, 0.88) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+  padding: 8px 16px !important;
+  border-radius: 9999px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45) !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transform: translateY(-8px) scale(0.95) !important;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+.a16-resume-badge.visible {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+}
+
+.a16-resume-badge.fade-out {
+  opacity: 0 !important;
+  transform: translateY(-4px) scale(0.97) !important;
+}
+
+/* ========================================================
+   INTRO & OUTRO SKIP BUTTON (NINA Floating Pill)
+   ======================================================== */
+.a16-skip-btn {
+  position: absolute !important;
+  bottom: 84px !important;
+  left: 28px !important;
+  z-index: 35 !important;
+  height: 42px !important;
+  padding: 0 18px !important;
+  border-radius: 99px !important;
+  background: color-mix(in srgb, var(--surface-c-highest) 92%, transparent) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid var(--outline-variant) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 12px color-mix(in srgb, var(--primary) 20%, transparent) !important;
+  transition: transform 0.25s var(--spring), background-color 0.2s, opacity 0.3s, border-color 0.2s !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+}
+
+.a16-skip-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  fill: currentColor !important;
+  flex-shrink: 0 !important;
+}
+
+.a16-skip-btn:hover {
+  transform: scale(1.06) !important;
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 0 20px color-mix(in srgb, var(--primary) 45%, transparent) !important;
+}
+
+.a16-skip-btn.hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  transform: translateY(8px) scale(0.92) !important;
+}
+
+.a16-skip-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 7px !important;
+  border-radius: 99px !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  vertical-align: middle !important;
+  margin: 0 4px !important;
+  line-height: 1.2 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.a16-skip-badge-db {
+  background: color-mix(in srgb, #10b981 25%, transparent) !important;
+  color: #34d399 !important;
+  border: 1px solid color-mix(in srgb, #10b981 50%, transparent) !important;
+  text-shadow: 0 0 8px rgba(52, 211, 153, 0.45) !important;
+}
+
+.a16-skip-badge-algo {
+  background: color-mix(in srgb, #38bdf8 25%, transparent) !important;
+  color: #7dd3fc !important;
+  border: 1px solid color-mix(in srgb, #38bdf8 50%, transparent) !important;
+  text-shadow: 0 0 8px rgba(125, 211, 252, 0.45) !important;
+}
+/* small buffering ring (while playing) */
+.a16-buffer-spin {
+  position: absolute !important; left: 50% !important; top: 50% !important; width: 44px !important; height: 44px !important;
+  margin: -22px 0 0 -22px !important; padding: 8px !important; box-sizing: border-box !important; border-radius: 50% !important;
+  background: color-mix(in srgb, #000 55%, transparent) !important; backdrop-filter: blur(6px) !important;
+  z-index: 24 !important; pointer-events: none !important; opacity: 0 !important; transform: scale(.7) !important;
+  transition: opacity .2s ease, transform .25s cubic-bezier(.2,.9,.3,1.3) !important;
+}
+.a16-buffer-spin.on { opacity: 1 !important; transform: scale(1) !important; }
+.a16-buffer-spin svg { width: 100% !important; height: 100% !important; animation: a16Spin .9s linear infinite !important; }
+.a16-buffer-spin .bs-track { stroke: rgba(255,255,255,.25) !important; }
+.a16-buffer-spin .bs-arc { stroke: var(--primary, #4dd0e1) !important; stroke-dasharray: 70, 200 !important; stroke-linecap: round !important; }
+
+/* Algorithm skip (guess, no database entry): goes away with the controls, back with the mouse */
+.a16-controls-root.idle .a16-skip-btn:has(.a16-skip-badge-algo) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(8px) scale(0.92) !important;
+}
+.a16-controls-root .a16-skip-btn:has(.a16-skip-badge-algo) { transition: transform 0.35s var(--spring), opacity 0.3s ease, background-color 0.2s, border-color 0.2s !important; }
+
+/* preview picture above the timeline */
+.a16-prev {
+  position: absolute !important; bottom: 58px !important; left: 0; width: 228px !important; z-index: 9 !important;
+  transform: translateX(-50%) translateY(6px) scale(.92) !important; transform-origin: 50% 100% !important;
+  padding: 2px !important; border-radius: 14px !important; overflow: hidden !important;
+  background: var(--surface-c-highest, #222) !important; border: 1px solid var(--outline-variant, rgba(255,255,255,.2)) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.55) !important; opacity: 0 !important; pointer-events: none !important; display: block !important;
+  transition: opacity .15s ease, transform .25s cubic-bezier(.2,.9,.3,1.3) !important;
+}
+.a16-prev canvas { display: block !important; width: 100% !important; height: auto !important; border-radius: 12px !important; background: #000 !important; }
+.a16-timeline-track:hover .a16-prev.ready { opacity: 1 !important; transform: translateX(-50%) translateY(0) scale(1) !important; }
+.a16-timeline-track:hover .a16-timeline-tooltip { bottom: 28px !important; }
+@media (max-width: 520px) { .a16-prev { width: 150px !important; } }
+
+/* ========================================================
+   PHONES & TABLETS (.a16-touch = finger instead of mouse)
+   Tap = show / hide controls, double tap left / right = 10 s,
+   big buttons, two-row dock, menus in the middle.
+   ======================================================== */
+.a16-timeline-track { touch-action: none !important; }
+.a16-timeline-track.dragging .a16-timeline-tooltip { opacity: 1 !important; transform: translateX(-50%) scale(1) !important; }
+.a16-timeline-track.dragging .a16-timeline-bg,
+.a16-timeline-track.dragging .a16-timeline-buffer,
+.a16-timeline-track.dragging .a16-timeline-played { height: 6px !important; }
+
+.a16-touch, .a16-touch * { -webkit-tap-highlight-color: transparent !important; }
+.a16-touch .a16-controls-root.idle { cursor: auto !important; }
+
+/* soft shade top and bottom so the white controls stay readable on bright pictures */
+.a16-touch .a16-controls-root::before {
+  content: "" !important; position: absolute !important; inset: 0 !important; z-index: 0 !important; pointer-events: none !important;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .55) 0, transparent 28%, transparent 55%, rgba(0, 0, 0, .72) 100%) !important;
+  transition: opacity .35s var(--ease) !important;
+}
+.a16-touch .a16-controls-root.idle::before { opacity: 0 !important; }
+
+/* center: 10 s back · play · 10 s forward */
+.a16-touch .a16-center-actions {
+  display: flex !important; visibility: visible !important; opacity: 1 !important;
+  position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important;
+  align-items: center !important; gap: clamp(22px, 9vw, 64px) !important; z-index: 20 !important; pointer-events: none !important;
+  transition: opacity .3s var(--ease), transform .4s var(--spring-soft) !important;
+}
+.a16-touch .a16-center-actions button { pointer-events: auto !important; }
+.a16-touch .a16-controls-root.idle .a16-center-actions { opacity: 0 !important; }
+.a16-touch .a16-controls-root.idle .a16-center-actions button { pointer-events: none !important; }
+.a16-touch .a16-controls-root.is-loading .a16-center-actions,
+.a16-touch .a16-controls-root:has(> .a16-loading-overlay:not(.hidden)) .a16-center-actions { display: none !important; }
+.a16-touch .a16-secondary-fab { width: 52px !important; height: 52px !important; background: rgba(0, 0, 0, .38) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-color: rgba(255, 255, 255, .18) !important; }
+.a16-touch .a16-secondary-fab svg { width: 28px !important; height: 28px !important; }
+.a16-touch .a16-center-fab { width: 72px !important; height: 72px !important; border-radius: 24px !important; }
+.a16-touch .a16-center-fab svg { width: 38px !important; height: 38px !important; }
+.a16-touch .a16-center-fab:active, .a16-touch .a16-secondary-fab:active { transform: scale(.92) !important; }
+.a16-touch .a16-buffer-spin { z-index: 21 !important; }
+
+/* top bar */
+.a16-touch .a16-top-bar { padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left)) !important; gap: 10px !important; }
+.a16-touch .a16-brand-name { display: none !important; }
+.a16-touch .a16-video-title { font-size: 13px !important; }
+.a16-touch .a16-close-btn { width: 40px !important; height: 40px !important; }
+.a16-touch .a16-quality-chip { height: 32px !important; }
+
+/* dock: timeline on its own row, big touch targets below */
+.a16-touch .a16-bottom-dock {
+  left: max(8px, env(safe-area-inset-left)) !important; right: max(8px, env(safe-area-inset-right)) !important;
+  bottom: max(6px, env(safe-area-inset-bottom)) !important; height: auto !important; padding: 6px 10px !important;
+  flex-wrap: wrap !important; gap: 4px 6px !important; border-radius: 20px !important;
+}
+.a16-touch .a16-dock-center { order: -1 !important; flex: 1 1 100% !important; gap: 10px !important; padding: 0 4px !important; }
+.a16-touch .a16-dock-left { flex: 1 1 auto !important; display: flex !important; align-items: center !important; gap: 4px !important; }
+.a16-touch .a16-btn-play-dock { display: inline-flex !important; height: 44px !important; min-width: 44px !important; }
+.a16-touch .a16-timeline-track { height: 36px !important; }
+.a16-touch .a16-timeline-thumb { width: 14px !important; height: 14px !important; right: -7px !important; border-radius: 50% !important; }
+.a16-touch .a16-timeline-track.dragging .a16-timeline-thumb { width: 20px !important; height: 20px !important; right: -10px !important; }
+.a16-touch .a16-timeline-tooltip { bottom: 34px !important; font-size: 13px !important; padding: 6px 12px !important; }
+.a16-touch .a16-time-cur, .a16-touch .a16-time-dur { font-size: 12px !important; }
+.a16-touch .a16-btn { height: 44px !important; min-width: 44px !important; }
+.a16-touch .a16-btn svg { width: 24px !important; height: 24px !important; }
+.a16-touch .a16-speed-chip { height: 36px !important; padding: 0 12px !important; font-size: 13px !important; }
+
+/* volume: the button opens the slider (no hover on a phone) */
+.a16-touch .a16-volume-wrapper:hover .a16-volume-slider-box,
+.a16-touch .a16-volume-wrapper:focus-within .a16-volume-slider-box { width: 0 !important; opacity: 0 !important; margin-right: 0 !important; }
+.a16-touch .a16-volume-wrapper.open .a16-volume-slider-box { width: min(150px, 34vw) !important; opacity: 1 !important; margin-right: 6px !important; }
+.a16-touch .a16-volume-slider { height: 36px !important; touch-action: none !important; }
+.a16-touch .a16-volume-slider::-webkit-slider-thumb { width: 20px !important; height: 20px !important; margin-top: -7.5px !important; }
+
+/* menus (speed / quality) in the middle, scrollable when the player is small */
+.a16-touch .a16-menu-popover,
+.a16-touch .a16-quality-popover {
+  left: 50% !important; right: auto !important; top: 50% !important; bottom: auto !important;
+  width: min(340px, calc(100% - 24px)) !important; min-width: 0 !important; max-height: calc(100% - 24px) !important;
+  overflow-y: auto !important; overscroll-behavior: contain !important;
+  transform: translate(-50%, -50%) !important; transform-origin: center !important; z-index: 45 !important;
+}
+.a16-touch .a16-menu-popover.hidden { transform: translate(-50%, -50%) scale(.9) !important; }
+.a16-touch .a16-menu-item { height: 42px !important; font-size: 13px !important; }
+.a16-touch .a16-quality-grid { max-height: none !important; }
+
+/* cards above the two-row dock */
+.a16-touch .a16-skip-btn { left: max(12px, env(safe-area-inset-left)) !important; bottom: 96px !important; height: 44px !important; }
+.a16-touch .a16-next-episode-card { right: max(12px, env(safe-area-inset-right)) !important; bottom: 96px !important; width: min(275px, calc(100% - 24px)) !important; }
+.a16-touch .a16-next-buttons button { min-height: 40px !important; }
+.a16-touch .a16-resume-badge { top: 12px !important; left: 12px !important; }
+.a16-touch .a16-ripple-overlay { width: 40% !important; }
+
+/* no sticky "hover" after a tap */
+@media (hover: none) {
+  .a16-btn:hover, .a16-speed-chip:hover, .a16-btn-play-dock:hover, .a16-center-fab:hover, .a16-secondary-fab:hover,
+  .a16-skip-btn:hover, .a16-menu-item:hover, .a16-dyn-audio-btn:hover, .a16-quality-chip:hover, .a16-close-btn:hover { transform: none !important; }
+  .a16-timeline-track:hover:not(.dragging) .a16-timeline-tooltip { opacity: 0 !important; }
+  .a16-timeline-track:hover .a16-prev { opacity: 0 !important; }
+}
+
+/* small player (phone upright, player inside the page): everything a bit tighter */
+.a16-compact .a16-top-bar { padding-top: 8px !important; padding-bottom: 6px !important; }
+.a16-compact .a16-brand-chip { display: none !important; }
+.a16-compact .a16-video-title { font-size: 12px !important; }
+.a16-compact .a16-quality-chip { height: 28px !important; font-size: 11px !important; }
+.a16-compact.a16-touch .a16-center-fab { width: 58px !important; height: 58px !important; border-radius: 20px !important; }
+.a16-compact.a16-touch .a16-center-fab svg { width: 32px !important; height: 32px !important; }
+.a16-compact.a16-touch .a16-secondary-fab { width: 44px !important; height: 44px !important; }
+.a16-compact.a16-touch .a16-secondary-fab svg { width: 24px !important; height: 24px !important; }
+.a16-compact.a16-touch .a16-btn-play-dock { display: inline-flex !important; height: 40px !important; min-width: 40px !important; }
+.a16-compact.a16-touch .a16-timeline-track { height: 30px !important; }
+.a16-compact.a16-touch .a16-btn { height: 40px !important; min-width: 40px !important; }
+.a16-compact.a16-touch .a16-speed-chip { height: 32px !important; }
+.a16-compact .a16-skip-btn { bottom: 80px !important; height: 38px !important; padding: 0 14px !important; font-size: 12px !important; }
+.a16-compact .a16-next-episode-card { top: 8px !important; bottom: auto !important; right: 8px !important; width: min(240px, 62%) !important; padding: 10px 12px !important; gap: 6px !important; }
+.a16-compact .a16-next-title { font-size: 13px !important; }
+
+/* ========================================================
+   SETTING "Pause: Bild verwischen" (.a16-pause-blur)
+   Paused = the picture is blurred and darkened until nothing can be made out.
+   ======================================================== */
+.a16-pause-blur video.a16-managed-video { transition: filter .35s var(--ease) !important; }
+.a16-pause-blur.a16-paused video.a16-managed-video { filter: blur(48px) brightness(.45) saturate(.8) !important; transform: scale(1.15) !important; }
+.a16-pause-blur.a16-paused video.a16-managed-video::cue { opacity: 0 !important; }

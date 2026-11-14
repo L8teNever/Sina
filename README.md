@@ -1,14 +1,14 @@
 # Sina
 
-AniWorld mit eigener Oberfläche: suchen, Serien und Folgen ansehen, anklicken und streamen.
-Alles läuft in **einem Docker-Container** (Rust). Darin steckt ein echter Chromium, den du über eine zweite Seite
-live sehen und bedienen kannst.
+AniWorld im Look der NINA-Erweiterung: suchen, Serien und Folgen ansehen, anklicken und streamen, mit
+demselben Android-16-Player (Material 3). Alles läuft in **einem Docker-Container** (Rust). Darin steckt ein
+echter Chromium, den du über eine zweite Seite live sehen und bedienen kannst.
 
 ## Die zwei Seiten
 
 | Seite | Port | Was |
 |---|---|---|
-| **Sina** | `8080` | Suche, Serienseite mit Staffeln und Folgen, Player (Sprache und Hoster wählbar, Auto-Weiter, „Weiter schauen“) |
+| **Sina** | `8080` | Start, Alle Animes (A–Z, Genres, Filter), Beliebt, Kalender, Suche mit Vorschlägen, Serienseite, Folgenseite mit Player |
 | **Browser** | `8081` | Der Chromium im Container (noVNC). Hier löst du Schutzprüfungen und siehst, was der Server tut |
 
 Der Link „Browser“ oben in Sina führt auf die zweite Seite. Steht sie hinter einer anderen Adresse
@@ -34,7 +34,12 @@ Dann `http://localhost:8080` (Sina) und `http://localhost:8081` (Browser).
    verschlüsselte Stream-Adresse aus (`src/voe.rs`) und gibt sie an den Player. Findet der Server nichts, versucht es der Browser.
 3. **Abspielen:** HLS (hls.js) läuft über `/api/hls`. Der Hoster bindet die Stream-Adresse an die IP, die die Seite
    geholt hat. Deshalb muss auch das Video über den Server laufen. Der Proxy spricht nur öffentliche Adressen an.
-4. **Fortschritt:** Position und „gesehen“ speichert der Player im Browser (localStorage).
+4. **Player:** Der Android-16-Player aus der NINA-Erweiterung (`static/player.js`, `player.css`) läuft unverändert bis auf
+   eine kleine Schnittstelle (`static/shim.js`). Er hat Gesten und Tasten, Geschwindigkeit, Qualität, Bild-in-Bild,
+   Intro/Outro überspringen (AniSkip), Auto-Weiter und merkt sich die Position.
+5. **ani.pm:** Gibt es die Folge dort, erscheinen die Knöpfe „Eng-Dub“ und „Eng-Sub“. ani.pm blockt Server-Anfragen
+   oft (Cloudflare), deshalb holt der Chromium im Container diese Daten.
+6. **Fortschritt:** Position und „gesehen“ speichert der Player im Browser (localStorage).
 
 ## Umgebungsvariablen
 
@@ -52,6 +57,16 @@ Dann `http://localhost:8080` (Sina) und `http://localhost:8081` (Browser).
 
 Das Browser-Profil (Cookies, gelöste Prüfungen) liegt im Volume `/data`.
 
+## VPN (z. B. Proton)
+
+Der Hoster bindet die Stream-Adresse an die IP, die die Hoster-Seite geholt hat. Server und Chromium müssen deshalb
+**über denselben Ausgang** ins Netz. Eine VPN-Erweiterung im Chromium reicht nicht: sie schützt nur den Browser,
+das Video lädt aber der Server.
+
+`docker-compose.vpn.example.yml` startet einen gluetun-Container mit Proton VPN (WireGuard oder OpenVPN) und setzt
+`HTTPS_PROXY`. Der Chromium nutzt automatisch denselben Proxy (oder `BROWSER_PROXY`). Der Knopf „VPN“ oben in Sina
+zeigt die IP von Server und Browser und ob sie gleich sind.
+
 ## Entwickeln
 
 ```bash
@@ -63,6 +78,8 @@ Das Image baut GitHub Actions bei jedem Push auf `main` nach `ghcr.io/l8tenever/
 
 ## Grenzen
 
-- Nur AniWorld (`/anime/stream/...`), keine Downloads.
+- Nur AniWorld (`/anime/stream/...`) und ani.pm, keine Downloads, keine Anbindung an „Meine Serien“ aus NINA.
+  „Gesehen“ und Fortschritt speichert der Browser lokal.
+- Der Teil für ani.pm (Session, Embed-Seite) läuft über den Chromium und ist nur mit echtem Browser prüfbar.
 - Hoster ändern ihre Seiten ab und zu. VOE und Hoster mit offener `.m3u8`/`.mp4` im Quelltext gehen.
   Geht ein Hoster nicht, probiert der Player die anderen automatisch, oder du wählst einen von Hand.

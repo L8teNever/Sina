@@ -60,10 +60,12 @@ pub fn start() {
         for f in ["SingletonLock", "SingletonCookie", "SingletonSocket"] {
             let _ = fs::remove_file(Path::new(&profile).join(f));
         }
-        keep(
-            "chromium",
-            var("CHROMIUM_BIN", "chromium"),
-            vec![
+        // Proxy für den Browser: BROWSER_PROXY, sonst derselbe wie für den Server (HTTPS_PROXY)
+        let proxy = ["BROWSER_PROXY", "HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy"]
+            .iter()
+            .filter_map(|k| env::var(k).ok())
+            .find(|v| !v.trim().is_empty());
+        let mut chromium_args: Vec<String> = vec![
                 "--no-sandbox".into(),
                 "--disable-gpu".into(),
                 "--disable-dev-shm-usage".into(),
@@ -77,10 +79,14 @@ pub fn start() {
                 format!("--remote-debugging-port={cdp_port}"),
                 "--window-position=0,0".into(),
                 format!("--window-size={w},{h}"),
-                "about:blank".into(),
-            ],
-            x_env.clone(),
-        );
+        ];
+        if let Some(p) = proxy {
+            eprintln!("[chromium] Proxy: {p}");
+            chromium_args.push(format!("--proxy-server={}", p.trim()));
+            chromium_args.push("--proxy-bypass-list=localhost;127.0.0.1".into());
+        }
+        chromium_args.push("about:blank".into());
+        keep("chromium", var("CHROMIUM_BIN", "chromium"), chromium_args, x_env.clone());
 
         let mut vnc = vec![
             "-display".into(),
