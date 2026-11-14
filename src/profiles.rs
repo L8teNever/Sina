@@ -28,6 +28,11 @@ const MAX_KEYS: usize = 3000;
 const MAX_KEY_LEN: usize = 300;
 const MAX_VALUE_LEN: usize = 20_000;
 
+/// Ist das ein bekanntes Profil (auch Gast)?
+pub fn valid(id: &str) -> bool {
+    PROFILES.iter().any(|(p, _, _)| *p == id)
+}
+
 fn dir() -> PathBuf {
     PathBuf::from(env::var("DATA_DIR").unwrap_or_else(|_| "/data".into())).join("profiles")
 }

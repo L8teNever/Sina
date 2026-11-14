@@ -5,6 +5,7 @@ mod ani;
 mod anipm;
 mod browser;
 mod cache;
+mod devices;
 mod pages;
 mod profiles;
 mod proxy;
@@ -32,6 +33,7 @@ pub struct AppState {
     pub raw: reqwest::Client,
     pub browser: browser::Browser,
     pub cache: cache::Cache,
+    pub devices: devices::Devices,
     /// z. B. https://aniworld.to (ohne Schrägstrich am Ende)
     pub base: String,
 }
@@ -121,7 +123,7 @@ async fn main() {
         .read_timeout(Duration::from_secs(60))
         .build()
         .expect("HTTP-Client");
-    let state = Arc::new(AppState { http, raw, browser: browser::Browser::from_env(), cache: cache::Cache::default(), base });
+    let state = Arc::new(AppState { http, raw, browser: browser::Browser::from_env(), cache: cache::Cache::default(), devices: devices::Devices::default(), base });
 
     supervisor::start();
     tokio::spawn(vpn::keep_endpoint_fresh());
@@ -146,6 +148,9 @@ async fn main() {
         .route("/api/config", get(config))
         .route("/api/vpn", get(vpn))
         .route("/api/profiles", get(profiles::list))
+        .route("/api/devices", get(devices::list))
+        .route("/api/devices/poll", get(devices::poll))
+        .route("/api/devices/send", axum::routing::post(devices::send).layer(axum::extract::DefaultBodyLimit::max(8 * 1024)))
         .route(
             "/api/state",
             get(profiles::get_state).put(profiles::put_state).layer(axum::extract::DefaultBodyLimit::max(520 * 1024)),

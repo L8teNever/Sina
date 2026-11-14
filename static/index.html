@@ -8,6 +8,7 @@
 <title>Sina</title>
 <link rel="stylesheet" href="skin.css">
 <link rel="stylesheet" href="player.css">
+<link rel="stylesheet" href="tv.css">
 <style>
   html, body { margin: 0; background: hsl(186 10% 7%); }
   #nina-skin .sina-ph-msg { position: relative; display: grid; gap: 12px; justify-items: center; text-align: center; padding: 0 24px; color: #fff; }
@@ -32,7 +33,23 @@
   #nina-skin .sina-msg { margin-top: 12px; padding: 10px 14px; border-radius: var(--r-m); background: var(--surface-c-high); }
   #nina-skin .sina-msg.ok { background: var(--primary-container); color: var(--on-primary-container); }
   #nina-skin .sina-msg.bad { background: #5a2323; color: #ffdad6; }
-#nina-skin .sina-profiles { position: fixed; inset: 0; z-index: 200; display: grid; align-content: center; justify-items: center; gap: 36px; padding: 24px; background: var(--surface); overflow: auto; }
+#nina-skin [hidden] { display: none !important; }
+  #nina-skin .sina-profiles { animation: sinaFade .35s var(--ease) both; }
+  #nina-skin .sina-profiles h1 { animation: sinaRise .55s var(--spring-soft) both; }
+  #nina-skin .sina-p { animation: sinaPop .6s var(--spring) both; animation-delay: calc(var(--i, 0) * 70ms + 90ms); }
+  #nina-skin .sina-profiles.leaving { animation: sinaFadeOut .38s var(--ease) .14s both; pointer-events: none; }
+  #nina-skin .sina-profiles.leaving .sina-p { animation: none; transition: opacity .3s var(--ease), transform .3s var(--ease); }
+  #nina-skin .sina-profiles.leaving .sina-p:not(.picked) { opacity: .2; transform: scale(.9); }
+  #nina-skin .sina-profiles.leaving .sina-p.picked .av { border-radius: 50%; transform: scale(1.16); }
+  #nina-skin .ns-main.sina-enter { animation: sinaRise .5s var(--spring-soft) both; }
+  @keyframes sinaFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes sinaFadeOut { to { opacity: 0; transform: scale(1.04); } }
+  @keyframes sinaRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes sinaPop { from { opacity: 0; transform: translateY(20px) scale(.85); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { #nina-skin .sina-profiles, #nina-skin .sina-profiles *, #nina-skin .ns-main.sina-enter { animation: none !important; transition: none !important; } }
+  /* Fernseher-Knopf am Handy: im Kopf als kleiner Knopf sichtbar lassen */
+  @media (max-width: 760px) { #nina-skin .ns-acts #castBtn:not([hidden]) { display: inline-flex; padding: 0 12px; } #nina-skin .ns-acts #castBtn span { display: none; } }
+  #nina-skin .sina-profiles { position: fixed; inset: 0; z-index: 200; display: grid; align-content: center; justify-items: center; gap: 36px; padding: 24px; background: var(--surface); overflow: auto; }
   #nina-skin .sina-profiles h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; }
   #nina-skin .sina-pgrid { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; max-width: 960px; }
   #nina-skin .sina-p { display: grid; justify-items: center; gap: 12px; background: none; border: 0; cursor: pointer; color: var(--on-surface-variant); font-size: 17px; padding: 4px; }
@@ -54,7 +71,7 @@
     <nav class="ns-nav" id="nav"></nav>
     <div class="ns-search"><label id="searchIcon"></label><div class="ns-suggest"></div></div>
     <button type="button" class="ns-vpn" id="vpnChip" title="Server und Browser: gleiche IP? (klicken: prüfen)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg><span class="dot"></span><span class="t">IP …</span></button>
-    <div class="ns-acts"><button type="button" class="sina-me" id="profileBtn" title="Profil wechseln"></button><a class="ns-icon" id="settingsLink" href="#/settings" title="Einstellungen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></a><a class="ns-tonal" id="browserLink" href="#" target="_blank" rel="noopener" title="Der Browser im Container (Schutzprüfungen lösen)"></a></div>
+    <div class="ns-acts"><button type="button" class="ns-tonal" id="castBtn" hidden title="Auf Fernseher weiter schauen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg><span>Fernseher</span></button><button type="button" class="sina-me" id="profileBtn" title="Profil wechseln"></button><a class="ns-icon" id="settingsLink" href="#/settings" title="Einstellungen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></a><a class="ns-tonal" id="browserLink" href="#" target="_blank" rel="noopener" title="Der Browser im Container (Schutzprüfungen lösen)"></a></div>
   </header>
   <main class="ns-main" id="main"></main>
   <div class="sina-profiles" id="profiles" hidden></div>
@@ -64,6 +81,7 @@
 <script src="hls.min.js"></script>
 <script src="shim.js"></script>
 <script src="player.js"></script>
+<script src="tv.js"></script>
 <script>
 'use strict';
 const $ = (s, el = document) => el.querySelector(s);
@@ -501,6 +519,7 @@ async function viewSettings() {
       <div class="sina-row"><button class="ns-btn" id="vpnSave">${I.check}Speichern</button></div>
       <div id="vpnMsg"></div>
     </section>
+    ${typeof sinaDeviceCard === 'function' ? sinaDeviceCard() : ''}
     <section class="sina-card">
       <h2>Status</h2>
       <div id="vpnStatus"><div class="sina-ph-msg"><div class="spin"></div></div></div>
@@ -549,6 +568,7 @@ async function viewSettings() {
         <div class="sina-msg ${v.same ? 'ok' : 'bad'}">${v.same ? 'Gleiche IP. Videos werden angenommen.' : v.server && v.browser ? 'Die IPs sind verschieden. Videos können abgelehnt werden.' : 'Eine der beiden IPs war nicht abrufbar.'}</div>`;
     } catch (e) { $('#vpnIps').innerHTML = `<div class="sina-msg bad">${esc(e.message)}</div>`; }
   });
+  if (typeof sinaDeviceBind === 'function') sinaDeviceBind();
   loadStatus();
 }
 
@@ -594,6 +614,7 @@ async function viewEpisode(slug, key, num) {
         ${prev ? `<a class="ns-tonal" href="${H.ep(slug, season, prev.n, film)}">${I.prev}Vorherige</a>` : ''}
         ${next ? `<a class="ns-btn" href="${H.ep(slug, season, next.n, film)}">Nächste Folge${I.next}</a>` : ''}
         <span class="sp"></span>
+        <button class="ns-tonal" id="castEp" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg>Auf Fernseher weiter schauen</button>
         ${film ? '' : `<button class="${st && st.status === 'w' ? 'ns-btn' : 'ns-tonal'}" data-tick="${esc(k)}">${I.check}${st && st.status === 'w' ? 'Gesehen' : 'Als gesehen markieren'}</button>`}
       </div>
       <div class="ns-opts" id="opts"></div>
@@ -605,6 +626,7 @@ async function viewEpisode(slug, key, num) {
     </aside></div>`;
   const curRow = $('.ns-side .ns-ep.cur');
   if (curRow) curRow.scrollIntoView({ block: 'center' });
+  if (typeof sinaEpisodeRendered === 'function') sinaEpisodeRendered();
 
   // Kontext für den Player (Titel, nächste Folge, Intro/Outro)
   window.__sinaCtx = {
@@ -762,7 +784,7 @@ function paintProfileBtn() {
   b.innerHTML = avatar(p);
   b.title = 'Profil: ' + p.name + ' (klicken zum Wechseln)';
 }
-async function selectProfile(id) {
+async function selectProfile(id, keepOverlay) {
   if (P && P !== id) { pushState(false); if (!profile().saved) clearLocalProfile(); }
   P = id;
   window.__sinaProfile = id;
@@ -788,24 +810,41 @@ async function selectProfile(id) {
   }
   window.__sinaDirty = p.saved ? schedulePush : null;
   paintProfileBtn();
-  $('#profiles').hidden = true;
+  if (!keepOverlay) hideProfiles();
+  if (typeof sinaOnProfile === 'function') sinaOnProfile();
+}
+function hideProfiles() {
+  const box = $('#profiles');
+  box.classList.remove('leaving');
+  box.hidden = true;
   document.body.style.overflow = '';
 }
+let picking = false;
 function showProfiles() {
   const box = $('#profiles');
-  box.innerHTML = `<h1>Wer schaut?</h1><div class="sina-pgrid">${PROFILES.map((p) => `<button type="button" class="sina-p" data-p="${esc(p.id)}">${avatar(p)}<b>${esc(p.name)}</b>${p.saved ? '' : '<small>nichts wird gespeichert</small>'}</button>`).join('')}</div>`;
+  picking = false;
+  box.classList.remove('leaving');
+  box.innerHTML = `<h1>Wer schaut?</h1><div class="sina-pgrid">${PROFILES.map((p, i) => `<button type="button" class="sina-p" style="--i:${i}" data-p="${esc(p.id)}">${avatar(p)}<b>${esc(p.name)}</b>${p.saved ? '' : '<small>nichts wird gespeichert</small>'}</button>`).join('')}</div>`;
   box.hidden = false;
   document.body.style.overflow = 'hidden';
-  $('.sina-p', box).focus();
+  const cur = P && $(`.sina-p[data-p="${P}"]`, box);
+  (cur || $('.sina-p', box)).focus({ preventScroll: true });
   box.onclick = async (e) => {
     const b = e.target.closest('[data-p]');
-    if (!b) return;
-    await selectProfile(b.dataset.p);
+    if (!b || picking) return;
+    picking = true;
+    box.classList.add('leaving');
+    b.classList.add('picked');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    await Promise.all([selectProfile(b.dataset.p, true), new Promise((r) => setTimeout(r, reduced ? 0 : 480))]);
+    hideProfiles();
+    picking = false;
+    main.classList.remove('sina-enter'); void main.offsetWidth; main.classList.add('sina-enter');
     route();
   };
 }
 $('#profileBtn').addEventListener('click', () => { teardown(); showProfiles(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && P && !$('#profiles').hidden) { $('#profiles').hidden = true; document.body.style.overflow = ''; route(); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && P && !picking && !$('#profiles').hidden) { hideProfiles(); route(); } });
 
 // ---------- Routing ----------
 function parseRoute() {
