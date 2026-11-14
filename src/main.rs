@@ -6,9 +6,11 @@ mod anipm;
 mod browser;
 mod cache;
 mod pages;
+mod profiles;
 mod proxy;
 mod supervisor;
 mod voe;
+mod vpn;
 
 use std::{env, sync::Arc, time::Duration};
 
@@ -41,6 +43,9 @@ pub struct ApiError {
 }
 
 impl ApiError {
+    pub fn new(status: StatusCode, msg: impl Into<String>) -> Self {
+        Self { status, msg: msg.into(), human: false }
+    }
     pub fn bad(msg: impl Into<String>) -> Self {
         Self { status: StatusCode::BAD_REQUEST, msg: msg.into(), human: false }
     }
@@ -119,6 +124,7 @@ async fn main() {
     let state = Arc::new(AppState { http, raw, browser: browser::Browser::from_env(), cache: cache::Cache::default(), base });
 
     supervisor::start();
+    tokio::spawn(vpn::keep_endpoint_fresh());
 
     let st = state.clone();
     let config = move || {
@@ -139,6 +145,15 @@ async fn main() {
         .route("/healthz", get(|| async { "ok" }))
         .route("/api/config", get(config))
         .route("/api/vpn", get(vpn))
+        .route("/api/profiles", get(profiles::list))
+        .route(
+            "/api/state",
+            get(profiles::get_state).put(profiles::put_state).layer(axum::extract::DefaultBodyLimit::max(520 * 1024)),
+        )
+        .route(
+            "/api/settings/vpn",
+            get(vpn::status).post(vpn::upload).layer(axum::extract::DefaultBodyLimit::max(16 * 1024)),
+        )
         .route("/api/search", get(ani::search))
         .route("/api/series", get(ani::series))
         .route("/api/season", get(ani::season))

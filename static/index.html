@@ -21,6 +21,30 @@
   #nina-skin .ns-dot.up { background: #81c784; }
   #nina-skin .ns-ep .bar { display: block; height: 3px; border-radius: 3px; background: var(--outline-variant); margin-top: 4px; overflow: hidden; }
   #nina-skin .ns-ep .bar b { display: block; height: 100%; background: var(--primary); }
+.sina-card { background: var(--surface-c); border-radius: var(--r-l); padding: 22px 24px; margin: 0 0 18px; max-width: 760px; }
+  #nina-skin .sina-card h2 { font-size: 20px; margin: 0 0 6px; }
+  #nina-skin .sina-card p { color: var(--on-surface-variant); margin: 6px 0 14px; }
+  #nina-skin .sina-card textarea { width: 100%; min-height: 130px; resize: vertical; border: 1px solid var(--outline-variant); border-radius: var(--r-m); background: var(--surface-c-low); color: var(--on-surface); padding: 12px 14px; font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  #nina-skin .sina-card textarea:focus { outline: 2px solid var(--primary); border-color: transparent; }
+  #nina-skin .sina-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 12px 0 0; }
+  #nina-skin .sina-kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 12px 0 0; }
+  #nina-skin .sina-kv span:nth-child(odd) { color: var(--on-surface-variant); }
+  #nina-skin .sina-msg { margin-top: 12px; padding: 10px 14px; border-radius: var(--r-m); background: var(--surface-c-high); }
+  #nina-skin .sina-msg.ok { background: var(--primary-container); color: var(--on-primary-container); }
+  #nina-skin .sina-msg.bad { background: #5a2323; color: #ffdad6; }
+#nina-skin .sina-profiles { position: fixed; inset: 0; z-index: 200; display: grid; align-content: center; justify-items: center; gap: 36px; padding: 24px; background: var(--surface); overflow: auto; }
+  #nina-skin .sina-profiles h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; }
+  #nina-skin .sina-pgrid { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; max-width: 960px; }
+  #nina-skin .sina-p { display: grid; justify-items: center; gap: 12px; background: none; border: 0; cursor: pointer; color: var(--on-surface-variant); font-size: 17px; padding: 4px; }
+  #nina-skin .sina-p .av, #nina-skin .sina-me .av { display: grid; place-items: center; font-weight: 800; background: hsl(var(--ph) 55% 72%); color: hsl(var(--ph) 70% 16%); }
+  #nina-skin .sina-p .av { width: 132px; height: 132px; border-radius: 34px; font-size: 58px; transition: border-radius .45s var(--spring), transform .35s var(--spring); }
+  #nina-skin .sina-p:hover .av, #nina-skin .sina-p:focus-visible .av { border-radius: 50%; transform: scale(1.07); }
+  #nina-skin .sina-p:hover, #nina-skin .sina-p:focus-visible { color: var(--on-surface); outline: 0; }
+  #nina-skin .sina-p small { font-size: 12px; opacity: .7; margin-top: -6px; }
+  #nina-skin .sina-me { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+  #nina-skin .sina-me .av { width: 36px; height: 36px; border-radius: 12px; font-size: 17px; transition: border-radius .4s var(--spring); }
+  #nina-skin .sina-me:hover .av { border-radius: 50%; }
+  @media (max-width: 600px) { #nina-skin .sina-p .av { width: 96px; height: 96px; font-size: 42px; border-radius: 28px; } #nina-skin .sina-pgrid { gap: 16px; } }
 </style>
 </head>
 <body>
@@ -30,9 +54,10 @@
     <nav class="ns-nav" id="nav"></nav>
     <div class="ns-search"><label id="searchIcon"></label><div class="ns-suggest"></div></div>
     <button type="button" class="ns-vpn" id="vpnChip" title="Server und Browser: gleiche IP? (klicken: prüfen)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg><span class="dot"></span><span class="t">IP …</span></button>
-    <div class="ns-acts"><a class="ns-tonal" id="browserLink" href="#" target="_blank" rel="noopener" title="Der Browser im Container (Schutzprüfungen lösen)"></a></div>
+    <div class="ns-acts"><button type="button" class="sina-me" id="profileBtn" title="Profil wechseln"></button><a class="ns-icon" id="settingsLink" href="#/settings" title="Einstellungen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></a><a class="ns-tonal" id="browserLink" href="#" target="_blank" rel="noopener" title="Der Browser im Container (Schutzprüfungen lösen)"></a></div>
   </header>
   <main class="ns-main" id="main"></main>
+  <div class="sina-profiles" id="profiles" hidden></div>
   <nav class="ns-bnav" id="bnav"></nav>
 </div>
 
@@ -60,10 +85,47 @@ const I = {
 };
 
 // ---------- Hilfen ----------
+// Speicher: pro Profil getrennt (Schlüssel „sina:<profil>:<name>“). Alles Profil-Eigene wird mit dem Server abgeglichen.
+let P = null;               // gewähltes Profil (id)
+let PROFILES = [
+  { id: 'simon', name: 'Simon', hue: 186, saved: true }, { id: 'melanie', name: 'Melanie', hue: 330, saved: true },
+  { id: 'eltern', name: 'Eltern', hue: 40, saved: true }, { id: 'martin', name: 'Martin', hue: 140, saved: true },
+  { id: 'gast', name: 'Gast', hue: 220, saved: false },
+];
 const store = {
-  get(k, d) { try { const v = localStorage.getItem('sina:' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
-  set(k, v) { try { localStorage.setItem('sina:' + k, JSON.stringify(v)); } catch {} },
+  get(k, d) { try { const v = localStorage.getItem('sina:' + P + ':' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('sina:' + P + ':' + k, JSON.stringify(v)); } catch {} },
 };
+// geräteweit (nicht pro Profil): Cover-Zwischenspeicher
+const gstore = {
+  get(k, d) { try { const v = localStorage.getItem('sina:g:' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('sina:g:' + k, JSON.stringify(v)); } catch {} },
+};
+const profile = () => PROFILES.find((x) => x.id === P) || PROFILES[0];
+const pPrefix = () => 'sina:' + P + ':';
+function localKeys() { const out = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(pPrefix())) out.push(k); } return out; }
+function clearLocalProfile() { const keys = localKeys(); window.__sinaDirty = null; keys.forEach((k) => localStorage.removeItem(k)); }
+function collectState() {
+  const out = {};
+  for (const k of localKeys()) out[k.slice(pPrefix().length)] = localStorage.getItem(k);
+  // alte Abspielpositionen aufräumen
+  const pos = Object.keys(out).filter((k) => k.startsWith('nina_ep_pos_'));
+  if (pos.length > 500) {
+    const at = (k) => { try { return JSON.parse(out[k]).at || 0; } catch { return 0; } };
+    pos.sort((a, b) => at(a) - at(b)).slice(0, pos.length - 400).forEach((k) => delete out[k]);
+  }
+  return out;
+}
+let pushTimer = null;
+function pushState(keepalive) {
+  clearTimeout(pushTimer);
+  if (!P || !profile().saved) return;
+  fetch('/api/state?p=' + P, { method: 'PUT', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(collectState()), keepalive: !!keepalive }).catch(() => {});
+}
+const schedulePush = () => { clearTimeout(pushTimer); pushTimer = setTimeout(() => pushState(false), 2000); };
+window.addEventListener('pagehide', () => pushState(true));
+document.addEventListener('visibilitychange', () => { if (document.hidden) pushState(true); });
+
 const main = $('#main');
 let cfg = { viewUrl: '', viewPort: '8081', browserUp: false };
 
@@ -172,7 +234,7 @@ async function loadConfig() {
 })();
 
 // Cover, die in Listen fehlen: eines pro Serienseite, nur für sichtbare Karten
-const coverCache = store.get('covers', {});
+const coverCache = gstore.get('covers', {});
 let coverSave = null;
 const coverBusy = new Map();
 function coverFor(slug) {
@@ -184,7 +246,7 @@ function coverFor(slug) {
       coverSave = setTimeout(() => {
         const keys = Object.keys(coverCache);
         if (keys.length > 3000) for (const k of keys.slice(0, keys.length - 2500)) delete coverCache[k];
-        store.set('covers', coverCache);
+        gstore.set('covers', coverCache);
       }, 800);
       coverBusy.delete(slug);
       return c;
@@ -426,6 +488,70 @@ async function viewShow(slug, key) {
     </section></div>`;
 }
 
+// Einstellungen: VPN-Datei hochladen
+async function viewSettings() {
+  const my = ++viewSeq;
+  main.innerHTML = `<h1 class="ns-h1">Einstellungen</h1><p class="ns-sub">VPN, damit Server und Browser mit derselben Adresse ins Netz gehen</p>
+    <section class="sina-card">
+      <h2>VPN-Datei (WireGuard)</h2>
+      <p>Lade die <b>.conf</b>-Datei hoch, z. B. von Proton VPN (account.proton.me → Downloads → WireGuard-Konfiguration). Schlüssel, Adresse und Server werden automatisch aus der Datei gelesen. Der Schlüssel wird danach nie wieder angezeigt.</p>
+      <div class="sina-row"><input type="file" id="vpnFile" accept=".conf,.txt,text/plain"></div>
+      <p style="margin-top:14px">Oder den Inhalt der Datei hier einfügen:</p>
+      <textarea id="vpnText" spellcheck="false" placeholder="[Interface]&#10;PrivateKey = …&#10;Address = …&#10;&#10;[Peer]&#10;PublicKey = …&#10;Endpoint = …"></textarea>
+      <div class="sina-row"><button class="ns-btn" id="vpnSave">${I.check}Speichern</button></div>
+      <div id="vpnMsg"></div>
+    </section>
+    <section class="sina-card">
+      <h2>Status</h2>
+      <div id="vpnStatus"><div class="sina-ph-msg"><div class="spin"></div></div></div>
+      <div class="sina-row"><button class="ns-tonal" id="vpnCheck">${I.web}Server und Browser prüfen</button></div>
+      <div id="vpnIps"></div>
+    </section>`;
+  const hdr = { 'X-Sina': '1' };
+  const msg = (cls, t) => { $('#vpnMsg').innerHTML = `<div class="sina-msg ${cls}">${esc(t)}</div>`; };
+  const loadStatus = async () => {
+    try {
+      const r = await fetch('/api/settings/vpn', { headers: hdr });
+      const j = await r.json();
+      if (my !== viewSeq) return;
+      if (!r.ok) { $('#vpnStatus').innerHTML = `<div class="sina-msg bad">${esc(j.error || 'Fehler')}</div>`; return; }
+      $('#vpnStatus').innerHTML = j.configured
+        ? `<div class="sina-kv"><span>Server</span><span>${esc(j.endpoint)}</span><span>Adresse im VPN</span><span>${esc(j.address)}</span><span>Gespeichert</span><span>${j.updated ? esc(new Date(j.updated * 1000).toLocaleString('de-DE')) : '–'}</span><span>Ausgehende IP</span><span>${esc(j.ip || 'nicht erreichbar (VPN verbindet noch?)')}</span></div>`
+        : `<p>Noch keine VPN-Datei gespeichert.</p>`;
+    } catch { if (my === viewSeq) $('#vpnStatus').innerHTML = `<div class="sina-msg bad">Status nicht abrufbar.</div>`; }
+  };
+  $('#vpnFile').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    if (f.size > 16384) { msg('bad', 'Die Datei ist zu groß für eine WireGuard-Config.'); return; }
+    $('#vpnText').value = await f.text();
+    msg('', 'Datei „' + f.name + '“ geladen. Mit „Speichern“ übernehmen.');
+  });
+  $('#vpnSave').addEventListener('click', async () => {
+    const text = $('#vpnText').value.trim();
+    if (!text) { msg('bad', 'Erst eine Datei wählen oder den Inhalt einfügen.'); return; }
+    msg('', 'Wird geprüft …');
+    try {
+      const r = await fetch('/api/settings/vpn', { method: 'POST', headers: { ...hdr, 'Content-Type': 'text/plain' }, body: text });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { msg('bad', j.error || 'Fehler ' + r.status); return; }
+      $('#vpnText').value = ''; $('#vpnFile').value = '';
+      msg('ok', j.message + ' Server: ' + j.endpoint + ', Adresse: ' + j.address + '.');
+      loadStatus();
+      setTimeout(loadStatus, 15000);
+    } catch { msg('bad', 'Speichern fehlgeschlagen.'); }
+  });
+  $('#vpnCheck').addEventListener('click', async () => {
+    $('#vpnIps').innerHTML = '<div class="sina-msg">Prüfe … (der Browser braucht einen Moment)</div>';
+    try {
+      const v = await api('vpn');
+      $('#vpnIps').innerHTML = `<div class="sina-kv"><span>Server</span><span>${esc(v.server || '?')}</span><span>Browser</span><span>${esc(v.browser || '?')}</span></div>
+        <div class="sina-msg ${v.same ? 'ok' : 'bad'}">${v.same ? 'Gleiche IP. Videos werden angenommen.' : v.server && v.browser ? 'Die IPs sind verschieden. Videos können abgelehnt werden.' : 'Eine der beiden IPs war nicht abrufbar.'}</div>`;
+    } catch (e) { $('#vpnIps').innerHTML = `<div class="sina-msg bad">${esc(e.message)}</div>`; }
+  });
+  loadStatus();
+}
+
 // ---------- Folge + Player ----------
 const player = { token: 0, hls: null, video: null };
 function teardown() {
@@ -629,6 +755,58 @@ async function viewEpisode(slug, key, num) {
     .catch(() => {});
 }
 
+// ---------- Profile ----------
+const avatar = (p) => `<span class="av" style="--ph:${p.hue}">${esc(p.name.charAt(0))}</span>`;
+function paintProfileBtn() {
+  const b = $('#profileBtn'), p = profile();
+  b.innerHTML = avatar(p);
+  b.title = 'Profil: ' + p.name + ' (klicken zum Wechseln)';
+}
+async function selectProfile(id) {
+  if (P && P !== id) { pushState(false); if (!profile().saved) clearLocalProfile(); }
+  P = id;
+  window.__sinaProfile = id;
+  try { sessionStorage.setItem('sina:profile', id); } catch {}
+  const p = profile();
+  document.documentElement.style.setProperty('--ns-h', p.hue);
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', `hsl(${p.hue} 10% 7%)`);
+  if (!p.saved) {
+    clearLocalProfile();                       // Gast: immer leer anfangen
+  } else {
+    // Stand vom Server holen (gilt für alle Geräte). Ist er leer, bleibt der lokale Stand und wird hochgeladen.
+    try {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 4000);
+      const r = await fetch('/api/state?p=' + id, { signal: ctl.signal });
+      clearTimeout(t);
+      const st = r.ok ? await r.json() : null;
+      if (st && Object.keys(st).length) {
+        clearLocalProfile();
+        for (const [k, v] of Object.entries(st)) localStorage.setItem(pPrefix() + k, v);
+      } else if (st) { setTimeout(() => pushState(false), 500); }
+    } catch {}
+  }
+  window.__sinaDirty = p.saved ? schedulePush : null;
+  paintProfileBtn();
+  $('#profiles').hidden = true;
+  document.body.style.overflow = '';
+}
+function showProfiles() {
+  const box = $('#profiles');
+  box.innerHTML = `<h1>Wer schaut?</h1><div class="sina-pgrid">${PROFILES.map((p) => `<button type="button" class="sina-p" data-p="${esc(p.id)}">${avatar(p)}<b>${esc(p.name)}</b>${p.saved ? '' : '<small>nichts wird gespeichert</small>'}</button>`).join('')}</div>`;
+  box.hidden = false;
+  document.body.style.overflow = 'hidden';
+  $('.sina-p', box).focus();
+  box.onclick = async (e) => {
+    const b = e.target.closest('[data-p]');
+    if (!b) return;
+    await selectProfile(b.dataset.p);
+    route();
+  };
+}
+$('#profileBtn').addEventListener('click', () => { teardown(); showProfiles(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && P && !$('#profiles').hidden) { $('#profiles').hidden = true; document.body.style.overflow = ''; route(); } });
+
 // ---------- Routing ----------
 function parseRoute() {
   const path = decodeURIComponent((location.hash || '').replace(/^#/, '').split('?')[0]).replace(/\/+$/, '');
@@ -638,6 +816,7 @@ function parseRoute() {
   if (parts[0] === 'animes') return { name: 'all' };
   if (parts[0] === 'beliebt') return { name: 'popular' };
   if (parts[0] === 'kalender') return { name: 'calendar' };
+  if (parts[0] === 'settings') return { name: 'settings' };
   if (parts[0] === 'anime' && parts[1] === 'stream' && parts[2]) {
     const slug = parts[2];
     const sm = /^staffel-(\d+)$/.exec(parts[3] || '');
@@ -652,6 +831,7 @@ function parseRoute() {
   return { name: 'home' };
 }
 function route() {
+  if (!P) return;
   teardown();
   main.onclick = null;
   document.title = 'Sina';
@@ -664,6 +844,7 @@ function route() {
   if (r.name === 'all') return viewAll();
   if (r.name === 'popular') return viewPopular();
   if (r.name === 'calendar') return viewCalendar();
+  if (r.name === 'settings') return viewSettings();
   if (r.name === 'show') return viewShow(r.slug, r.key);
   if (r.name === 'episode') return viewEpisode(r.slug, r.key, r.num);
 }
@@ -685,8 +866,14 @@ document.addEventListener('click', (e) => {
 window.addEventListener('hashchange', route);
 loadConfig();
 setInterval(loadConfig, 30000);
-route();
 setTimeout(checkVpn, 6000);
+(async function boot() {
+  try { const r = await fetch('/api/profiles'); if (r.ok) PROFILES = await r.json(); } catch {}
+  let last = null;
+  try { last = sessionStorage.getItem('sina:profile'); } catch {}
+  if (last && PROFILES.some((p) => p.id === last)) { await selectProfile(last); route(); }
+  else { P = PROFILES[0].id; paintProfileBtn(); P = null; window.__sinaProfile = null; showProfiles(); }
+})();
 </script>
 </body>
 </html>

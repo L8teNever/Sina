@@ -15,15 +15,15 @@ RUN apt-get update \
       fonts-liberation fonts-noto-color-emoji fonts-noto-cjk \
  && rm -rf /var/lib/apt/lists/* \
  && useradd -r -u 10001 -m -d /data app \
- && mkdir -p /data /tmp/.X11-unix /app \
+ && mkdir -p /data /vpn /tmp/.X11-unix /app \
  && chmod 1777 /tmp/.X11-unix \
  && cp -r /usr/share/novnc /app/novnc \
  && printf '<!doctype html><meta charset="utf-8"><title>Sina Browser</title><meta http-equiv="refresh" content="0;url=vnc.html?autoconnect=true&resize=scale&reconnect=true&path=websockify">' > /app/novnc/index.html \
- && chown -R app /data
+ && chown -R app /data /vpn
 COPY --from=builder /app/target/release/sina /usr/local/bin/sina
 COPY static /app/static
 WORKDIR /app
-ENV PORT=8080 VIEW_PORT=8081 STATIC_DIR=/app/static NOVNC_DIR=/app/novnc DATA_DIR=/data
+ENV VPN_DIR=/vpn PORT=8080 VIEW_PORT=8081 STATIC_DIR=/app/static NOVNC_DIR=/app/novnc DATA_DIR=/data
 VOLUME /data
 EXPOSE 8080 8081
 USER app

@@ -17,6 +17,16 @@ Der Link „Browser“ oben in Sina führt auf die zweite Seite. Steht sie hinte
 > **Wichtig:** Die Browser-Seite gibt volle Kontrolle über den Browser. Nur hinter Login (Cloudflare Access)
 > freigeben und/oder `VIEW_PASSWORD` setzen.
 
+## Profile
+
+Beim Öffnen fragt Sina wie bei Netflix „Wer schaut?“: **Simon, Melanie, Eltern, Martin** und **Gast**. Jedes Profil hat
+seinen eigenen Stand: Weiter schauen, Fortschritt, „gesehen“, Sprache und die Position in jeder Folge. Die Profile
+sind voneinander getrennt. Der Stand liegt auf dem Server (`/data/profiles/<name>.json`), ist also auf Handy, PC und
+Fernseher gleich. **Gast** speichert nichts und fängt jedes Mal leer an. Oben rechts wechselst du das Profil. Jedes
+Profil hat seine eigene Farbe. Die Namen stehen in `src/profiles.rs`.
+
+Die Profile haben keine PIN. Sie trennen nur den Stand und schützen nichts.
+
 ## Start
 
 ```bash
@@ -54,6 +64,8 @@ Dann `http://localhost:8080` (Sina) und `http://localhost:8081` (Browser).
 | `START_BROWSER` | `1` | `0` = keinen eigenen Chromium starten |
 | `BROWSER_CDP` | `http://127.0.0.1:9222` | Fernsteuer-Adresse des Chromium (bei externem Browser als IP, nicht Name) |
 | `HTTPS_PROXY` | – | Ausgehender Proxy/VPN, falls Hoster die Server-IP sperren |
+| `VPN_DIR` | `/vpn` | Ordner für die hochgeladene VPN-Datei (geteilt mit gluetun) |
+| `REQUIRE_ACCESS` | `0` | `1` = Einstellungen nur mit Cloudflare-Access-Kopfzeile |
 
 Das Browser-Profil (Cookies, gelöste Prüfungen) liegt im Volume `/data`.
 
@@ -63,9 +75,15 @@ Der Hoster bindet die Stream-Adresse an die IP, die die Hoster-Seite geholt hat.
 **über denselben Ausgang** ins Netz. Eine VPN-Erweiterung im Chromium reicht nicht: sie schützt nur den Browser,
 das Video lädt aber der Server.
 
-`docker-compose.vpn.example.yml` startet einen gluetun-Container mit Proton VPN (WireGuard oder OpenVPN) und setzt
-`HTTPS_PROXY`. Der Chromium nutzt automatisch denselben Proxy (oder `BROWSER_PROXY`). Der Knopf „VPN“ oben in Sina
-zeigt die IP von Server und Browser und ob sie gleich sind.
+1. `docker-compose.vpn.example.yml` als `docker-compose.yml` nutzen und starten. Es startet einen gluetun-Container
+   und setzt `HTTPS_PROXY`. Der Chromium nutzt automatisch denselben Proxy (oder `BROWSER_PROXY`).
+2. In Sina oben auf das Zahnrad klicken (`/#/settings`) und die **WireGuard-`.conf`** hochladen oder den Inhalt
+   einfügen. Schlüssel, Adresse und Server liest Sina selbst aus der Datei. Danach verbindet gluetun neu.
+3. Proton: account.proton.me → Downloads → WireGuard-Konfiguration → Plattform „GNU/Linux“ → Server wählen → Herunterladen.
+
+Der Knopf „VPN“ oben in Sina und die Einstellungsseite zeigen die IP von Server und Browser und ob sie gleich sind.
+Der Private Key wird nie wieder an den Browser zurückgegeben. Mit `REQUIRE_ACCESS=1` ist die Einstellungsseite nur
+über Cloudflare Access erreichbar.
 
 ## Entwickeln
 
