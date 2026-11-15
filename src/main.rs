@@ -163,6 +163,8 @@ async fn main() {
         .route("/api/vpn", get(vpn))
         .route("/api/profiles", get(profiles::list))
         .route("/api/profiles/avatar", axum::routing::post(profiles::set_avatar))
+        .route("/api/profiles/avatar/upload", axum::routing::post(profiles::upload_avatar).layer(axum::extract::DefaultBodyLimit::max(420 * 1024)))
+        .route("/api/profiles/avatar/img", get(profiles::avatar_image))
         .route("/api/devices", get(devices::list))
         .route("/api/devices/poll", get(devices::poll))
         .route("/api/devices/state", axum::routing::post(devices::update_state).layer(axum::extract::DefaultBodyLimit::max(4 * 1024)))

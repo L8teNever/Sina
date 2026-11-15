@@ -46,7 +46,10 @@ fn saved_profile(id: &str) -> Result<&'static str, ApiError> {
 }
 
 /// Profilbilder, die man wählen kann (die Grafiken liegen im Frontend). Leer = Anfangsbuchstabe.
-pub const AVATARS: [&str; 10] = ["katze", "fuchs", "panda", "pinguin", "eule", "roboter", "astronaut", "geist", "alien", "frosch"];
+pub const AVATARS: [&str; 16] = [
+    "katze", "fuchs", "panda", "pinguin", "eule", "roboter", "astronaut", "geist", "alien", "frosch",
+    "anime-sonne", "anime-nacht", "anime-kirsche", "anime-schnee", "anime-herbst", "anime-meer",
+];
 
 fn avatars_file() -> PathBuf {
     dir().join("avatars.json")
@@ -66,11 +69,78 @@ pub async fn list() -> Json<Value> {
         PROFILES
             .iter()
             .map(|(id, name, hue)| {
-                let a = av.get(*id).and_then(|v| v.as_str()).filter(|a| AVATARS.contains(a)).unwrap_or("");
+                let a = av
+                    .get(*id)
+                    .and_then(|v| v.as_str())
+                    .filter(|a| AVATARS.contains(a) || (a.starts_with("eigen:") && custom_file(id).exists()))
+                    .unwrap_or("");
                 json!({"id": id, "name": name, "hue": hue, "saved": *id != "gast", "avatar": a})
             })
             .collect(),
     ))
+}
+
+fn custom_file(id: &str) -> PathBuf {
+    dir().join(format!("avatar-{id}.img"))
+}
+
+fn save_avatars(av: &Map<String, Value>) -> Result<(), ApiError> {
+    fs::create_dir_all(dir())
+        .and_then(|_| fs::write(avatars_file(), serde_json::to_string(av).unwrap_or_default()))
+        .map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, format!("Speichern fehlgeschlagen: {e}")))
+}
+
+/// Bildtyp an den ersten Bytes erkennen (nur JPEG, PNG, WebP).
+pub fn image_type(b: &[u8]) -> Option<&'static str> {
+    if b.starts_with(&[0xFF, 0xD8, 0xFF]) {
+        Some("image/jpeg")
+    } else if b.starts_with(b"\x89PNG\r\n\x1a\n") {
+        Some("image/png")
+    } else if b.len() > 12 && &b[0..4] == b"RIFF" && &b[8..12] == b"WEBP" {
+        Some("image/webp")
+    } else {
+        None
+    }
+}
+
+#[derive(Deserialize)]
+pub struct PQ {
+    p: String,
+}
+
+/// Eigenes Profilbild hochladen (das Frontend schneidet es vorher quadratisch zu und verkleinert es).
+pub async fn upload_avatar(Query(q): Query<PQ>, body: axum::body::Bytes) -> Result<Json<Value>, ApiError> {
+    if !valid(&q.p) {
+        return Err(ApiError::not_found("Unbekanntes Profil"));
+    }
+    if body.len() > 400 * 1024 {
+        return Err(ApiError::bad("Das Bild ist zu groß."));
+    }
+    if image_type(&body).is_none() {
+        return Err(ApiError::bad("Nur JPEG, PNG oder WebP."));
+    }
+    fs::create_dir_all(dir())
+        .and_then(|_| fs::write(custom_file(&q.p), &body))
+        .map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, format!("Speichern fehlgeschlagen: {e}")))?;
+    let key = format!("eigen:{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0));
+    let mut av = load_avatars();
+    av.insert(q.p.clone(), Value::String(key.clone()));
+    save_avatars(&av)?;
+    Ok(Json(json!({ "ok": true, "avatar": key })))
+}
+
+pub async fn avatar_image(Query(q): Query<PQ>) -> axum::response::Response {
+    use axum::response::IntoResponse;
+    if !valid(&q.p) {
+        return StatusCode::NOT_FOUND.into_response();
+    }
+    match fs::read(custom_file(&q.p)) {
+        Ok(b) => match image_type(&b) {
+            Some(ct) => ([(axum::http::header::CONTENT_TYPE, ct), (axum::http::header::CACHE_CONTROL, "public, max-age=31536000, immutable")], b).into_response(),
+            None => StatusCode::NOT_FOUND.into_response(),
+        },
+        Err(_) => StatusCode::NOT_FOUND.into_response(),
+    }
 }
 
 #[derive(Deserialize)]
@@ -85,7 +155,8 @@ pub async fn set_avatar(Query(q): Query<AvatarQ>) -> Result<Json<Value>, ApiErro
         return Err(ApiError::not_found("Unbekanntes Profil"));
     }
     let a = q.a.unwrap_or_default();
-    if !a.is_empty() && !AVATARS.contains(&a.as_str()) {
+    let custom_ok = a.starts_with("eigen:") && custom_file(&q.p).exists();
+    if !a.is_empty() && !AVATARS.contains(&a.as_str()) && !custom_ok {
         return Err(ApiError::bad("Unbekanntes Profilbild"));
     }
     let mut av = load_avatars();
@@ -94,10 +165,7 @@ pub async fn set_avatar(Query(q): Query<AvatarQ>) -> Result<Json<Value>, ApiErro
     } else {
         av.insert(q.p.clone(), Value::String(a.clone()));
     }
-    let d = dir();
-    fs::create_dir_all(&d)
-        .and_then(|_| fs::write(avatars_file(), serde_json::to_string(&av).unwrap_or_default()))
-        .map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, format!("Speichern fehlgeschlagen: {e}")))?;
+    save_avatars(&av)?;
     Ok(Json(json!({ "ok": true, "avatar": a })))
 }
 
@@ -157,6 +225,13 @@ pub async fn put_state(State(_st): State<Arc<AppState>>, Query(q): Query<Q>, bod
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn detects_image_types() {
+        assert_eq!(image_type(&[0xFF, 0xD8, 0xFF, 0xE0]), Some("image/jpeg"));
+        assert_eq!(image_type(b"RIFF\0\0\0\0WEBPVP8 "), Some("image/webp"));
+        assert_eq!(image_type(b"<svg>"), None);
+    }
 
     #[test]
     fn guest_and_unknown_are_not_saved() {

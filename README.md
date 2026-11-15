@@ -26,8 +26,9 @@ Fernseher gleich. **Gast** speichert nichts und fängt jedes Mal leer an. Oben r
 Profil hat seine eigene Farbe. Die Namen stehen in `src/profiles.rs`.
 
 Die Profile haben keine PIN. Sie trennen nur den Stand und schützen nichts.
-Unter „Wer schaut?“ → „Profilbilder ändern“ wählt jedes Profil eins von 10 Bildern (Katze, Fuchs, Panda, Pinguin, Eule,
-Roboter, Astronaut, Geist, Alien, Frosch) oder den Anfangsbuchstaben. Das Bild gilt auf allen Geräten.
+Unter „Wer schaut?“ → „Profilbilder ändern“ wählt jedes Profil ein **eigenes Bild** (wird quadratisch zugeschnitten und
+verkleinert), einen von 6 Anime-Köpfen (Sonne, Nacht, Kirsche, Schnee, Herbst, Meer), eins von 10 Symbolen (Katze, Fuchs,
+Panda, Pinguin, Eule, Roboter, Astronaut, Geist, Alien, Frosch) oder den Anfangsbuchstaben. Das Bild gilt auf allen Geräten.
 
 ## Kino (Kinogo)
 
