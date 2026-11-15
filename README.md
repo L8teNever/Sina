@@ -35,7 +35,7 @@ Die Profile haben keine PIN. Sie trennen nur den Stand und schützen nichts.
 - **TV-Steuerkreuz:** Pfeiltasten bewegen den Fokus, OK öffnet, Zurück geht zurück. Im Player spulen links/rechts ±10 s,
   OK pausiert, die Medientasten (Play/Pause, Vor, Zurück) gehen auch.
 - **Auf anderem Gerät weiter schauen:** Jedes offene Sina (Fernseher, Mac, PC, Tablet, Handy) meldet sich mit seinem
-  gewählten Profil an. Oben und auf der Folgenseite erscheint „Auf anderem Gerät weiter schauen“. Es werden nur Geräte
+  gewählten Profil an. Oben, in der Player-Leiste und auf der Folgenseite gibt es immer den Knopf „Auf anderem Gerät weiter schauen“. Es werden nur Geräte
   mit **demselben Profil** gezeigt. Der Empfänger öffnet dieselbe Folge an derselben Stelle, der Sender pausiert.
 - **Handy als Fernbedienung:** Nach dem Senden (oder über das Geräte-Symbol oben) öffnet sich auf dem Handy eine
   Fernbedienung für das andere Gerät: Play/Pause, Zeitleiste & ±10 s / ±30 s Vorspulen, Intro/Outro überspringen,

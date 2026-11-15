@@ -206,14 +206,18 @@
     const live = liveOthers();
     const b = document.getElementById('castBtn');
     if (b) {
-      b.hidden = !others.length;
+      b.hidden = typeof P === 'undefined' || !P;
       b.classList.toggle('has-live', live.length > 0);
       b.title = live.length === 1
         ? 'Fernbedienung: ' + live[0].name
         : others.length === 1
           ? 'Auf ' + others[0].name + ' weiter schauen / steuern'
-          : 'Geräte & Fernbedienung';
+          : others.length ? 'Geräte & Fernbedienung' : 'Auf anderem Gerät weiter schauen';
     }
+    document.querySelectorAll('.a16-cast-btn').forEach((pb) => {
+      pb.classList.toggle('has-devs', others.length > 0);
+      pb.title = others.length === 1 ? 'Auf ' + others[0].name + ' weiter schauen' : 'Auf anderem Gerät weiter schauen';
+    });
     const e = document.getElementById('castEp');
     if (e) {
       e.hidden = typeof P === 'undefined' || !P;
@@ -678,6 +682,14 @@
     if (others.length === 1) castTo(others[0], true);
     else openPicker(true);
   }
+  // aus der Player-Leiste: Vollbild verlassen, sonst wäre die Auswahl unsichtbar
+  window.sinaCast = async function () {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+    } catch {}
+    onCastEp();
+  };
   document.addEventListener('click', (e) => {
     if (e.target.closest('#castBtn')) { e.preventDefault(); onCastBtn(); return; }
     if (e.target.closest('#castEp')) { e.preventDefault(); onCastEp(); }
