@@ -52,8 +52,28 @@ html.nina-skin-on, html.nina-skin-on body { overflow-x: clip !important; }
   /* Fernbedienung & Geräteauswahl als Bottom-Sheet */
   #nina-skin .sina-modal { align-items: end; padding: 0; }
   #nina-skin .sina-sheet { width: 100%; max-height: 90dvh; border-radius: 26px 26px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
-  #nina-skin .sina-mini-remote { left: 10px; right: 10px; width: auto; bottom: calc(78px + env(safe-area-inset-bottom)); }
-  #nina-skin .sina-toast { bottom: calc(84px + env(safe-area-inset-bottom)); }
+  #nina-skin .sina-mini-remote { left: 10px; right: 10px; width: auto; bottom: calc(94px + env(safe-area-inset-bottom)); }
+  #nina-skin .sina-toast { bottom: calc(100px + env(safe-area-inset-bottom)); }
+
+  /* Player darf nie breiter als der Bildschirm werden (langer Titel hat das Raster aufgedrückt) */
+  #nina-skin .ns-watch > * { min-width: 0; }
+  #nina-skin .ns-player { max-width: calc(100% + 28px); }
+
+  /* Kopf: Profilbild + „Sina“ als Text, kein eigenes Logo */
+  #nina-skin .ns-top > #profileBtn + .ns-brand { margin-left: -2px; }
+  #nina-skin .ns-brand b { font-size: 20px; letter-spacing: -.01em; }
+
+  /* Untere Leiste schwebend, wie die Material-3-Expressive-Leiste in Android 16 */
+  #nina-skin .ns-bnav {
+    left: 14px; right: 14px; bottom: calc(12px + env(safe-area-inset-bottom));
+    padding: 8px; gap: 4px; border-radius: 32px;
+    background: color-mix(in srgb, var(--surface-c-high, #1d2224) 92%, transparent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .05);
+  }
+  #nina-skin .ns-bnav a { height: 56px; justify-content: center; border-radius: 24px; gap: 2px; transition: color .2s; }
+  #nina-skin .ns-bnav .ind { width: 52px; height: 30px; }
+  #nina-skin .ns-bnav a.on .ind { background: var(--primary); color: var(--on-primary); width: 60px; }
+  #nina-skin .ns-bnav a.on { color: var(--on-surface); font-weight: 700; }
 }
 
 /* Player auf dem Handy hochkant (klein): ein Play-Knopf in der Mitte reicht, Lautstärke regeln die Handytasten.

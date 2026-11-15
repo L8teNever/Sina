@@ -402,7 +402,7 @@ html.nina-skin-on .ns-orig { display: none; }
 @keyframes ns-shimmer { 50% { opacity: .45; } }
 
 @media (max-width: 1100px) {
-  #nina-skin .ns-watch { grid-template-columns: 1fr; }
+  #nina-skin .ns-watch { grid-template-columns: minmax(0, 1fr); }
   #nina-skin .ns-side { position: static; max-height: 520px; }
   #nina-skin .ns-nav { display: none; }
 }
@@ -952,7 +952,7 @@ html.nina-skin-on .ns-orig { display: none; }
   #nina-skin .ns-ep .ns-state { display: inline-flex; grid-column: 3; justify-self: start; margin-top: -6px; }
 
   /* episode: player edge to edge, the list below */
-  #nina-skin .ns-watch { grid-template-columns: 1fr; gap: 16px; padding-top: 4px; }
+  #nina-skin .ns-watch { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-top: 4px; }
   #nina-skin .ns-player { margin: 0 -14px !important; border-radius: 0 !important; box-shadow: none !important; }
   #nina-skin .ns-ep-title { font-size: 20px; line-height: 26px; }
   #nina-skin .ns-ep-acts > * { flex: 1 1 auto; justify-content: center; }
