@@ -103,3 +103,11 @@ html.sina-tv::-webkit-scrollbar { display: none; }
 /* Geräte-Knopf in der Player-Leiste: Punkt, sobald ein anderes Gerät mit dem Profil offen ist */
 .a16-cast-btn { position: relative; }
 .a16-cast-btn.has-devs::after { content: ""; position: absolute; top: 4px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary, #8ab4f8); }
+
+/* Handy hat weitergeschickt: Player ist nur noch Platzhalter, Bedienung über die Fernbedienung */
+#nina-skin .sina-castlock { position: absolute; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px; text-align: center; background: rgba(0,0,0,.82); color: #fff; backdrop-filter: blur(6px); }
+#nina-skin .sina-castlock > svg { width: 40px; height: 40px; fill: var(--primary, #fff); }
+#nina-skin .sina-castlock .scl-txt { font-size: 15px; }
+#nina-skin .sina-castlock .scl-acts { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+#nina-skin .sr-quals { display: flex; flex-wrap: wrap; gap: 6px; }
+#nina-skin .sr-quals .sr-pill { flex: 1 1 60px; }

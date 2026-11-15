@@ -98,6 +98,11 @@ pub fn validate_cmd(body: &str) -> Result<Value, String> {
                     Some(b) => json!(b),
                     None => Value::Null,
                 },
+                "quality" => match (v["value"].as_str(), v["value"].as_u64()) {
+                    (Some("auto"), _) => json!("auto"),
+                    (_, Some(h)) if (100..=4320).contains(&h) => json!(h),
+                    _ => return Err("Ungültige Qualität.".into()),
+                },
                 "skip" => match v["value"].as_str() {
                     Some("intro") => json!("intro"),
                     Some("outro") => json!("outro"),
@@ -160,6 +165,13 @@ pub fn validate_state(body: &str) -> Result<Option<Value>, String> {
         "hasPrev": v["hasPrev"].as_bool().unwrap_or(false),
         "hasNext": v["hasNext"].as_bool().unwrap_or(false),
         "fullscreen": v["fullscreen"].as_bool().unwrap_or(false),
+        "quality": match v["quality"].as_str() {
+            Some(q) if q == "auto" || q.parse::<u32>().map_or(false, |h| (100..=4320).contains(&h)) => json!(q),
+            _ => json!("auto"),
+        },
+        "qualities": v["qualities"].as_array().map(|a| {
+            a.iter().filter_map(|x| x.as_u64()).filter(|h| (100..=4320).contains(h)).take(8).collect::<Vec<_>>()
+        }).unwrap_or_default(),
         "at": at,
     })))
 }
@@ -327,6 +339,9 @@ mod tests {
         assert_eq!(validate_cmd(r#"{"type":"control","action":"speed","value":1.5}"#).unwrap()["value"], 1.5);
         assert_eq!(validate_cmd(r#"{"type":"control","action":"autoNext","value":false}"#).unwrap()["value"], false);
         assert_eq!(validate_cmd(r#"{"type":"control","action":"skip","value":"intro"}"#).unwrap()["value"], "intro");
+        assert_eq!(validate_cmd(r#"{"type":"control","action":"quality","value":720}"#).unwrap()["value"], 720);
+        assert_eq!(validate_cmd(r#"{"type":"control","action":"quality","value":"auto"}"#).unwrap()["value"], "auto");
+        assert!(validate_cmd(r#"{"type":"control","action":"quality","value":"x"}"#).is_err());
     }
 
     #[test]

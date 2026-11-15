@@ -72,12 +72,14 @@
   // ---------- Wiedergabe-Stand dieses Geräts melden ----------
   let lastReportedActive = false;
   let statePushTimer = null;
+  let castLock = null;   // { devId, name, hash }: Handy hat weitergeschickt
   function buildLocalState() {
     const ctx = window.__sinaCtx;
     const rem = window.__sinaRemote;
     const h = location.hash || '';
     if (!ctx && !rem) return { active: false };
     if (!isEpHash(h)) return { active: false };
+    if (castLock && castLock.hash === h) return { active: false };
     const st = rem && typeof rem.getState === 'function' ? rem.getState() : null;
     const title = ctx ? (ctx.series + (ctx.epLabel ? ' · ' + ctx.epLabel : '')) : document.title.replace(/ – Sina$/, '');
     const epLabel = ctx && ctx.title ? ctx.title : (ctx && ctx.epLabel ? ctx.epLabel : '');
@@ -98,6 +100,8 @@
       hasPrev: !!(ctx && ctx.prev),
       hasNext: !!(ctx && ctx.next),
       fullscreen: st ? !!st.fullscreen : false,
+      quality: st && st.quality ? String(st.quality) : 'auto',
+      qualities: st && Array.isArray(st.qualities) ? st.qualities : [],
     };
   }
   function pushDeviceStateNow(keepalive) {
@@ -255,6 +259,7 @@
     try {
       await sendCmd(dev.id, cmd);
       if (v) { try { v.pause(); } catch {} }
+      if (!window.SINA_TV) setCastLock(dev);
       lastRemoteId = dev.id;
       miniDismissed = false;
       toast('Läuft jetzt auf ' + dev.name);
@@ -266,6 +271,62 @@
       refreshOthers();
     }
   }
+
+  // ---------- Handy als Fernbedienung: lokal nicht weiter abspielen ----------
+  function setCastLock(dev) {
+    castLock = { devId: dev.id, name: dev.name, hash: location.hash };
+    pushDeviceStateNow(false);
+    syncCastLock();
+  }
+  function releaseCastLock() {
+    castLock = null;
+    document.querySelectorAll('.sina-castlock').forEach((el) => el.remove());
+  }
+  function syncCastLock() {
+    if (castLock && castLock.hash !== location.hash) releaseCastLock();
+    if (!castLock) return;
+    const pl = document.querySelector('.ns-player');
+    if (!pl) return;
+    const v = pl.querySelector('video');
+    if (v && !v.paused) { try { v.pause(); } catch {} }
+    let ov = pl.querySelector('.sina-castlock');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.className = 'sina-castlock';
+      ov.innerHTML = `${SVG.cast}<div class="scl-txt">Läuft auf <b></b></div>
+        <div class="scl-acts">
+          <button type="button" class="ns-btn" data-scl="remote">Fernbedienung</button>
+          <button type="button" class="ns-tonal" data-scl="here">Hier abspielen</button>
+        </div>`;
+      ov.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const b = e.target.closest('[data-scl]');
+        if (!b || !castLock) return;
+        if (b.dataset.scl === 'remote') { openRemote(castLock.devId); return; }
+        const dev = others.find((d) => d.id === castLock.devId);
+        const st = dev && dev.state && dev.state.active && dev.state.hash === castLock.hash ? dev.state : null;
+        const pos = st ? currentRemotePos(dev) : null;
+        sendControl(castLock.devId, 'pause');
+        releaseCastLock();
+        const vv = document.querySelector('.ns-player video');
+        if (vv) {
+          if (pos != null && pos > 0) { try { vv.currentTime = pos; } catch {} }
+          vv.play().catch(() => {});
+        }
+      });
+      pl.appendChild(ov);
+    }
+    const nameEl = ov.querySelector('b');
+    if (nameEl.textContent !== castLock.name) nameEl.textContent = castLock.name;
+  }
+  // Startet das Video lokal trotzdem (Autoplay, Taste), sofort wieder anhalten.
+  document.addEventListener('play', (e) => {
+    if (!castLock || castLock.hash !== location.hash) return;
+    const t = e.target;
+    if (t && t.tagName === 'VIDEO' && t.closest && t.closest('.ns-player')) { try { t.pause(); } catch {} }
+  }, true);
+  window.addEventListener('hashchange', () => setTimeout(syncCastLock, 0));
+  setInterval(syncCastLock, 1000);
 
   // ---------- Modals: Geräteauswahl & Fernbedienung ----------
   function closeModal() {
@@ -423,6 +484,11 @@
             </div>
 
             <div class="sr-block">
+              <div class="sr-lbl">Qualität</div>
+              <div class="sr-quals" id="srQuals"></div>
+            </div>
+
+            <div class="sr-block">
               <div class="sr-lbl">Optionen &amp; Ton</div>
               <div class="sr-toggles">
                 <button type="button" class="sr-pill" id="srAutoNext" data-act="autoNext">Auto-Weiter: AN</button>
@@ -498,6 +564,16 @@
         b.classList.toggle('on', Math.abs(spd - Number(b.dataset.val)) < 0.02);
       });
 
+      const quals = ['auto'].concat((Array.isArray(st.qualities) && st.qualities.length ? st.qualities : [1080, 720, 480, 360]).map(String));
+      const qWrap = q('srQuals');
+      const qKey = quals.join(',');
+      if (qWrap.dataset.k !== qKey) {
+        qWrap.dataset.k = qKey;
+        qWrap.innerHTML = quals.map((k) => `<button type="button" class="sr-pill" data-act="quality" data-val="${k}">${k === 'auto' ? 'Auto' : k + 'p'}</button>`).join('');
+      }
+      const curQ = String(st.quality || 'auto');
+      qWrap.querySelectorAll('[data-act="quality"]').forEach((b) => b.classList.toggle('on', b.dataset.val === curQ));
+
       const anBtn = q('srAutoNext');
       anBtn.classList.toggle('on', !!st.autoNext);
       anBtn.dataset.val = String(!st.autoNext);
@@ -539,6 +615,7 @@
         }
         sendControl(dev.id, 'pause');
         closeModal();
+        releaseCastLock();
         if (location.hash === st.hash) { if (typeof route === 'function') route(); } else location.hash = st.hash;
         return;
       }
@@ -548,12 +625,14 @@
       let val = btn.dataset.val;
       if (val === 'true') val = true;
       else if (val === 'false') val = false;
+      else if (val === 'auto') val = 'auto';
       else if (val !== undefined) val = Number(val);
 
       // Sofortiges visuelles Feedback vor der Server-Antwort
       if (dev.state) {
         if (act === 'toggle') dev.state.paused = !dev.state.paused;
         else if (act === 'speed') dev.state.speed = val;
+        else if (act === 'quality') dev.state.quality = String(val);
         else if (act === 'autoNext') dev.state.autoNext = val;
         else if (act === 'dynAudio') dev.state.dynAudio = !dev.state.dynAudio;
         else if (act === 'mute') dev.state.muted = !dev.state.muted;

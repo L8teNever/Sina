@@ -39,8 +39,10 @@ Die Profile haben keine PIN. Sie trennen nur den Stand und schützen nichts.
   mit **demselben Profil** gezeigt. Der Empfänger öffnet dieselbe Folge an derselben Stelle, der Sender pausiert.
 - **Handy als Fernbedienung:** Nach dem Senden (oder über das Geräte-Symbol oben) öffnet sich auf dem Handy eine
   Fernbedienung für das andere Gerät: Play/Pause, Zeitleiste & ±10 s / ±30 s Vorspulen, Intro/Outro überspringen,
-  Vorherige/Nächste Folge, Auto-Weiter ein/aus, Geschwindigkeit (0,5×–3×), Lautstärke/Stumm, Sprachausgleich, Vollbild
-  sowie „Auf diesem Gerät weiter schauen“ zum Zurückholen.
+  Vorherige/Nächste Folge, Auto-Weiter ein/aus, Geschwindigkeit (0,5×–3×), Qualität (Auto/1080p/720p …), Lautstärke/Stumm,
+  Sprachausgleich, Vollbild sowie „Auf diesem Gerät weiter schauen“ zum Zurückholen.
+- Nach dem Senden spielt das Handy selbst nicht mehr: Der Player zeigt „Läuft auf …“ mit den Knöpfen „Fernbedienung“
+  und „Hier abspielen“ (holt die Folge an der aktuellen Stelle zurück).
 - Die Verbindung läuft über den Sina-Server (Long-Poll, nichts wird gespeichert). Beide Geräte müssen dieselbe
   Sina-Adresse öffnen.
 

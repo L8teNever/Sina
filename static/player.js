@@ -390,6 +390,19 @@
       }
     }
 
+    function availableHeights() {
+      const hls = video.__hlsInstance || window.__A16_HLS__;
+      const hlsLevels = (hls && hls.levels && hls.levels.length > 0) ? hls.levels : (wrapper.__hlsLevels || video.__hlsLevels || []);
+      const heights = [1080, 720, 480, 360];
+      if (Array.isArray(hlsLevels)) {
+        hlsLevels.forEach(lvl => {
+          const h = lvl.height || 0;
+          if (h > 0 && !heights.includes(h)) heights.push(h);
+        });
+      }
+      return heights.sort((a, b) => b - a);
+    }
+
     function renderQualityMenu() {
       if (!qualityGrid) return;
       qualityGrid.innerHTML = '';
@@ -406,17 +419,7 @@
       qualityGrid.appendChild(autoItem);
 
       // 2. Discover available resolutions from HLS levels or standard suite
-      const hls = video.__hlsInstance || window.__A16_HLS__;
-      const hlsLevels = (hls && hls.levels && hls.levels.length > 0) ? hls.levels : (wrapper.__hlsLevels || video.__hlsLevels || []);
-
-      const heights = [1080, 720, 480, 360];
-      if (Array.isArray(hlsLevels)) {
-        hlsLevels.forEach(lvl => {
-          const h = lvl.height || 0;
-          if (h > 0 && !heights.includes(h)) heights.push(h);
-        });
-      }
-      heights.sort((a, b) => b - a);
+      const heights = availableHeights();
 
       heights.forEach(h => {
         const item = document.createElement('div');
@@ -2111,6 +2114,8 @@
           autoNext: getAutoNext(),
           skipMode: currentSkipMode,
           fullscreen: isCurrentFullscreen(),
+          quality: String(currentQualityPref || 'auto'),
+          qualities: availableHeights().slice(0, 8),
         };
       },
       exec(action, value) {
@@ -2187,6 +2192,12 @@
             break;
           }
           case 'fullscreen': toggleFullscreen(); break;
+          case 'quality': {
+            const key = value === 'auto' || value == null ? 'auto' : String(parseInt(value, 10));
+            selectQuality(key);
+            showResumeIndicator(0, 'Qualität: ' + (key === 'auto' ? 'Automatisch' : formatQualityLabel(parseInt(key, 10), false)));
+            break;
+          }
         }
         notifyRemote();
       },
