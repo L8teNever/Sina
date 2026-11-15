@@ -904,7 +904,7 @@ html.nina-skin-on .ns-orig { display: none; }
   #nina-skin .ns-h1 { font-size: 28px; line-height: 34px; }
 
   /* bottom navigation bar (Material 3) */
-  #nina-skin .ns-bnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr);
+  #nina-skin .ns-bnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
     padding: 8px 6px calc(10px + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--surface-c) 94%, transparent);
     -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -6px 20px rgba(0,0,0,.35); }
   #nina-skin .ns-bnav a, #nina-skin .ns-bnav button { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 0; background: none; padding: 0; cursor: pointer;

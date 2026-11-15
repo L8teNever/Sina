@@ -42,7 +42,11 @@ html.nina-skin-on, html.nina-skin-on body { overflow-x: clip !important; }
   #nina-skin .ns-opts .row .ns-chip { flex: none; }
 
   /* Geräte-Knopf im Kopf als kleines Symbol */
-  #nina-skin .ns-acts #castBtn:not([hidden]) { display: inline-flex; padding: 0 12px; }
+  #nina-skin .ns-acts #castBtn:not([hidden]) { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; min-width: 0; padding: 0; border-radius: 50%; }
+  #nina-skin .ns-acts #castBtn svg { width: 22px; height: 22px; }
+  #nina-skin .ns-acts .ns-icon { width: 40px; height: 40px; }
+  #nina-skin .ns-top > #profileBtn { width: 36px; height: 36px; flex: none; }
+  #nina-skin .ns-top > #profileBtn .av { width: 32px; height: 32px; font-size: 15px; }
   #nina-skin .ns-acts #castBtn span { display: none; }
 
   /* Fernbedienung & Geräteauswahl als Bottom-Sheet */
