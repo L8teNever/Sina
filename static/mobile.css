@@ -63,6 +63,21 @@ html.nina-skin-on, html.nina-skin-on body { overflow-x: clip !important; }
   #nina-skin .ns-top > #profileBtn + .ns-brand { margin-left: -2px; }
   #nina-skin .ns-brand b { font-size: 20px; letter-spacing: -.01em; }
 
+  /* Suche: im Kopf nur ein Knopf, beim Antippen eine eigene Leiste oben mit Vorschlägen darunter */
+  #nina-skin #searchBtn { display: grid; }
+  #nina-skin .ns-search { display: none; }
+  #nina-skin.search-open .ns-search {
+    display: flex; align-items: center; gap: 6px; position: fixed; z-index: 60; left: 0; right: 0; top: 0;
+    padding: max(10px, env(safe-area-inset-top)) 12px 10px 6px; background: var(--surface-c); box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+    animation: sina-search-in .22s ease-out both;
+  }
+  #nina-skin.search-open #searchClose { display: grid; flex: none; width: 44px; height: 44px; }
+  #nina-skin.search-open .ns-search label { flex: 1; min-width: 0; }
+  #nina-skin.search-open .ns-top { z-index: 70; }
+  #nina-skin.search-open::after { content: ''; position: fixed; inset: 0; z-index: 55; background: rgba(0, 0, 0, .55); }
+  #nina-skin.search-open .ns-suggest { top: calc(max(10px, env(safe-area-inset-top)) + 64px); }
+  @keyframes sina-search-in { from { transform: translateY(-100%); opacity: 0; } to { transform: none; opacity: 1; } }
+
   /* Untere Leiste schwebend, wie die Material-3-Expressive-Leiste in Android 16 */
   #nina-skin .ns-bnav {
     left: 14px; right: 14px; bottom: calc(12px + env(safe-area-inset-bottom));

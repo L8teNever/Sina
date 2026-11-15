@@ -44,6 +44,7 @@ html.nina-skin-on body { margin: 0 !important; padding: 0 !important; }
 #nina-skin .ns-nav a:hover { background: color-mix(in srgb, var(--on-surface) 8%, transparent); color: var(--on-surface); border-radius: var(--r-m); }
 #nina-skin .ns-nav a.on { background: var(--secondary-container); color: var(--on-secondary-container); }
 #nina-skin .ns-search { position: relative; flex: 1; min-width: 200px; max-width: 620px; margin-left: auto; }
+#nina-skin #searchBtn, #nina-skin #searchClose { display: none; }
 #nina-skin .ns-search label { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 18px; border-radius: 99px; background: var(--surface-c-high); transition: background-color .2s, border-radius .35s var(--spring); }
 #nina-skin .ns-search label:focus-within { background: var(--surface-c-highest); border-radius: var(--r-l); }
 #nina-skin .ns-search svg { width: 22px; height: 22px; color: var(--on-surface-variant); flex: none; }
@@ -1031,3 +1032,16 @@ html.nina-skin-on::-webkit-scrollbar-button, #nina-skin ::-webkit-scrollbar-butt
 @media (max-height: 500px) and (orientation: landscape) and (hover: none) {
   #nina-skin .ns-watch .ns-player { aspect-ratio: auto !important; height: calc(100vh - 20px); height: calc(100dvh - 20px); max-width: none; }
 }
+
+/* Startseite: Auswahl Anime / Kino */
+#nina-skin .sina-hub { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 6px 0 28px; }
+#nina-skin .sina-hub-btn { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 22px; min-height: 150px; justify-content: flex-end; border-radius: var(--r-xl); overflow: hidden;
+  background: var(--surface-c-high); color: var(--on-surface); transition: border-radius .35s var(--spring), transform .25s var(--spring); }
+#nina-skin .sina-hub-btn.anime { background: var(--primary-container); color: var(--on-primary-container); }
+#nina-skin .sina-hub-btn.kino { background: var(--secondary-container); color: var(--on-secondary-container); }
+#nina-skin .sina-hub-btn:hover, #nina-skin .sina-hub-btn:focus-visible { border-radius: 40px; transform: scale(1.02); outline: 0; }
+#nina-skin .sina-hub-btn .ic { position: absolute; top: 18px; left: 20px; width: 52px; height: 52px; display: grid; place-items: center; border-radius: 18px; background: rgba(255,255,255,.14); }
+#nina-skin .sina-hub-btn .ic svg { width: 28px; height: 28px; fill: currentColor; }
+#nina-skin .sina-hub-btn b { font-size: 24px; font-weight: 700; }
+#nina-skin .sina-hub-btn small { font-size: 13px; opacity: .8; }
+@media (max-width: 760px) { #nina-skin .sina-hub { gap: 10px; } #nina-skin .sina-hub-btn { min-height: 132px; padding: 16px; } #nina-skin .sina-hub-btn b { font-size: 20px; } }
