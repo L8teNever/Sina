@@ -11,7 +11,7 @@ echter Chromium, den du über eine zweite Seite live sehen und bedienen kannst.
 | **Sina** | `8080` | Start, Alle Animes (A–Z, Genres, Filter), Beliebt, Kalender, Suche mit Vorschlägen, Serienseite, Folgenseite mit Player |
 | **Browser** | `8081` | Der Chromium im Container (noVNC). Hier löst du Schutzprüfungen und siehst, was der Server tut |
 
-Der Link „Browser“ oben in Sina führt auf die zweite Seite. Steht sie hinter einer anderen Adresse
+Der Knopf „Browser“ in den Sina-Einstellungen führt auf die zweite Seite. Steht sie hinter einer anderen Adresse
 (z. B. Cloudflare-Tunnel), setze `VIEW_URL`.
 
 > **Wichtig:** Die Browser-Seite gibt volle Kontrolle über den Browser. Nur hinter Login (Cloudflare Access)
