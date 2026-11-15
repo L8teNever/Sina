@@ -104,6 +104,19 @@ async fn vpn(axum::extract::State(st): axum::extract::State<Arc<AppState>>) -> J
     Json(json!({"server": server, "browser": browser, "proxy": proxy, "same": server.is_some() && server == browser}))
 }
 
+/// Seite, Skripte und Stylesheets immer neu prüfen lassen: sonst hängt der Browser nach einem Update
+/// mit alten Dateien fest (alte CSS + neues HTML = kaputtes Layout). Unveränderte Dateien kommen als 304 zurück.
+async fn no_stale_files(mut res: axum::response::Response) -> axum::response::Response {
+    let h = res.headers_mut();
+    let ctype = h.get(axum::http::header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).unwrap_or("");
+    if !h.contains_key(axum::http::header::CACHE_CONTROL)
+        && (ctype.starts_with("text/html") || ctype.starts_with("text/css") || ctype.contains("javascript"))
+    {
+        h.insert(axum::http::header::CACHE_CONTROL, axum::http::HeaderValue::from_static("no-cache"));
+    }
+    res
+}
+
 #[tokio::main]
 async fn main() {
     let port = env::var("PORT").unwrap_or_else(|_| "8080".into());
@@ -179,6 +192,7 @@ async fn main() {
         .route("/api/hls", get(proxy::hls))
         .route("/api/img", get(proxy::img))
         .fallback_service(ServeDir::new(static_dir))
+        .layer(axum::middleware::map_response(no_stale_files))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind(("0.0.0.0", port.parse::<u16>().unwrap_or(8080)))

@@ -479,16 +479,34 @@ async function viewKinoFilm(id) {
         v.__hlsInstance = hls;
         hls.loadSource(proxied(s.m3u8, s.referer));
         hls.attachMedia(v);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        // Die Tonspuren kennt hls.js erst nach dem Manifest (AUDIO_TRACKS_UPDATED), dann die gewünschte wählen
+        let picked = false;
+        const pickAudio = () => {
           const tr = hls.audioTracks || [];
+          if (picked || !tr.length) return;
+          picked = true;
           const i = tr.findIndex((t) => (t.lang || '').toLowerCase() === audioWant);
-          if (i >= 0) hls.audioTrack = i;
+          if (i >= 0 && i !== hls.audioTrack) hls.audioTrack = i;
           paintOpts();
-          ok();
-        });
+        };
+        hls.on(Hls.Events.MANIFEST_PARSED, () => { pickAudio(); paintOpts(); v.muted = false; ok(); });
+        hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, pickAudio);
         hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, paintOpts);
+        // Kommt nach einigen Sekunden Wiedergabe kein Ton an, die nächste Tonspur probieren
+        let tries = 0;
+        const silence = () => {
+          if (mine !== player.token || v.paused || v.currentTime < 4) return setTimeout(silence, 3000);
+          const bytes = typeof v.webkitAudioDecodedByteCount === 'number' ? v.webkitAudioDecodedByteCount : -1;
+          const tr = hls.audioTracks || [];
+          if (bytes === 0 && tr.length > 1 && tries < tr.length) {
+            tries++;
+            hls.audioTrack = (hls.audioTrack + 1) % tr.length;
+            setTimeout(silence, 6000);
+          }
+        };
+        setTimeout(silence, 6000);
         hls.on(Hls.Events.ERROR, (_e, e) => {
-          if (!e.fatal) return;
+          if (!e.fatal) { if (e.details) console.warn('[Kino] hls:', e.details, e.frag ? e.frag.type : ''); return; }
           if (e.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
           else if (e.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
           else sayErr('Der Stream ist nicht erreichbar (' + (e.details || 'Fehler') + ').');
