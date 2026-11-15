@@ -140,7 +140,7 @@ async fn main() {
     let state = Arc::new(AppState { http, raw, browser: browser::Browser::from_env(), cache: cache::Cache::default(), devices: devices::Devices::default(), base });
 
     supervisor::start();
-    tokio::spawn(vpn::keep_endpoint_fresh());
+    tokio::spawn(vpn::monitor(state.clone()));
 
     let st = state.clone();
     let config = move || {
@@ -162,6 +162,7 @@ async fn main() {
         .route("/api/config", get(config))
         .route("/api/vpn", get(vpn))
         .route("/api/profiles", get(profiles::list))
+        .route("/api/profiles/avatar", axum::routing::post(profiles::set_avatar))
         .route("/api/devices", get(devices::list))
         .route("/api/devices/poll", get(devices::poll))
         .route("/api/devices/state", axum::routing::post(devices::update_state).layer(axum::extract::DefaultBodyLimit::max(4 * 1024)))
@@ -174,6 +175,9 @@ async fn main() {
             "/api/settings/vpn",
             get(vpn::status).post(vpn::upload).layer(axum::extract::DefaultBodyLimit::max(16 * 1024)),
         )
+        .route("/api/settings/vpn/activate", axum::routing::post(vpn::activate))
+        .route("/api/settings/vpn/remove", axum::routing::post(vpn::remove))
+        .route("/api/settings/vpn/auto", axum::routing::post(vpn::set_auto))
         .route("/api/search", get(ani::search))
         .route("/api/series", get(ani::series))
         .route("/api/season", get(ani::season))

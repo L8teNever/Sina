@@ -45,13 +45,60 @@ fn saved_profile(id: &str) -> Result<&'static str, ApiError> {
     }
 }
 
+/// Profilbilder, die man wählen kann (die Grafiken liegen im Frontend). Leer = Anfangsbuchstabe.
+pub const AVATARS: [&str; 10] = ["katze", "fuchs", "panda", "pinguin", "eule", "roboter", "astronaut", "geist", "alien", "frosch"];
+
+fn avatars_file() -> PathBuf {
+    dir().join("avatars.json")
+}
+
+fn load_avatars() -> Map<String, Value> {
+    fs::read_to_string(avatars_file())
+        .ok()
+        .and_then(|t| serde_json::from_str::<Value>(&t).ok())
+        .and_then(|v| v.as_object().cloned())
+        .unwrap_or_default()
+}
+
 pub async fn list() -> Json<Value> {
+    let av = load_avatars();
     Json(Value::Array(
         PROFILES
             .iter()
-            .map(|(id, name, hue)| json!({"id": id, "name": name, "hue": hue, "saved": *id != "gast"}))
+            .map(|(id, name, hue)| {
+                let a = av.get(*id).and_then(|v| v.as_str()).filter(|a| AVATARS.contains(a)).unwrap_or("");
+                json!({"id": id, "name": name, "hue": hue, "saved": *id != "gast", "avatar": a})
+            })
             .collect(),
     ))
+}
+
+#[derive(Deserialize)]
+pub struct AvatarQ {
+    p: String,
+    a: Option<String>,
+}
+
+/// Profilbild setzen (für alle Geräte). `a` leer = Anfangsbuchstabe.
+pub async fn set_avatar(Query(q): Query<AvatarQ>) -> Result<Json<Value>, ApiError> {
+    if !valid(&q.p) {
+        return Err(ApiError::not_found("Unbekanntes Profil"));
+    }
+    let a = q.a.unwrap_or_default();
+    if !a.is_empty() && !AVATARS.contains(&a.as_str()) {
+        return Err(ApiError::bad("Unbekanntes Profilbild"));
+    }
+    let mut av = load_avatars();
+    if a.is_empty() {
+        av.remove(&q.p);
+    } else {
+        av.insert(q.p.clone(), Value::String(a.clone()));
+    }
+    let d = dir();
+    fs::create_dir_all(&d)
+        .and_then(|_| fs::write(avatars_file(), serde_json::to_string(&av).unwrap_or_default()))
+        .map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, format!("Speichern fehlgeschlagen: {e}")))?;
+    Ok(Json(json!({ "ok": true, "avatar": a })))
 }
 
 #[derive(Deserialize)]

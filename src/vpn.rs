@@ -190,63 +190,367 @@ pub fn authorized(h: &HeaderMap) -> Result<(), ApiError> {
     Ok(())
 }
 
-pub async fn upload(State(_st): State<Arc<AppState>>, headers: HeaderMap, body: String) -> Result<Json<Value>, ApiError> {
+// ---------- Mehrere VPN-Configs ----------
+//
+// Im VPN-Ordner liegen:
+//   profiles/<id>.conf   jede hochgeladene Config (normalisiert, Endpunkt als Hostname)
+//   profiles.json        Liste, Namen, aktive Config, Auto-Wechsel an/aus
+//   wg0.conf             die aktive Config für gluetun (Endpunkt als IP)
+// Ein Wächter prüft laufend, ob das VPN Verbindung hat. Fällt es aus (oder wird sehr langsam),
+// wechselt Sina automatisch zur nächsten Config, die zuletzt am besten lief.
+
+const PROFILES_DIR: &str = "profiles";
+const STATE_FILE: &str = "profiles.json";
+/// So lange nach einem Wechsel nicht bewerten (gluetun baut neu auf).
+const GRACE: Duration = Duration::from_secs(75);
+const CHECK_EVERY: Duration = Duration::from_secs(20);
+/// So viele Fehlschläge hintereinander, dann wird gewechselt.
+const FAILS_TO_SWITCH: u32 = 3;
+/// Langsamer als das gilt als Fehlschlag.
+const SLOW_MS: u128 = 6000;
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Default)]
+struct Profile {
+    id: String,
+    name: String,
+    #[serde(default)]
+    added: u64,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
+struct VpnState {
+    #[serde(default)]
+    list: Vec<Profile>,
+    #[serde(default)]
+    active: Option<String>,
+    #[serde(default = "yes")]
+    auto: bool,
+}
+
+fn yes() -> bool {
+    true
+}
+
+impl Default for VpnState {
+    fn default() -> Self {
+        Self { list: Vec::new(), active: None, auto: true }
+    }
+}
+
+#[derive(Clone, Default, serde::Serialize)]
+struct Health {
+    /// "ok", "fail", "slow" oder "" (noch nicht geprüft)
+    state: String,
+    latency: u64,
+    fails: u32,
+    ip: String,
+    checked: u64,
+    /// Fehlschläge insgesamt (für die Wahl der nächsten Config)
+    bad: u32,
+}
+
+static HEALTH: std::sync::LazyLock<std::sync::Mutex<std::collections::HashMap<String, Health>>> =
+    std::sync::LazyLock::new(Default::default);
+static SWITCHED_AT: std::sync::Mutex<Option<std::time::Instant>> = std::sync::Mutex::new(None);
+static LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
+fn now_secs() -> u64 {
+    std::time::SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
+}
+
+fn valid_id(id: &str) -> bool {
+    !id.is_empty() && id.len() <= 24 && id.chars().all(|c| c.is_ascii_hexdigit())
+}
+
+fn load_state(dir: &Path) -> VpnState {
+    let mut st: VpnState = fs::read_to_string(dir.join(STATE_FILE)).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default();
+    st.list.retain(|p| valid_id(&p.id) && dir.join(PROFILES_DIR).join(format!("{}.conf", p.id)).exists());
+    // Alte Einzel-Config übernehmen
+    if st.list.is_empty() {
+        if let Some(c) = fs::read_to_string(dir.join(SOURCE_FILE)).ok().and_then(|t| parse_conf(&t).ok()) {
+            let id = new_id();
+            if write_private(&dir.join(PROFILES_DIR), &format!("{id}.conf"), &render(&c, &c.endpoint_host)).is_ok() {
+                st.list.push(Profile { id: id.clone(), name: c.endpoint_host.clone(), added: now_secs() });
+                st.active = Some(id);
+                let _ = save_state(dir, &st);
+            }
+        }
+    }
+    if st.active.as_ref().is_some_and(|a| !st.list.iter().any(|p| &p.id == a)) {
+        st.active = st.list.first().map(|p| p.id.clone());
+    }
+    st
+}
+
+fn save_state(dir: &Path, st: &VpnState) -> std::io::Result<()> {
+    write_private(dir, STATE_FILE, &serde_json::to_string_pretty(st).unwrap_or_default())
+}
+
+fn new_id() -> String {
+    let n = std::time::SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
+    format!("{:x}", (n as u64) ^ ((n >> 64) as u64))
+}
+
+fn load_profile(dir: &Path, id: &str) -> Option<WgConf> {
+    fs::read_to_string(dir.join(PROFILES_DIR).join(format!("{id}.conf"))).ok().and_then(|t| parse_conf(&t).ok())
+}
+
+/// Namen aus dem Kommentar im [Peer]-Abschnitt (Proton schreibt dort z. B. "# NL-FREE#116").
+fn guess_name(text: &str, conf: &WgConf) -> String {
+    let mut in_peer = false;
+    for l in text.lines() {
+        let t = l.trim();
+        if t.starts_with('[') {
+            in_peer = t.eq_ignore_ascii_case("[peer]");
+            continue;
+        }
+        if in_peer {
+            if let Some(c) = t.strip_prefix('#') {
+                let c = c.trim();
+                if !c.is_empty() && c.len() <= 40 && !c.contains('=') {
+                    return c.to_string();
+                }
+            }
+        }
+    }
+    conf.endpoint_host.clone()
+}
+
+fn clean_name(s: &str) -> String {
+    s.chars().filter(|c| !c.is_control()).take(40).collect::<String>().trim().to_string()
+}
+
+/// Schreibt die aktive Config für gluetun (Endpunkt als IP). Der Wächter-Container startet gluetun dann neu.
+async fn apply(dir: &Path, id: &str) -> Result<(), String> {
+    let conf = load_profile(dir, id).ok_or("Config nicht gefunden.")?;
+    let ip = resolve(&conf.endpoint_host, conf.endpoint_port).await?;
+    write_private(dir, SOURCE_FILE, &render(&conf, &conf.endpoint_host)).map_err(|e| e.to_string())?;
+    let wanted = render(&conf, &ip);
+    if fs::read_to_string(dir.join(ACTIVE_FILE)).ok().as_deref() != Some(wanted.as_str()) {
+        write_private(dir, ACTIVE_FILE, &wanted).map_err(|e| e.to_string())?;
+        if let Ok(mut t) = SWITCHED_AT.lock() {
+            *t = Some(std::time::Instant::now());
+        }
+    }
+    Ok(())
+}
+
+fn io_err(e: impl std::fmt::Display) -> ApiError {
+    eprintln!("[vpn] {e}");
+    ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, "Speichern fehlgeschlagen (Ordner /vpn nicht beschreibbar?).")
+}
+
+#[derive(serde::Deserialize)]
+pub struct NameQ {
+    name: Option<String>,
+}
+
+/// Neue Config hinzufügen. Gibt es noch keine aktive, wird sie gleich benutzt.
+pub async fn upload(State(_st): State<Arc<AppState>>, headers: HeaderMap, axum::extract::Query(q): axum::extract::Query<NameQ>, body: String) -> Result<Json<Value>, ApiError> {
     authorized(&headers)?;
     let conf = parse_conf(&body).map_err(ApiError::bad)?;
-    let ip = resolve(&conf.endpoint_host, conf.endpoint_port).await.map_err(ApiError::bad_gateway)?;
+    resolve(&conf.endpoint_host, conf.endpoint_port).await.map_err(ApiError::bad_gateway)?;
+    let _g = LOCK.lock().await;
     let dir = vpn_dir();
-    let saved = write_private(&dir, SOURCE_FILE, &render(&conf, &conf.endpoint_host))
-        .and_then(|_| write_private(&dir, ACTIVE_FILE, &render(&conf, &ip)));
-    if let Err(e) = saved {
-        eprintln!("[vpn] speichern in {} fehlgeschlagen: {e}", dir.display());
-        return Err(ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, "Die Config konnte nicht gespeichert werden (Ordner /vpn nicht beschreibbar?)."));
+    let mut st = load_state(&dir);
+    if st.list.len() >= 30 {
+        return Err(ApiError::bad("Höchstens 30 VPN-Configs."));
+    }
+    let id = new_id();
+    write_private(&dir.join(PROFILES_DIR), &format!("{id}.conf"), &render(&conf, &conf.endpoint_host)).map_err(io_err)?;
+    let name = q.name.as_deref().map(clean_name).filter(|n| !n.is_empty()).unwrap_or_else(|| guess_name(&body, &conf));
+    st.list.push(Profile { id: id.clone(), name: name.clone(), added: now_secs() });
+    let first = st.active.is_none();
+    if first {
+        st.active = Some(id.clone());
+    }
+    save_state(&dir, &st).map_err(io_err)?;
+    if first {
+        apply(&dir, &id).await.map_err(ApiError::bad_gateway)?;
     }
     Ok(Json(json!({
         "ok": true,
+        "id": id,
+        "name": name,
         "endpoint": format!("{}:{}", conf.endpoint_host, conf.endpoint_port),
-        "address": format!("{}/32", conf.address),
-        "preshared": conf.preshared_key.is_some(),
-        "message": "Config gespeichert. Die VPN-Verbindung wird in wenigen Sekunden neu aufgebaut.",
+        "message": if first { "Config gespeichert und aktiviert. Die VPN-Verbindung wird in wenigen Sekunden aufgebaut." } else { "Config hinzugefügt. Sie springt ein, wenn die aktive ausfällt." },
     })))
 }
 
-pub async fn status(State(st): State<Arc<AppState>>, headers: HeaderMap) -> Result<Json<Value>, ApiError> {
+pub async fn status(State(_st): State<Arc<AppState>>, headers: HeaderMap) -> Result<Json<Value>, ApiError> {
     authorized(&headers)?;
     let dir = vpn_dir();
-    let Some(conf) = fs::read_to_string(dir.join(SOURCE_FILE)).ok().and_then(|t| parse_conf(&t).ok()) else {
-        return Ok(Json(json!({ "configured": false })));
-    };
-    let updated = fs::metadata(dir.join(ACTIVE_FILE))
-        .and_then(|m| m.modified())
-        .ok()
-        .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
-        .map(|d| d.as_secs());
-    // Die IP, mit der der Server im Netz gesehen wird (läuft über den Proxy, also durch das VPN).
-    let ip = match st.raw.get("https://api.ipify.org").timeout(Duration::from_secs(8)).send().await {
-        Ok(r) => r.text().await.ok().map(|t| t.trim().chars().take(45).collect::<String>()),
-        Err(_) => None,
-    };
+    let st = load_state(&dir);
+    let health = HEALTH.lock().map(|m| m.clone()).unwrap_or_default();
+    let profiles: Vec<Value> = st
+        .list
+        .iter()
+        .map(|p| {
+            let c = load_profile(&dir, &p.id);
+            json!({
+                "id": p.id,
+                "name": p.name,
+                "endpoint": c.as_ref().map(|c| format!("{}:{}", c.endpoint_host, c.endpoint_port)).unwrap_or_default(),
+                "address": c.as_ref().map(|c| format!("{}/32", c.address)).unwrap_or_default(),
+                "active": st.active.as_deref() == Some(p.id.as_str()),
+                "health": health.get(&p.id).cloned().unwrap_or_default(),
+            })
+        })
+        .collect();
+    let switching = SWITCHED_AT.lock().ok().and_then(|t| *t).is_some_and(|t| t.elapsed() < GRACE);
     Ok(Json(json!({
-        "configured": true,
-        "endpoint": format!("{}:{}", conf.endpoint_host, conf.endpoint_port),
-        "address": format!("{}/32", conf.address),
-        "updated": updated,
-        "ip": ip,
+        "configured": !st.list.is_empty(),
+        "proxy": crate::proxy::proxy_active(),
+        "auto": st.auto,
+        "switching": switching,
+        "profiles": profiles,
     })))
 }
 
-/// Löst den Endpunkt regelmäßig neu auf (Hostnamen ändern ihre IP) und schreibt die aktive Config nur bei einer
-/// Änderung neu; ein Wächter-Container startet dann gluetun neu.
-pub async fn keep_endpoint_fresh() {
+#[derive(serde::Deserialize)]
+pub struct IdQ {
+    id: String,
+}
+
+pub async fn activate(State(_st): State<Arc<AppState>>, headers: HeaderMap, axum::extract::Query(q): axum::extract::Query<IdQ>) -> Result<Json<Value>, ApiError> {
+    authorized(&headers)?;
+    if !valid_id(&q.id) {
+        return Err(ApiError::bad("Ungültige ID"));
+    }
+    let _g = LOCK.lock().await;
+    let dir = vpn_dir();
+    let mut st = load_state(&dir);
+    if !st.list.iter().any(|p| p.id == q.id) {
+        return Err(ApiError::not_found("Config nicht gefunden."));
+    }
+    apply(&dir, &q.id).await.map_err(ApiError::bad_gateway)?;
+    st.active = Some(q.id.clone());
+    save_state(&dir, &st).map_err(io_err)?;
+    if let Ok(mut h) = HEALTH.lock() {
+        h.entry(q.id).or_default().fails = 0;
+    }
+    Ok(Json(json!({ "ok": true })))
+}
+
+pub async fn remove(State(_st): State<Arc<AppState>>, headers: HeaderMap, axum::extract::Query(q): axum::extract::Query<IdQ>) -> Result<Json<Value>, ApiError> {
+    authorized(&headers)?;
+    if !valid_id(&q.id) {
+        return Err(ApiError::bad("Ungültige ID"));
+    }
+    let _g = LOCK.lock().await;
+    let dir = vpn_dir();
+    let mut st = load_state(&dir);
+    st.list.retain(|p| p.id != q.id);
+    let _ = fs::remove_file(dir.join(PROFILES_DIR).join(format!("{}.conf", q.id)));
+    if st.active.as_deref() == Some(q.id.as_str()) {
+        st.active = st.list.first().map(|p| p.id.clone());
+        match st.active.clone() {
+            Some(next) => apply(&dir, &next).await.map_err(ApiError::bad_gateway)?,
+            None => {
+                // Keine Config mehr: aktive Datei leeren, damit nichts Altes weiterläuft
+                let _ = fs::remove_file(dir.join(SOURCE_FILE));
+            }
+        }
+    }
+    save_state(&dir, &st).map_err(io_err)?;
+    Ok(Json(json!({ "ok": true })))
+}
+
+#[derive(serde::Deserialize)]
+pub struct AutoQ {
+    on: bool,
+}
+
+pub async fn set_auto(State(_st): State<Arc<AppState>>, headers: HeaderMap, axum::extract::Query(q): axum::extract::Query<AutoQ>) -> Result<Json<Value>, ApiError> {
+    authorized(&headers)?;
+    let _g = LOCK.lock().await;
+    let dir = vpn_dir();
+    let mut st = load_state(&dir);
+    st.auto = q.on;
+    save_state(&dir, &st).map_err(io_err)?;
+    Ok(Json(json!({ "ok": true, "auto": st.auto })))
+}
+
+/// Nächste Config: die mit den wenigsten Fehlschlägen, bei Gleichstand die nächste in der Liste.
+fn pick_next(st: &VpnState, health: &std::collections::HashMap<String, Health>) -> Option<String> {
+    let cur = st.active.as_deref()?;
+    let n = st.list.len();
+    let start = st.list.iter().position(|p| p.id == cur).unwrap_or(0);
+    (1..n)
+        .map(|k| &st.list[(start + k) % n])
+        .min_by_key(|p| health.get(&p.id).map(|h| h.bad).unwrap_or(0))
+        .map(|p| p.id.clone())
+}
+
+/// Wächter: prüft das VPN, frischt den Endpunkt auf und wechselt bei Ausfall automatisch.
+pub async fn monitor(st: Arc<AppState>) {
+    let mut since_refresh = Duration::ZERO;
     loop {
-        tokio::time::sleep(Duration::from_secs(300)).await;
+        tokio::time::sleep(CHECK_EVERY).await;
+        since_refresh += CHECK_EVERY;
         let dir = vpn_dir();
-        let Ok(text) = fs::read_to_string(dir.join(SOURCE_FILE)) else { continue };
-        let Ok(conf) = parse_conf(&text) else { continue };
-        let Ok(ip) = resolve(&conf.endpoint_host, conf.endpoint_port).await else { continue };
-        let wanted = render(&conf, &ip);
-        if fs::read_to_string(dir.join(ACTIVE_FILE)).ok().as_deref() != Some(wanted.as_str()) {
-            let _ = write_private(&dir, ACTIVE_FILE, &wanted);
+        let state = load_state(&dir);
+        let Some(active) = state.active.clone() else { continue };
+
+        // Hostnamen ändern ihre IP: alle 5 Minuten neu auflösen
+        if since_refresh >= Duration::from_secs(300) {
+            since_refresh = Duration::ZERO;
+            let _g = LOCK.lock().await;
+            let _ = apply(&dir, &active).await;
+        }
+        // Ohne Proxy geht der Server nicht durchs VPN: dann gibt es nichts zu prüfen
+        if !crate::proxy::proxy_active() {
+            continue;
+        }
+        let in_grace = SWITCHED_AT.lock().ok().and_then(|t| *t).is_some_and(|t| t.elapsed() < GRACE);
+
+        let t0 = std::time::Instant::now();
+        let res = st.raw.get("https://api.ipify.org").timeout(Duration::from_secs(10)).send().await;
+        let ms = t0.elapsed().as_millis();
+        let ip = match res {
+            Ok(r) if r.status().is_success() => r.text().await.ok().map(|t| t.trim().chars().take(45).collect::<String>()),
+            _ => None,
+        };
+        let verdict = match (&ip, ms > SLOW_MS) {
+            (Some(_), false) => "ok",
+            (Some(_), true) => "slow",
+            (None, _) => "fail",
+        };
+        let fails = {
+            let Ok(mut h) = HEALTH.lock() else { continue };
+            let e = h.entry(active.clone()).or_default();
+            e.checked = now_secs();
+            e.latency = ms as u64;
+            if let Some(ip) = &ip {
+                e.ip = ip.clone();
+            }
+            if verdict == "ok" {
+                e.fails = 0;
+                e.state = "ok".into();
+            } else if !in_grace {
+                e.fails += 1;
+                e.bad += 1;
+                e.state = verdict.into();
+            }
+            e.fails
+        };
+        if in_grace || fails < FAILS_TO_SWITCH || !state.auto || state.list.len() < 2 {
+            continue;
+        }
+        let _g = LOCK.lock().await;
+        let mut state = load_state(&dir);
+        let health = HEALTH.lock().map(|m| m.clone()).unwrap_or_default();
+        let Some(next) = pick_next(&state, &health) else { continue };
+        eprintln!("[vpn] {} antwortet nicht ({fails}× {verdict}), wechsle zu {next}", active);
+        if apply(&dir, &next).await.is_ok() {
+            state.active = Some(next.clone());
+            let _ = save_state(&dir, &state);
+            if let Ok(mut h) = HEALTH.lock() {
+                h.entry(next).or_default().fails = 0;
+                if let Some(e) = h.get_mut(&active) {
+                    e.fails = 0;
+                }
+            }
         }
     }
 }
@@ -325,5 +629,22 @@ mod tests {
         assert!(out.contains("AllowedIPs = 0.0.0.0/0"));
         assert!(!out.contains("fd00") && !out.contains("DNS"));
         assert_eq!(parse_conf(&out).expect("Rundlauf").endpoint_host, "1.2.3.4");
+    }
+
+    #[test]
+    fn picks_least_failing_next() {
+        let p = |id: &str| Profile { id: id.into(), name: id.into(), added: 0 };
+        let st = VpnState { list: vec![p("a1"), p("b2"), p("c3")], active: Some("a1".into()), auto: true };
+        let mut h = std::collections::HashMap::new();
+        assert_eq!(pick_next(&st, &h).as_deref(), Some("b2"));
+        h.insert("b2".to_string(), Health { bad: 5, ..Default::default() });
+        assert_eq!(pick_next(&st, &h).as_deref(), Some("c3"));
+    }
+
+    #[test]
+    fn name_from_proton_comment() {
+        let text = format!("[Interface]\nPrivateKey = {}\nAddress = 10.2.0.2/32\n[Peer]\n# NL-FREE#116\nPublicKey = {}\nEndpoint = 1.2.3.4:51820\n", key('A'), key('B'));
+        let c = parse_conf(&text).unwrap();
+        assert_eq!(guess_name(&text, &c), "NL-FREE#116");
     }
 }

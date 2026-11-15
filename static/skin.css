@@ -1057,3 +1057,20 @@ html.nina-skin-on::-webkit-scrollbar-button, #nina-skin ::-webkit-scrollbar-butt
 #nina-skin .sina-kinfo { display: grid; gap: 12px; padding: 4px 2px; }
 #nina-skin .sina-kinfo span { display: block; font-size: 12px; color: var(--on-surface-variant); margin-bottom: 2px; }
 #nina-skin .sina-kinfo b { font-weight: 500; font-size: 14px; line-height: 20px; }
+
+/* VPN-Liste */
+#nina-skin .sina-vpns { display: grid; gap: 8px; margin: 4px 0 14px; }
+#nina-skin .sina-vpn { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--r-l); background: var(--surface-c-high); }
+#nina-skin .sina-vpn.on { background: var(--secondary-container); color: var(--on-secondary-container); }
+#nina-skin .sina-vpn .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--on-surface-variant); opacity: .5; flex: none; }
+#nina-skin .sina-vpn.on .dot { background: #4caf50; opacity: 1; }
+#nina-skin .sina-vpn.on.bad .dot { background: #f44336; }
+#nina-skin .sina-vpn .tx { flex: 1; min-width: 0; }
+#nina-skin .sina-vpn .tx b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#nina-skin .sina-vpn .tx small { display: block; font-size: 12px; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#nina-skin .sina-vpn .tag { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--primary); color: var(--on-primary); }
+#nina-skin .sina-vpn .ns-icon { width: 36px; height: 36px; }
+#nina-skin .sina-vpn .ns-icon svg { width: 20px; height: 20px; fill: currentColor; }
+#nina-skin .sina-switch { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
+#nina-skin .sina-switch input { width: 20px; height: 20px; accent-color: var(--primary); }
+#nina-skin .sina-input { flex: 1; min-width: 0; height: 44px; padding: 0 14px; border-radius: var(--r-m); border: 1px solid var(--outline-variant, #444); background: var(--surface-c); color: inherit; font-size: 15px; }

@@ -46,6 +46,49 @@ fn is_public(ip: IpAddr) -> bool {
 }
 
 /// Prüft, dass die Adresse http(s) ist und nur auf öffentliche IPs zeigt.
+/// Ist ein ausgehender Proxy (VPN) eingestellt?
+pub fn proxy_active() -> bool {
+    ["HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy"]
+        .iter()
+        .any(|k| std::env::var(k).map(|v| !v.trim().is_empty()).unwrap_or(false))
+}
+
+/// Eigener Client für DNS-over-HTTPS (geht wie alles andere über den Proxy aus der Umgebung).
+static DOH: LazyLock<reqwest::Client> = LazyLock::new(|| {
+    reqwest::Client::builder().timeout(std::time::Duration::from_secs(8)).build().expect("DoH-Client")
+});
+type DnsCache = std::sync::Mutex<std::collections::HashMap<String, (std::time::Instant, Vec<IpAddr>)>>;
+static DNS_CACHE: LazyLock<DnsCache> = LazyLock::new(Default::default);
+
+async fn doh_lookup(host: &str) -> Result<Vec<IpAddr>, String> {
+    if let Some((at, ips)) = DNS_CACHE.lock().ok().and_then(|m| m.get(host).cloned()) {
+        if at.elapsed() < std::time::Duration::from_secs(300) {
+            return Ok(ips);
+        }
+    }
+    let mut ips = Vec::new();
+    for ty in ["A", "AAAA"] {
+        let url = format!("https://cloudflare-dns.com/dns-query?name={host}&type={ty}");
+        let Ok(r) = DOH.get(&url).header(header::ACCEPT, "application/dns-json").send().await else { continue };
+        let Ok(v) = r.json::<serde_json::Value>().await else { continue };
+        for a in v["Answer"].as_array().into_iter().flatten() {
+            if let Some(ip) = a["data"].as_str().and_then(|d| d.parse::<IpAddr>().ok()) {
+                ips.push(ip);
+            }
+        }
+    }
+    if ips.is_empty() {
+        return Err(format!("Name nicht auflösbar: {host}"));
+    }
+    if let Ok(mut m) = DNS_CACHE.lock() {
+        if m.len() > 500 {
+            m.clear();
+        }
+        m.insert(host.to_string(), (std::time::Instant::now(), ips.clone()));
+    }
+    Ok(ips)
+}
+
 pub async fn check_public(url: &str) -> Result<(), String> {
     let u = Url::parse(url).map_err(|_| "Ungültige Adresse".to_string())?;
     if !matches!(u.scheme(), "http" | "https") {
@@ -53,11 +96,19 @@ pub async fn check_public(url: &str) -> Result<(), String> {
     }
     let host = u.host_str().ok_or("Adresse ohne Host")?;
     let port = u.port_or_known_default().unwrap_or(443);
-    let addrs: Vec<_> = tokio::net::lookup_host((host, port))
-        .await
-        .map_err(|e| format!("Name nicht auflösbar: {e}"))?
-        .collect();
-    if addrs.is_empty() || addrs.iter().any(|a| !is_public(a.ip())) {
+    let ips: Vec<IpAddr> = if let Ok(ip) = host.trim_matches(|c| c == '[' || c == ']').parse::<IpAddr>() {
+        vec![ip]
+    } else if proxy_active() {
+        // Mit VPN: Namen über DNS-over-HTTPS durch den Proxy auflösen, damit auch DNS nicht am VPN vorbei geht.
+        doh_lookup(host).await?
+    } else {
+        tokio::net::lookup_host((host, port))
+            .await
+            .map_err(|e| format!("Name nicht auflösbar: {e}"))?
+            .map(|a| a.ip())
+            .collect()
+    };
+    if ips.is_empty() || ips.iter().any(|ip| !is_public(*ip)) {
         return Err("Diese Adresse ist nicht erlaubt".into());
     }
     Ok(())
@@ -192,16 +243,28 @@ async fn forward(resp: reqwest::Response, url: &str, referer: &str) -> Response 
 
 #[derive(Deserialize)]
 pub struct ImgQ {
-    p: String,
+    p: Option<String>,
+    u: Option<String>,
 }
 
-/// Cover von AniWorld (nur Pfade unter /public/).
+/// Bilder über den Server (und damit übers VPN): Cover von AniWorld (Pfade unter /public/) oder Bilder von Kinogo.
 pub async fn img(State(st): State<Arc<AppState>>, Query(q): Query<ImgQ>) -> Response {
-    if !q.p.starts_with("/public/") || q.p.contains("..") || q.p.len() > 300 {
-        return plain(StatusCode::BAD_REQUEST, "Ungültiger Pfad");
-    }
-    let url = format!("{}{}", st.base, q.p);
-    let resp = match st.http.get(&url).header(header::USER_AGENT, UA).header(header::REFERER, format!("{}/", st.base)).send().await {
+    let (url, referer) = if let Some(p) = q.p.as_deref() {
+        if !p.starts_with("/public/") || p.contains("..") || p.len() > 300 {
+            return plain(StatusCode::BAD_REQUEST, "Ungültiger Pfad");
+        }
+        (format!("{}{}", st.base, p), format!("{}/", st.base))
+    } else if let Some(u) = q.u.as_deref() {
+        let ok = u.len() <= 400
+            && Url::parse(u).is_ok_and(|x| x.scheme() == "https" && x.host_str() == Url::parse(crate::kino::BASE).ok().as_ref().and_then(|b| b.host_str()));
+        if !ok {
+            return plain(StatusCode::BAD_REQUEST, "Ungültige Adresse");
+        }
+        (u.to_string(), format!("{}/", crate::kino::BASE))
+    } else {
+        return plain(StatusCode::BAD_REQUEST, "Pfad fehlt");
+    };
+    let resp = match st.http.get(&url).header(header::USER_AGENT, UA).header(header::REFERER, referer).send().await {
         Ok(r) if r.status().is_success() => r,
         _ => return plain(StatusCode::NOT_FOUND, "Kein Bild"),
     };

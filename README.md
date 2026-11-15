@@ -26,6 +26,8 @@ Fernseher gleich. **Gast** speichert nichts und fängt jedes Mal leer an. Oben r
 Profil hat seine eigene Farbe. Die Namen stehen in `src/profiles.rs`.
 
 Die Profile haben keine PIN. Sie trennen nur den Stand und schützen nichts.
+Unter „Wer schaut?“ → „Profilbilder ändern“ wählt jedes Profil eins von 10 Bildern (Katze, Fuchs, Panda, Pinguin, Eule,
+Roboter, Astronaut, Geist, Alien, Frosch) oder den Anfangsbuchstaben. Das Bild gilt auf allen Geräten.
 
 ## Kino (Kinogo)
 
@@ -110,7 +112,16 @@ das Video lädt aber der Server.
    einfügen. Schlüssel, Adresse und Server liest Sina selbst aus der Datei. Danach verbindet gluetun neu.
 3. Proton: account.proton.me → Downloads → WireGuard-Konfiguration → Plattform „GNU/Linux“ → Server wählen → Herunterladen.
 
-Der Knopf „VPN“ oben in Sina und die Einstellungsseite zeigen die IP von Server und Browser und ob sie gleich sind.
+**Mehrere VPN-Configs & automatischer Wechsel:** Du kannst beliebig viele `.conf`-Dateien hinzufügen (auch mehrere auf
+einmal). Sina prüft alle 20 s, ob die aktive Verbindung ins Netz kommt. Nach 3 Fehlschlägen hintereinander (oder wenn sie
+länger als 6 s braucht) wechselt Sina zur nächsten Config, bevorzugt zu der mit den wenigsten Problemen bisher. Nach
+einem Wechsel wartet Sina 75 s, bis gluetun neu verbunden hat. Den Auto-Wechsel kannst du abschalten und jede Config auch
+von Hand aktivieren.
+
+**Alles übers VPN:** Mit gesetztem `HTTPS_PROXY` gehen Seiten, Hoster, Streams, Bilder (auch die von Kinogo) und die
+Namensauflösung (DNS-over-HTTPS) durch den Proxy. Ist das VPN weg, schlagen die Anfragen fehl, statt ohne VPN rauszugehen.
+
+Die Einstellungsseite zeigt die IP von Server und Browser und ob sie gleich sind.
 Der Private Key wird nie wieder an den Browser zurückgegeben. Mit `REQUIRE_ACCESS=1` ist die Einstellungsseite nur
 über Cloudflare Access erreichbar.
 

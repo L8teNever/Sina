@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#101414">
 <meta name="referrer" content="no-referrer">
 <title>Sina</title>
-<link rel="stylesheet" href="skin.css?v=20261115">
-<link rel="stylesheet" href="player.css?v=20261115">
-<link rel="stylesheet" href="tv.css?v=20261115">
-<link rel="stylesheet" href="mobile.css?v=20261115">
+<link rel="stylesheet" href="skin.css?v=20261115c">
+<link rel="stylesheet" href="player.css?v=20261115c">
+<link rel="stylesheet" href="tv.css?v=20261115c">
+<link rel="stylesheet" href="mobile.css?v=20261115c">
 <style>
   html, body { margin: 0; background: hsl(186 10% 7%); }
   #nina-skin .sina-ph-msg { position: relative; display: grid; gap: 12px; justify-items: center; text-align: center; padding: 0 24px; color: #fff; }
@@ -54,12 +54,26 @@
   #nina-skin .sina-profiles h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; }
   #nina-skin .sina-pgrid { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; max-width: 960px; }
   #nina-skin .sina-p { display: grid; justify-items: center; gap: 12px; background: none; border: 0; cursor: pointer; color: var(--on-surface-variant); font-size: 17px; padding: 4px; }
-  #nina-skin .sina-p .av, #nina-skin .sina-me .av { display: grid; place-items: center; font-weight: 800; background: hsl(var(--ph) 55% 72%); color: hsl(var(--ph) 70% 16%); }
+  #nina-skin .sina-p .av, #nina-skin .sina-me .av, #nina-skin .sina-avopt .av { display: grid; place-items: center; font-weight: 800; background: hsl(var(--ph) 55% 72%); color: hsl(var(--ph) 70% 16%); }
   #nina-skin .sina-p .av { width: 132px; height: 132px; border-radius: 34px; font-size: 58px; transition: border-radius .45s var(--spring), transform .35s var(--spring); }
   #nina-skin .sina-p:hover .av, #nina-skin .sina-p:focus-visible .av { border-radius: 50%; transform: scale(1.07); }
   #nina-skin .sina-p:hover, #nina-skin .sina-p:focus-visible { color: var(--on-surface); outline: 0; }
   #nina-skin .sina-p small { font-size: 12px; opacity: .7; margin-top: -6px; }
   #nina-skin .sina-me { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+  #nina-skin .av.pic { padding: 12%; }
+  #nina-skin .av .avg { width: 100%; height: 100%; fill: currentColor; display: block; }
+  #nina-skin .sina-pedit { display: inline-flex; align-items: center; gap: 8px; margin-top: 36px; height: 40px; padding: 0 18px; border-radius: 99px; border: 1px solid var(--outline-variant, #555); background: none; color: var(--on-surface-variant); font: 600 14px var(--font); cursor: pointer; }
+  #nina-skin .sina-pedit svg { width: 18px; height: 18px; fill: currentColor; }
+  #nina-skin .sina-pedit:hover, #nina-skin .sina-pedit:focus-visible { color: var(--on-surface); border-color: var(--on-surface-variant); outline: 0; }
+  #nina-skin .sina-profiles.editing .sina-p .av { animation: sina-wiggle 1.4s ease-in-out infinite; }
+  @keyframes sina-wiggle { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+  #nina-skin .sina-avgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 18px; width: min(720px, 92vw); }
+  #nina-skin .sina-avopt { display: flex; flex-direction: column; align-items: center; gap: 8px; border: 0; background: none; color: var(--on-surface-variant); cursor: pointer; font: 600 13px var(--font); padding: 6px; border-radius: 24px; }
+  #nina-skin .sina-avopt .av { width: 84px; height: 84px; border-radius: 26px; font-size: 36px; transition: border-radius .35s var(--spring), transform .25s var(--spring); }
+  #nina-skin .sina-avopt:hover .av, #nina-skin .sina-avopt:focus-visible .av { border-radius: 50%; transform: scale(1.06); }
+  #nina-skin .sina-avopt:focus-visible { outline: 0; }
+  #nina-skin .sina-avopt.on .av { box-shadow: 0 0 0 4px var(--primary); border-radius: 50%; }
+  #nina-skin .sina-avopt.on { color: var(--on-surface); }
   #nina-skin .sina-me .av { width: 36px; height: 36px; border-radius: 12px; font-size: 17px; transition: border-radius .4s var(--spring); }
   #nina-skin .sina-me:hover .av { border-radius: 50%; }
   @media (max-width: 600px) { #nina-skin .sina-p .av { width: 96px; height: 96px; font-size: 42px; border-radius: 28px; } #nina-skin .sina-pgrid { gap: 16px; } }
@@ -79,10 +93,10 @@
   <nav class="ns-bnav" id="bnav"></nav>
 </div>
 
-<script src="hls.min.js?v=20261115"></script>
-<script src="shim.js?v=20261115"></script>
-<script src="player.js?v=20261115"></script>
-<script src="tv.js?v=20261115"></script>
+<script src="hls.min.js?v=20261115c"></script>
+<script src="shim.js?v=20261115c"></script>
+<script src="player.js?v=20261115c"></script>
+<script src="tv.js?v=20261115c"></script>
 <script>
 'use strict';
 const $ = (s, el = document) => el.querySelector(s);
@@ -344,12 +358,13 @@ function viewStart() {
 }
 
 // ---------- Kino (Kinogo) ----------
+const kimg = (u) => (u ? '/api/img?u=' + encodeURIComponent(u) : '');
 const KH = { film: (id) => `#/kinogo/film/${id}`, cat: (c) => (c ? `#/kinogo/c/${c}` : '#/kinogo'), search: (q) => `#/kinogo/suche/${encodeURIComponent(q)}` };
 const KINO_CATS = [['', 'Startseite'], ['v1new', 'Neu'], ['filmy', 'Filme'], ['top-filmy', 'Top'], ['recommended', 'Empfohlen'], ['boevik', 'Action'], ['komedia', 'Komödie'], ['uzhasy', 'Horror'], ['fantastika', 'Sci-Fi'], ['multfilmy', 'Animation']];
 const kcard = (c) => {
   const pr = store.get('kprog', {})[c.id];
   return `<a class="ns-card ${pr && pr.frac >= 0.9 ? 'seen' : pr && pr.frac > 0.02 ? 'part' : ''}" href="${KH.film(c.id)}">
-    <div class="cv">${c.img ? `<img src="${esc(c.img)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : `<span class="ph">${esc((c.title || '?').slice(0, 1))}</span>`}</div>
+    <div class="cv">${c.img ? `<img src="${esc(kimg(c.img))}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : `<span class="ph">${esc((c.title || '?').slice(0, 1))}</span>`}</div>
     <b>${esc(c.title)}</b><small>${esc([c.year, c.country].filter(Boolean).join(' · '))}</small></a>`;
 };
 function kinoRecentSection() {
@@ -404,8 +419,8 @@ async function viewKinoFilm(id) {
   const players = f.players.filter((x) => x.ok);
   main.innerHTML = `<div class="ns-watch">
     <div>
-      <div class="ns-crumb">${f.img ? `<img src="${esc(f.img)}" alt="" decoding="async" referrerpolicy="no-referrer">` : ''}<a href="${KH.cat('')}"><b>Kino</b><small>${esc(meta)}</small></a></div>
-      <div class="ns-player"><div class="ns-player-ph" id="ph">${f.img ? `<img src="${esc(f.img)}" alt="" decoding="async" referrerpolicy="no-referrer">` : ''}<div class="sina-ph-msg" id="phmsg"></div></div><div class="inSiteWebStream" data-a16-active="true" id="stream"></div></div>
+      <div class="ns-crumb">${f.img ? `<img src="${esc(kimg(f.img))}" alt="" decoding="async" referrerpolicy="no-referrer">` : ''}<a href="${KH.cat('')}"><b>Kino</b><small>${esc(meta)}</small></a></div>
+      <div class="ns-player"><div class="ns-player-ph" id="ph">${f.img ? `<img src="${esc(kimg(f.img))}" alt="" decoding="async" referrerpolicy="no-referrer">` : ''}<div class="sina-ph-msg" id="phmsg"></div></div><div class="inSiteWebStream" data-a16-active="true" id="stream"></div></div>
       <h1 class="ns-ep-title">${esc(f.title)}</h1>
       ${f.alt ? `<p class="ns-ep-sub">${esc(f.alt)}${rates ? ' · ' + esc(rates) : ''}</p>` : rates ? `<p class="ns-ep-sub">${esc(rates)}</p>` : ''}
       ${f.description ? `<p class="ns-ep-sub ns-ep-desc">${esc(f.description)}</p>${f.description.length > 160 ? `<button class="ns-more sina-desc-more" data-ns="epdesc">Mehr anzeigen${I.chev}</button>` : ''}` : ''}
@@ -731,12 +746,17 @@ async function viewSettings() {
   const my = ++viewSeq;
   main.innerHTML = `<h1 class="ns-h1">Einstellungen</h1><p class="ns-sub">VPN, damit Server und Browser mit derselben Adresse ins Netz gehen</p>
     <section class="sina-card">
-      <h2>VPN-Datei (WireGuard)</h2>
-      <p>Lade die <b>.conf</b>-Datei hoch, z. B. von Proton VPN (account.proton.me → Downloads → WireGuard-Konfiguration). Schlüssel, Adresse und Server werden automatisch aus der Datei gelesen. Der Schlüssel wird danach nie wieder angezeigt.</p>
-      <div class="sina-row"><input type="file" id="vpnFile" accept=".conf,.txt,text/plain"></div>
+      <h2>VPN-Verbindungen</h2>
+      <div id="vpnList"><div class="sina-ph-msg"><div class="spin"></div></div></div>
+    </section>
+    <section class="sina-card">
+      <h2>VPN-Datei hinzufügen (WireGuard)</h2>
+      <p>Lade eine oder mehrere <b>.conf</b>-Dateien hoch, z. B. von Proton VPN (account.proton.me → Downloads → WireGuard-Konfiguration). Fällt die aktive Verbindung aus oder wird sie sehr langsam, wechselt Sina von selbst zur nächsten. Die Schlüssel werden danach nie wieder angezeigt.</p>
+      <div class="sina-row"><input type="file" id="vpnFile" accept=".conf,.txt,text/plain" multiple></div>
+      <div class="sina-row"><input type="text" id="vpnName" placeholder="Name (optional, z. B. Proton NL)" maxlength="40" class="sina-input"></div>
       <p style="margin-top:14px">Oder den Inhalt der Datei hier einfügen:</p>
       <textarea id="vpnText" spellcheck="false" placeholder="[Interface]&#10;PrivateKey = …&#10;Address = …&#10;&#10;[Peer]&#10;PublicKey = …&#10;Endpoint = …"></textarea>
-      <div class="sina-row"><button class="ns-btn" id="vpnSave">${I.check}Speichern</button></div>
+      <div class="sina-row"><button class="ns-btn" id="vpnSave">${I.check}Hinzufügen</button></div>
       <div id="vpnMsg"></div>
     </section>
     <section class="sina-card">
@@ -747,44 +767,91 @@ async function viewSettings() {
     ${typeof sinaDeviceCard === 'function' ? sinaDeviceCard() : ''}
     <section class="sina-card">
       <h2>Status</h2>
-      <div id="vpnStatus"><div class="sina-ph-msg"><div class="spin"></div></div></div>
       <div class="sina-row"><button class="ns-tonal" id="vpnCheck">${I.web}Server und Browser prüfen</button></div>
       <div id="vpnIps"></div>
     </section>`;
   paintBrowser();
   const hdr = { 'X-Sina': '1' };
   const msg = (cls, t) => { $('#vpnMsg').innerHTML = `<div class="sina-msg ${cls}">${esc(t)}</div>`; };
+  const post = async (path, params) => {
+    const r = await fetch('/api/settings/vpn' + path + '?' + new URLSearchParams(params), { method: 'POST', headers: hdr });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'Fehler ' + r.status);
+    return j;
+  };
+  const healthTxt = (h, active) => {
+    if (!active) return h && h.bad ? `${h.bad}× Probleme bisher` : 'Reserve';
+    if (!h || !h.state) return 'wird geprüft …';
+    if (h.state === 'ok') return `verbunden · ${h.latency} ms${h.ip ? ' · IP ' + h.ip : ''}`;
+    if (h.state === 'slow') return `langsam (${h.latency} ms)`;
+    return `keine Verbindung (${h.fails}×)`;
+  };
   const loadStatus = async () => {
     try {
       const r = await fetch('/api/settings/vpn', { headers: hdr });
       const j = await r.json();
       if (my !== viewSeq) return;
-      if (!r.ok) { $('#vpnStatus').innerHTML = `<div class="sina-msg bad">${esc(j.error || 'Fehler')}</div>`; return; }
-      $('#vpnStatus').innerHTML = j.configured
-        ? `<div class="sina-kv"><span>Server</span><span>${esc(j.endpoint)}</span><span>Adresse im VPN</span><span>${esc(j.address)}</span><span>Gespeichert</span><span>${j.updated ? esc(new Date(j.updated * 1000).toLocaleString('de-DE')) : '–'}</span><span>Ausgehende IP</span><span>${esc(j.ip || 'nicht erreichbar (VPN verbindet noch?)')}</span></div>`
-        : `<p>Noch keine VPN-Datei gespeichert.</p>`;
-    } catch { if (my === viewSeq) $('#vpnStatus').innerHTML = `<div class="sina-msg bad">Status nicht abrufbar.</div>`; }
+      if (!r.ok) { $('#vpnList').innerHTML = `<div class="sina-msg bad">${esc(j.error || 'Fehler')}</div>`; return; }
+      const warn = !j.proxy ? `<div class="sina-msg bad">Sina läuft gerade <b>ohne</b> VPN-Proxy (HTTPS_PROXY fehlt). Starte Sina mit der VPN-Vorlage <code>docker-compose.vpn.example.yml</code>, sonst geht nichts durchs VPN.</div>` : '';
+      $('#vpnList').innerHTML = warn + (j.profiles.length ? `
+        ${j.switching ? `<div class="sina-msg">Verbindung wird gerade gewechselt …</div>` : ''}
+        <div class="sina-vpns">${j.profiles.map((p) => `
+          <div class="sina-vpn ${p.active ? 'on' : ''} ${p.active && p.health && p.health.state && p.health.state !== 'ok' ? 'bad' : ''}">
+            <span class="dot"></span>
+            <div class="tx"><b>${esc(p.name)}</b><small>${esc(p.endpoint)} · ${esc(healthTxt(p.health, p.active))}</small></div>
+            ${p.active ? '<span class="tag">Aktiv</span>' : `<button class="ns-tonal" data-vpn-use="${esc(p.id)}">Nutzen</button>`}
+            <button class="ns-icon" data-vpn-del="${esc(p.id)}" title="Entfernen" aria-label="Entfernen">${svg('M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z')}</button>
+          </div>`).join('')}</div>
+        <label class="sina-switch"><input type="checkbox" id="vpnAuto" ${j.auto ? 'checked' : ''}><span>Automatisch wechseln, wenn die aktive Verbindung ausfällt</span></label>`
+        : `<p>Noch keine VPN-Datei gespeichert.</p>`);
+      const au = $('#vpnAuto');
+      if (au) au.addEventListener('change', async () => { try { await post('/auto', { on: au.checked }); } catch (e) { alert(e.message); } });
+    } catch { if (my === viewSeq) $('#vpnList').innerHTML = `<div class="sina-msg bad">Status nicht abrufbar.</div>`; }
+  };
+  main.onclick = async (e) => {
+    const use = e.target.closest('[data-vpn-use]');
+    const del = e.target.closest('[data-vpn-del]');
+    try {
+      if (use) { use.disabled = true; await post('/activate', { id: use.dataset.vpnUse }); loadStatus(); }
+      else if (del) { if (!confirm('Diese VPN-Config entfernen?')) return; await post('/remove', { id: del.dataset.vpnDel }); loadStatus(); }
+    } catch (err) { alert(err.message); loadStatus(); }
+  };
+  const statusTimer = setInterval(() => { if (my !== viewSeq) return clearInterval(statusTimer); loadStatus(); }, 10000);
+  const addConf = async (text, name) => {
+    const r = await fetch('/api/settings/vpn?' + new URLSearchParams(name ? { name } : {}), { method: 'POST', headers: { ...hdr, 'Content-Type': 'text/plain' }, body: text });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'Fehler ' + r.status);
+    return j;
   };
   $('#vpnFile').addEventListener('change', async (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    if (f.size > 16384) { msg('bad', 'Die Datei ist zu groß für eine WireGuard-Config.'); return; }
-    $('#vpnText').value = await f.text();
-    msg('', 'Datei „' + f.name + '“ geladen. Mit „Speichern“ übernehmen.');
+    const files = [...e.target.files];
+    if (!files.length) return;
+    if (files.length === 1) {
+      if (files[0].size > 16384) { msg('bad', 'Die Datei ist zu groß für eine WireGuard-Config.'); return; }
+      $('#vpnText').value = await files[0].text();
+      msg('', 'Datei „' + files[0].name + '“ geladen. Mit „Hinzufügen“ übernehmen.');
+      return;
+    }
+    // Mehrere Dateien: gleich alle hinzufügen
+    let ok = 0; const bad = [];
+    for (const f of files) {
+      try { if (f.size > 16384) throw new Error('zu groß'); await addConf(await f.text(), f.name.replace(/\.(conf|txt)$/i, '')); ok++; }
+      catch (err) { bad.push(f.name + ': ' + err.message); }
+    }
+    e.target.value = '';
+    msg(bad.length ? 'bad' : 'ok', ok + ' Config(s) hinzugefügt.' + (bad.length ? ' Fehler: ' + bad.join('; ') : ''));
+    loadStatus();
   });
   $('#vpnSave').addEventListener('click', async () => {
     const text = $('#vpnText').value.trim();
     if (!text) { msg('bad', 'Erst eine Datei wählen oder den Inhalt einfügen.'); return; }
     msg('', 'Wird geprüft …');
     try {
-      const r = await fetch('/api/settings/vpn', { method: 'POST', headers: { ...hdr, 'Content-Type': 'text/plain' }, body: text });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) { msg('bad', j.error || 'Fehler ' + r.status); return; }
-      $('#vpnText').value = ''; $('#vpnFile').value = '';
-      msg('ok', j.message + ' Server: ' + j.endpoint + ', Adresse: ' + j.address + '.');
+      const j = await addConf(text, $('#vpnName').value.trim());
+      $('#vpnText').value = ''; $('#vpnFile').value = ''; $('#vpnName').value = '';
+      msg('ok', j.message + ' (' + j.name + ', ' + j.endpoint + ')');
       loadStatus();
-      setTimeout(loadStatus, 15000);
-    } catch { msg('bad', 'Speichern fehlgeschlagen.'); }
+    } catch (e) { msg('bad', e.message || 'Speichern fehlgeschlagen.'); }
   });
   $('#vpnCheck').addEventListener('click', async () => {
     $('#vpnIps').innerHTML = '<div class="sina-msg">Prüfe … (der Browser braucht einen Moment)</div>';
@@ -1013,7 +1080,22 @@ async function viewEpisode(slug, key, num) {
 }
 
 // ---------- Profile ----------
-const avatar = (p) => `<span class="av" style="--ph:${p.hue}">${esc(p.name.charAt(0))}</span>`;
+// Eigene Profilbilder: flache Grafiken in der Farbe des Profils (dunkel = currentColor, hell = weiß)
+const AV = {
+  katze: '<path d="M13 23 17 8l11 10h8l11-10 4 15c4 6 4 17 0 23-4 7-12 10-19 10s-15-3-19-10c-4-6-4-17 0-23Z"/><circle cx="24" cy="34" r="3.6" fill="#fff"/><circle cx="40" cy="34" r="3.6" fill="#fff"/><path d="M29.5 41h5L32 44Z" fill="#fff"/><path d="M8 40h10M8 45l10-2M56 40H46M56 45l-10-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  fuchs: '<path d="M8 10l18 11h12l18-11-3 26-21 20-21-20Z"/><path d="M11 36l12-3 9 15 9-15 12 3-21 20Z" fill="#fff"/><circle cx="24" cy="29" r="3.2" fill="#fff"/><circle cx="40" cy="29" r="3.2" fill="#fff"/><circle cx="32" cy="52" r="2.6"/>',
+  panda: '<circle cx="15" cy="15" r="8"/><circle cx="49" cy="15" r="8"/><circle cx="32" cy="35" r="22" fill="#fff"/><ellipse cx="23" cy="33" rx="6" ry="8" transform="rotate(25 23 33)"/><ellipse cx="41" cy="33" rx="6" ry="8" transform="rotate(-25 41 33)"/><circle cx="24" cy="33" r="2" fill="#fff"/><circle cx="40" cy="33" r="2" fill="#fff"/><ellipse cx="32" cy="44" rx="3.5" ry="2.4"/>',
+  pinguin: '<ellipse cx="32" cy="36" rx="20" ry="24"/><ellipse cx="32" cy="42" rx="13" ry="16" fill="#fff"/><circle cx="26" cy="25" r="3.4" fill="#fff"/><circle cx="38" cy="25" r="3.4" fill="#fff"/><circle cx="26.6" cy="25.4" r="1.6"/><circle cx="37.4" cy="25.4" r="1.6"/><path d="M27.5 30h9L32 36Z" fill="#f5b63c"/>',
+  eule: '<path d="M13 12l11 7h16l11-7v28c0 10-8 17-19 17s-19-7-19-17Z"/><circle cx="24" cy="30" r="8" fill="#fff"/><circle cx="40" cy="30" r="8" fill="#fff"/><circle cx="24" cy="30" r="3.6"/><circle cx="40" cy="30" r="3.6"/><path d="M29.5 38h5L32 43Z" fill="#fff"/><path d="M22 47q10 5 20 0" stroke="#fff" stroke-width="2" fill="none" opacity=".6"/>',
+  roboter: '<path d="M32 6v8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="6" r="3.5"/><rect x="13" y="16" width="38" height="34" rx="9"/><rect x="8" y="27" width="5" height="12" rx="2"/><rect x="51" y="27" width="5" height="12" rx="2"/><rect x="20" y="25" width="9" height="9" rx="2.5" fill="#fff"/><rect x="35" y="25" width="9" height="9" rx="2.5" fill="#fff"/><path d="M22 41h20" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 4"/>',
+  astronaut: '<circle cx="32" cy="32" r="23"/><rect x="16" y="21" width="32" height="22" rx="11" fill="#fff"/><path d="M22 27q3-3 7-3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".45"/><circle cx="32" cy="50" r="2.5" fill="#fff"/><rect x="8" y="27" width="5" height="11" rx="2"/><rect x="51" y="27" width="5" height="11" rx="2"/>',
+  geist: '<path d="M13 30c0-12 8-21 19-21s19 9 19 21v25l-6-6-6 6-7-6-7 6-6-6-6 6Z"/><ellipse cx="25" cy="29" rx="3.6" ry="5" fill="#fff"/><ellipse cx="39" cy="29" rx="3.6" ry="5" fill="#fff"/><ellipse cx="32" cy="40" rx="3.5" ry="4" fill="#fff"/>',
+  alien: '<path d="M32 7c13 0 22 10 22 22 0 15-12 28-22 28S10 44 10 29C10 17 19 7 32 7Z"/><ellipse cx="22" cy="31" rx="8" ry="4.6" transform="rotate(32 22 31)" fill="#fff"/><ellipse cx="42" cy="31" rx="8" ry="4.6" transform="rotate(-32 42 31)" fill="#fff"/><path d="M28 47q4 2 8 0" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>',
+  frosch: '<circle cx="20" cy="19" r="9"/><circle cx="44" cy="19" r="9"/><ellipse cx="32" cy="38" rx="25" ry="18"/><circle cx="20" cy="19" r="5" fill="#fff"/><circle cx="44" cy="19" r="5" fill="#fff"/><circle cx="20" cy="20" r="2.4"/><circle cx="44" cy="20" r="2.4"/><path d="M19 40q13 10 26 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/>',
+};
+const AV_NAMES = { katze: 'Katze', fuchs: 'Fuchs', panda: 'Panda', pinguin: 'Pinguin', eule: 'Eule', roboter: 'Roboter', astronaut: 'Astronaut', geist: 'Geist', alien: 'Alien', frosch: 'Frosch' };
+const avInner = (p) => (p.avatar && AV[p.avatar] ? `<svg viewBox="0 0 64 64" aria-hidden="true" class="avg">${AV[p.avatar]}</svg>` : esc(p.name.charAt(0)));
+const avatar = (p) => `<span class="av ${p.avatar && AV[p.avatar] ? 'pic' : ''}" style="--ph:${p.hue}">${avInner(p)}</span>`;
 function paintProfileBtn() {
   const b = $('#profileBtn'), p = profile();
   b.innerHTML = avatar(p);
@@ -1059,14 +1141,39 @@ function showProfiles() {
   const box = $('#profiles');
   picking = false;
   box.classList.remove('leaving');
-  box.innerHTML = `<h1>Wer schaut?</h1><div class="sina-pgrid">${PROFILES.map((p, i) => `<button type="button" class="sina-p" style="--i:${i}" data-p="${esc(p.id)}">${avatar(p)}<b>${esc(p.name)}</b>${p.saved ? '' : '<small>nichts wird gespeichert</small>'}</button>`).join('')}</div>`;
+  const editing = box.classList.contains('editing');
+  box.innerHTML = `<h1>${editing ? 'Welches Profil bearbeiten?' : 'Wer schaut?'}</h1><div class="sina-pgrid">${PROFILES.map((p, i) => `<button type="button" class="sina-p" style="--i:${i}" data-p="${esc(p.id)}">${avatar(p)}<b>${esc(p.name)}</b>${p.saved ? '' : '<small>nichts wird gespeichert</small>'}</button>`).join('')}</div>
+    <button type="button" class="sina-pedit" data-pedit>${editing ? 'Fertig' : svg('M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z') + 'Profilbilder ändern'}</button>`;
   box.hidden = false;
   document.body.style.overflow = 'hidden';
   const cur = P && $(`.sina-p[data-p="${P}"]`, box);
   (cur || $('.sina-p', box)).focus({ preventScroll: true });
   box.onclick = async (e) => {
+    if (e.target.closest('[data-pedit]')) { box.classList.toggle('editing'); showProfiles(); return; }
+    const av = e.target.closest('[data-av]');
+    if (av) {
+      const id = av.closest('[data-avfor]').dataset.avfor, a = av.dataset.av;
+      try {
+        const r = await fetch('/api/profiles/avatar?' + new URLSearchParams({ p: id, a }), { method: 'POST' });
+        if (r.ok) { const p = PROFILES.find((x) => x.id === id); if (p) p.avatar = a; if (P) paintProfileBtn(); }
+      } catch {}
+      showProfiles();
+      return;
+    }
+    if (e.target.closest('[data-avclose]')) { showProfiles(); return; }
     const b = e.target.closest('[data-p]');
     if (!b || picking) return;
+    if (box.classList.contains('editing')) {
+      const p = PROFILES.find((x) => x.id === b.dataset.p);
+      box.innerHTML = `<h1>Profilbild für ${esc(p.name)}</h1>
+        <div class="sina-avgrid" data-avfor="${esc(p.id)}">
+          ${['', ...Object.keys(AV)].map((k) => `<button type="button" class="sina-avopt ${(p.avatar || '') === k ? 'on' : ''}" data-av="${k}" title="${k ? AV_NAMES[k] : 'Anfangsbuchstabe'}">${avatar({ ...p, avatar: k })}<small>${k ? AV_NAMES[k] : 'Buchstabe'}</small></button>`).join('')}
+        </div>
+        <button type="button" class="sina-pedit" data-avclose>Zurück</button>`;
+      const on = $('.sina-avopt.on', box);
+      if (on) on.focus({ preventScroll: true });
+      return;
+    }
     picking = true;
     box.classList.add('leaving');
     b.classList.add('picked');
