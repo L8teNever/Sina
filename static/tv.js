@@ -56,7 +56,7 @@
     const pad = (n) => String(n).padStart(2, '0');
     return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
   };
-  const isEpHash = (h) => /^#\/anime\/stream\/.+\/(episode|film)-\d+/.test(h || '');
+  const isEpHash = (h) => /^#\/(anime\/stream\/.+\/(episode|film)-\d+|kinogo\/film\/\d+-)/.test(h || '');
 
   // ---------- Hinweis ----------
   function toast(text) {
@@ -162,7 +162,7 @@
     if (!c) return;
     if (c.type === 'open') {
       if (!/^#\//.test(c.hash || '')) return;
-      if (c.position > 3 && /\/(episode|film)-\d+$/.test(c.hash)) {
+      if (c.position > 3 && /(\/(episode|film)-\d+|\/kinogo\/film\/[\w-]+)$/.test(c.hash)) {
         const path = decodeURIComponent(c.hash.replace(/^#/, '').split('?')[0]).replace(/\/+$/, '');
         try { localStorage.setItem('nina_ep_pos_' + path, JSON.stringify({ pos: c.position, dur: c.duration || 0, at: Date.now() })); } catch {}
       }
@@ -609,7 +609,7 @@
         const st = dev.state;
         if (!st || !st.hash) return;
         const pos = currentRemotePos(dev);
-        if (pos > 3 && /\/(episode|film)-\d+$/.test(st.hash)) {
+        if (pos > 3 && /(\/(episode|film)-\d+|\/kinogo\/film\/[\w-]+)$/.test(st.hash)) {
           const path = decodeURIComponent(st.hash.replace(/^#/, '').split('?')[0]).replace(/\/+$/, '');
           try { localStorage.setItem('nina_ep_pos_' + path, JSON.stringify({ pos, dur: st.dur || 0, at: Date.now() })); } catch {}
         }

@@ -1045,3 +1045,15 @@ html.nina-skin-on::-webkit-scrollbar-button, #nina-skin ::-webkit-scrollbar-butt
 #nina-skin .sina-hub-btn b { font-size: 24px; font-weight: 700; }
 #nina-skin .sina-hub-btn small { font-size: 13px; opacity: .8; }
 @media (max-width: 760px) { #nina-skin .sina-hub { gap: 10px; } #nina-skin .sina-hub-btn { min-height: 132px; padding: 16px; } #nina-skin .sina-hub-btn b { font-size: 20px; } }
+
+/* Kino */
+#nina-skin .sina-ksearch { margin: 4px 0 14px; max-width: 620px; }
+#nina-skin .sina-ksearch label { display: flex; align-items: center; gap: 12px; height: 50px; padding: 0 18px; border-radius: 99px; background: var(--surface-c-high); }
+#nina-skin .sina-ksearch svg { width: 22px; height: 22px; color: var(--on-surface-variant); flex: none; }
+#nina-skin .sina-ksearch input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font-size: 16px; color: inherit; }
+#nina-skin .sina-kcats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 8px; scrollbar-width: none; }
+#nina-skin .sina-kcats::-webkit-scrollbar { display: none; }
+#nina-skin .sina-kcats .ns-chip { flex: none; }
+#nina-skin .sina-kinfo { display: grid; gap: 12px; padding: 4px 2px; }
+#nina-skin .sina-kinfo span { display: block; font-size: 12px; color: var(--on-surface-variant); margin-bottom: 2px; }
+#nina-skin .sina-kinfo b { font-weight: 500; font-size: 14px; line-height: 20px; }

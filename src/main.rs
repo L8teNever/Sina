@@ -6,6 +6,7 @@ mod anipm;
 mod browser;
 mod cache;
 mod devices;
+mod kino;
 mod pages;
 mod profiles;
 mod proxy;
@@ -165,6 +166,10 @@ async fn main() {
         .route("/api/season", get(ani::season))
         .route("/api/episode", get(ani::episode))
         .route("/api/stream", get(ani::stream))
+        .route("/api/kino/list", get(kino::list))
+        .route("/api/kino/search", get(kino::search))
+        .route("/api/kino/film", get(kino::film))
+        .route("/api/kino/stream", get(kino::stream))
         .route("/api/home", get(pages::home))
         .route("/api/list", get(pages::list))
         .route("/api/calendar", get(pages::calendar))

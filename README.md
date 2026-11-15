@@ -27,6 +27,16 @@ Profil hat seine eigene Farbe. Die Namen stehen in `src/profiles.rs`.
 
 Die Profile haben keine PIN. Sie trennen nur den Stand und schützen nichts.
 
+## Kino (Kinogo)
+
+- Die Startseite fragt, was du schauen willst: **Anime** (AniWorld, `#/anime`) oder **Kino** (Kinogo, `#/kinogo`).
+  Darunter steht „Weiter schauen“ aus beiden Bereichen.
+- Kino zeigt Filmlisten von kinogo.ec (Startseite, Neu, Filme, Top, Genres), eine Suche (russische Titel) und Filmseiten.
+- kinogo.ec liegt hinter Cloudflare: Die Seiten holt Sina über den Browser im Container. Hängt die Prüfung, löst du sie
+  einmal auf der Browser-Seite (⚙ Einstellungen → Browser).
+- Abgespielt wird über den Player „nextembed“ (HLS mit mehreren Tonspuren). Sina wählt Englisch, wenn es das gibt,
+  die Tonspur lässt sich unter dem Player wechseln. Serien von Kinogo werden noch nicht unterstützt.
+
 ## Geräte & Fernbedienung
 
 - **Fernseher-Modus:** Auf Samsung (Tizen), LG (webOS), Sony, Fire TV, Android TV, Roku und ähnlichen Geräten schaltet
